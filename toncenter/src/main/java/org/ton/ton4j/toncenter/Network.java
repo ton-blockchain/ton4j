@@ -1,6 +1,9 @@
 package org.ton.ton4j.toncenter;
 
+import lombok.Getter;
+
 /** TON Network types supported by TonCenter API */
+@Getter
 public enum Network {
   /** TON Mainnet - production network */
   MAINNET("https://toncenter.com/api/v2"),
@@ -20,7 +23,4 @@ public enum Network {
     this.endpoint = endpoint;
   }
 
-  public String getEndpoint() {
-    return endpoint;
-  }
 }
