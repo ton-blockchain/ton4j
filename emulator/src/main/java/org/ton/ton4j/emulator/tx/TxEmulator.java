@@ -24,7 +24,7 @@ import org.ton.ton4j.tlb.*;
 import org.ton.ton4j.utils.Utils;
 
 /**
- * If not specified then tries to find emulator in system folder, more info <a
+ * If not specified, then tries to find emulator in system folder, more info <a
  * href="https://github.com/ton-blockchain/packages">here</a>
  */
 @Slf4j
@@ -40,6 +40,7 @@ public class TxEmulator {
   private TxVerbosityLevel verbosityLevel;
   private Boolean printEmulatorInfo;
   private List<Cell> libraries;
+  private ShardAccount shardAccount;
 
   public static class TxEmulatorBuilder {}
 
@@ -110,7 +111,7 @@ public class TxEmulator {
         super.txEmulatorI.emulator_set_verbosity_level(
             super.txEmulator, super.verbosityLevel.ordinal());
 
-        if (super.verbosityLevel.ordinal() > TxVerbosityLevel.UNLIMITED.ordinal()) {
+        if (super.verbosityLevel.ordinal() >= TxVerbosityLevel.UNLIMITED.ordinal()) {
           super.txEmulatorI.transaction_emulator_set_debug_enabled(super.txEmulator, true);
         }
 
@@ -164,8 +165,8 @@ public class TxEmulator {
    * @param messageBoc Base64 encoded BoC serialized inbound Message (internal or external)
    * @return Json object with error: { "success": false, "error": "Error description",
    *     "external_not_accepted": false, // and optional fields "vm_exit_code", "vm_log",
-   *     "elapsed_time" in case external message was not accepted. } Or success: { "success": true,
-   *     "transaction": "Base64 encoded Transaction boc", "shard_account": "Base64 encoded new
+   *     "elapsed_time" in case an external message was not accepted. } Or success: { "success":
+   *     true, "transaction": "Base64 encoded Transaction boc", "shard_account": "Base64 encoded new
    *     ShardAccount boc", "vm_log": "execute DUP...", "actions": "Base64 encoded compute phase
    *     actions boc (OutList n)", "elapsed_time": 0.02 }
    */
@@ -174,7 +175,11 @@ public class TxEmulator {
         txEmulatorI.transaction_emulator_emulate_transaction(
             txEmulator, shardAccountBoc, messageBoc);
     Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL).create();
-    return gson.fromJson(result, EmulateTransactionResult.class);
+    EmulateTransactionResult emulateTransactionResult =
+        gson.fromJson(result, EmulateTransactionResult.class);
+    shardAccount = emulateTransactionResult.getNewShardAccount();
+
+    return emulateTransactionResult;
   }
 
   /**
@@ -186,8 +191,8 @@ public class TxEmulator {
    * @param messageBoc Base64 encoded BoC serialized inbound Message (internal or external)
    * @return Json object with error: { "success": false, "error": "Error description",
    *     "external_not_accepted": false, // and optional fields "vm_exit_code", "vm_log",
-   *     "elapsed_time" in case external message was not accepted. } Or success: { "success": true,
-   *     "transaction": "Base64 encoded Transaction boc", "shard_account": "Base64 encoded new
+   *     "elapsed_time" in case an external message was not accepted. } Or success: { "success":
+   *     true, "transaction": "Base64 encoded Transaction boc", "shard_account": "Base64 encoded new
    *     ShardAccount boc", "vm_log": "execute DUP...", "actions": "Base64 encoded compute phase
    *     actions boc (OutList n)", "elapsed_time": 0.02 }
    */
@@ -234,10 +239,10 @@ public class TxEmulator {
   }
 
   /**
-   * Set global verbosity level of the library
+   * Set the global verbosity level of the library
    *
-   * @param verbosityLevel New verbosity level (0 - never, 1 - error, 2 - warning, 3 - info, 4 -
-   *     debug)
+   * @param verbosityLevel New verbosity level (0 - never, 1 - error, 2 -
+   *     wshardAccountBocBase64arning, 3 - info, 4 - debug)
    */
   public void setVerbosityLevel(int verbosityLevel) {
     txEmulatorI.emulator_set_verbosity_level(txEmulator, verbosityLevel);
@@ -250,8 +255,7 @@ public class TxEmulator {
    * @return true in case of success, false in case of error
    */
   public boolean setDebugEnabled(boolean debugEnabled) {
-    boolean result = txEmulatorI.transaction_emulator_set_debug_enabled(txEmulator, debugEnabled);
-    return result;
+    return txEmulatorI.transaction_emulator_set_debug_enabled(txEmulator, debugEnabled);
   }
 
   /**
@@ -265,10 +269,8 @@ public class TxEmulator {
   }
 
   public boolean setLibs(List<Cell> libCells) {
-    boolean result =
-        txEmulatorI.transaction_emulator_set_libs(
-            txEmulator, convertLibsToHashMap(libCells).toBase64());
-    return result;
+      return txEmulatorI.transaction_emulator_set_libs(
+          txEmulator, convertLibsToHashMap(libCells).toBase64());
   }
 
   /**
@@ -278,8 +280,7 @@ public class TxEmulator {
    * @return true in case of success, false in case of error
    */
   public boolean setPrevBlockInfo(String infoBoc) {
-    boolean result = txEmulatorI.transaction_emulator_set_prev_blocks_info(txEmulator, infoBoc);
-    return result;
+      return txEmulatorI.transaction_emulator_set_prev_blocks_info(txEmulator, infoBoc);
   }
 
   /**
@@ -313,7 +314,7 @@ public class TxEmulator {
   }
 
   /**
-   * Creates Config object from base64 encoded BoC
+   * Creates a Config object from base64 encoded BoC
    *
    * @param configBoc Base64 encoded BoC serialized Config dictionary (Hashmap 32 ^Cell)
    * @return Pointer to Config object or nullptr in case of error
@@ -323,12 +324,20 @@ public class TxEmulator {
   }
 
   /**
-   * Destroy Config object
+   * Destroy a Config object
    *
    * @param config Pointer to Config object
    */
   public void destroyConfig(long config) {
     txEmulatorI.emulator_config_destroy(config);
+  }
+
+  /**
+   * Returns emulator version
+   *
+   * */
+  public String getVersion() {
+    return txEmulatorI.emulator_version();
   }
 
   /**
@@ -369,5 +378,9 @@ public class TxEmulator {
    */
   public boolean setIgnoreCheckSignature(boolean ignoreChksig) {
     return txEmulatorI.transaction_emulator_set_ignore_chksig(txEmulator, ignoreChksig);
+  }
+
+  public BigInteger getBalance() {
+    return shardAccount.getBalance();
   }
 }

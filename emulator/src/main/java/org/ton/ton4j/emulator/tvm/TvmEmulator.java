@@ -40,7 +40,7 @@ public class TvmEmulator {
 
   private final TvmEmulatorI tvmEmulatorI;
   private final long tvmEmulator;
-  private BigInteger balance;
+  private BigInteger initialBalance;
   private EmulatorConfig configType;
   private String customConfig;
   private String codeBoc;
@@ -83,8 +83,8 @@ public class TvmEmulator {
           super.configType = EmulatorConfig.MAINNET;
         }
 
-        if (isNull(super.balance)) {
-          super.balance = Utils.toNano(1);
+        if (isNull(super.initialBalance)) {
+          super.initialBalance = Utils.toNano(1);
         }
 
         String configBoc = "";
@@ -125,7 +125,7 @@ public class TvmEmulator {
             super.tvmEmulatorI.tvm_emulator_create(
                 super.codeBoc, super.dataBoc, super.verbosityLevel.ordinal());
 
-        if (super.verbosityLevel.ordinal() > TvmVerbosityLevel.UNLIMITED.ordinal()) {
+        if (super.verbosityLevel.ordinal() >= TvmVerbosityLevel.UNLIMITED.ordinal()) {
           super.tvmEmulatorI.tvm_emulator_set_debug_enabled(super.tvmEmulator, true);
         }
         StateInit stateInit =
@@ -140,7 +140,7 @@ public class TvmEmulator {
             super.tvmEmulator,
             stateInit.getAddress().toRaw(),
             Instant.now().getEpochSecond(),
-            super.balance.longValue(), // smc balance
+            super.initialBalance.longValue(), // smc balance
             randSeedHex,
             configBoc);
 
@@ -160,7 +160,10 @@ public class TvmEmulator {
 
         if (super.printEmulatorInfo) {
           log.info(
-              "\nTON TVM Emulator configuration:\n" + "Location: {}\n" + "Verbosity level: {}\n",
+              "\nTON TVM Emulator configuration:\nConfigType: {}\n"
+                  + "Location: {}\n"
+                  + "Verbosity level: {}\n",
+              super.configType,
               super.pathToEmulatorSharedLib,
               super.verbosityLevel);
         }
@@ -434,13 +437,21 @@ public class TvmEmulator {
 
   private static Cell convertLibsToHashMap(List<Cell> libs) {
 
-    TonHashMapE x = new TonHashMapE(256);
+    return TxEmulator.convertLibsToHashMap(libs);
+  }
 
-    for (Cell c : libs) {
-      x.elements.put(c.getHash(), c);
-    }
-    return x.serialize(
-        k -> CellBuilder.beginCell().storeBytes((byte[]) k, 256).endCell().getBits(),
-        v -> CellBuilder.beginCell().storeRef(((Cell) v)).endCell());
+  public StateInit getStateInit() {
+    return StateInit.builder()
+        .code(Cell.fromBocBase64(codeBoc))
+        .data(Cell.fromBocBase64(dataBoc))
+        .build();
+  }
+
+  /**
+   * Returns emulator version
+   *
+   * */
+  public String getVersion() {
+    return tvmEmulatorI.emulator_version();
   }
 }

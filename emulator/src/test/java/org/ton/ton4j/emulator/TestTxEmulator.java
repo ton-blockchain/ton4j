@@ -766,4 +766,10 @@ public class TestTxEmulator {
             v -> CellBuilder.beginCell().storeRef((Cell) v).endCell());
     return dictLibs;
   }
+
+  @Test
+  public void testTvmEmulatorGetVersion() {
+    log.info("version {}", txEmulator.getVersion());
+    assertThat(txEmulator.getVersion()).isNotEmpty();
+  }
 }

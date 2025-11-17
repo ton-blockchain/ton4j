@@ -14,6 +14,8 @@ import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.utils.Utils;
 
+import java.math.BigInteger;
+
 @Builder
 @Data
 public class GenericSmartContract implements Contract {
@@ -27,6 +29,16 @@ public class GenericSmartContract implements Contract {
   private long wc;
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
+
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
 
   @Override
   public AdnlLiteClient getAdnlLiteClient() {

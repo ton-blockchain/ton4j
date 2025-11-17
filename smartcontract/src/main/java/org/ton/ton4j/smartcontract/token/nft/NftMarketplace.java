@@ -12,6 +12,8 @@ import org.ton.ton4j.smartcontract.wallet.Contract;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
 
+import java.math.BigInteger;
+
 @Builder
 @Getter
 public class NftMarketplace implements Contract {
@@ -44,6 +46,16 @@ public class NftMarketplace implements Contract {
 
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
+
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
 
   @Override
   public AdnlLiteClient getAdnlLiteClient() {

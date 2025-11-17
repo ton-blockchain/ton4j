@@ -676,7 +676,7 @@ public class AdnlLiteClient {
 
   private Cell getConfigParamCell(int val) throws Exception {
     ConfigInfo configInfo = getConfigAll(getMasterchainInfo().getLast(), 0);
-    return (Cell) configInfo.getConfigParams().getConfig().elements.get(BigInteger.valueOf(val));
+    return (Cell) configInfo.getConfigParams().getConfig().getElements().get(BigInteger.valueOf(val));
   }
 
   /** ValidatorSignedTempKey */
@@ -2062,7 +2062,14 @@ public class AdnlLiteClient {
             LiteServerAnswer response =
                 transport.query(queryBytes).get(queryTimeout, TimeUnit.SECONDS);
             try {
+              if (response instanceof LiteServerError) {
+                return SendMsgStatus.builder()
+                        .responseCode(((LiteServerError) response).getCode())
+                        .responseMessage(((LiteServerError) response).getMessage())
+                        .build();
+              }
               return (SendMsgStatus) response;
+
             } catch (Exception e) {
               if (response instanceof LiteServerError) {
                 return SendMsgStatus.builder()

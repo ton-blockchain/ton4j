@@ -52,6 +52,10 @@ public interface Contract {
 
   String getName();
 
+  default BigInteger getInitialBalance() {
+    return null;
+  }
+
   default Address getAddress() {
     return StateInit.builder()
         .code(createCodeCell())

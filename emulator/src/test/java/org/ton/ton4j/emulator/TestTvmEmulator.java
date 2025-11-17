@@ -46,6 +46,7 @@ import org.ton.ton4j.tonlib.types.BlockIdExt;
 import org.ton.ton4j.tonlib.types.SmcLibraryEntry;
 import org.ton.ton4j.tonlib.types.SmcLibraryResult;
 import org.ton.ton4j.utils.Utils;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @RunWith(JUnit4.class)
@@ -936,5 +937,11 @@ public class TestTvmEmulator {
     log.info("vmStack depth: {}", stack.getDepth());
     VmStackList vmStackList = stack.getStack();
     log.info("vmStackList: {}", vmStackList.getTos());
+  }
+
+  @Test
+  public void testTvmEmulatorGetVersion() {
+    log.info("version {}", tvmEmulator.getVersion());
+    assertThat(tvmEmulator.getVersion()).isNotEmpty();
   }
 }

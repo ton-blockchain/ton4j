@@ -16,11 +16,9 @@ import org.ton.ton4j.smartcontract.payments.PaymentChannel;
 import org.ton.ton4j.smartcontract.payments.PaymentsUtils;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.wallet.v3.WalletV3R1;
-import org.ton.ton4j.tonlib.types.ExtMessageInfo;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestPayments extends CommonTest {
   static WalletV3R1 walletA;
   static WalletV3R1 walletB;

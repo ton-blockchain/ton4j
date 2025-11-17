@@ -75,6 +75,15 @@ public class HighloadWalletV3S implements Contract {
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
 
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
   @Override
   public AdnlLiteClient getAdnlLiteClient() {
     return adnlLiteClient;

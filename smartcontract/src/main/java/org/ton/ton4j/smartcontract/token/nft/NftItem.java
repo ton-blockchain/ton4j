@@ -39,6 +39,16 @@ public class NftItem implements Contract {
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
 
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
+
   public static Cell CODE_CELL =
       CellBuilder.beginCell().fromBoc(WalletCodes.nftItem.getValue()).endCell();
 

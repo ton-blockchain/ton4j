@@ -97,6 +97,16 @@ public class PaymentChannel implements Contract {
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
 
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
+
   @Override
   public AdnlLiteClient getAdnlLiteClient() {
     return adnlLiteClient;
@@ -108,12 +118,12 @@ public class PaymentChannel implements Contract {
   }
 
   @Override
-  public org.ton.ton4j.toncenter.TonCenter getTonCenterClient() {
+  public TonCenter getTonCenterClient() {
     return tonCenterClient;
   }
 
   @Override
-  public void setTonCenterClient(org.ton.ton4j.toncenter.TonCenter pTonCenterClient) {
+  public void setTonCenterClient(TonCenter pTonCenterClient) {
     tonCenterClient = pTonCenterClient;
   }
 

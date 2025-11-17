@@ -150,4 +150,9 @@ public interface TvmEmulatorI extends Library {
    * @return true in case of success, false in case of error
    */
   boolean tvm_emulator_set_extra_currencies(long tvmEmulator, String extra_currencies);
+
+  /**
+   * Get git commit hash and date of the library
+   */
+  String emulator_version();
 }

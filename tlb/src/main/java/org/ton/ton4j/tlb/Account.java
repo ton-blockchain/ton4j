@@ -62,6 +62,9 @@ public class Account implements Serializable {
     if (isNull(accountStorage)) {
       return null;
     }
+    if ((accountStorage.getAccountState() instanceof AccountStateUninit)) {
+      return null;
+    }
     return ((AccountStateActive) accountStorage.getAccountState()).getStateInit();
   }
 

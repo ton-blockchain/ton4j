@@ -13,6 +13,8 @@ import org.ton.ton4j.tlb.*;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
 
+import java.math.BigInteger;
+
 @Builder
 @Data
 public class LibraryDeployer implements Contract {
@@ -23,6 +25,16 @@ public class LibraryDeployer implements Contract {
   Cell libraryCode;
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
+
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
 
   @Override
   public AdnlLiteClient getAdnlLiteClient() {

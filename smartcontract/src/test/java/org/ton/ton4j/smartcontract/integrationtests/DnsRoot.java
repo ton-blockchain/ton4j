@@ -14,6 +14,8 @@ import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.utils.Utils;
 
+import java.math.BigInteger;
+
 /**
  * Address address1; address of ".ton" dns resolver smart contract in basechain Address address2;
  * address of ".t.me" dns resolver smart contract in basechain Address address3; address of
@@ -43,6 +45,16 @@ public class DnsRoot implements Contract {
   private long wc;
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
+
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
 
   @Override
   public void setAdnlLiteClient(AdnlLiteClient pAdnlLiteClient) {

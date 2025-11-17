@@ -4,6 +4,8 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.iwebpp.crypto.TweetNaclFast;
+
+import java.math.BigInteger;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,6 +54,16 @@ public class WalletV3R2 implements Contract {
   private long wc;
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
+
+  /**
+   * used only with TopUp faucets and emulators
+   */
+  BigInteger initialBalance;
+
+  @Override
+  public BigInteger getInitialBalance() {
+    return initialBalance;
+  }
 
   @Override
   public AdnlLiteClient getAdnlLiteClient() {

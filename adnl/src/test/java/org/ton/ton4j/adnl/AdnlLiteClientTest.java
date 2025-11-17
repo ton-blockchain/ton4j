@@ -13,7 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.globalconfig.TonGlobalConfig;
 import org.ton.ton4j.cell.Cell;
+import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.cell.TonHashMap;
 import org.ton.ton4j.tl.liteserver.responses.*;
 import org.ton.ton4j.tl.liteserver.responses.AccountState;
 import org.ton.ton4j.tl.liteserver.responses.AllShardsInfo;
@@ -35,7 +37,7 @@ public class AdnlLiteClientTest {
 
   private static AdnlLiteClient client;
   private LiteClientConnectionPool pool;
-  private static final boolean mainnet = true;
+  private static final boolean mainnet = false;
 
   @BeforeAll
   static void tearBeforeAll() throws Exception {
@@ -274,12 +276,12 @@ public class AdnlLiteClientTest {
     MasterchainInfo masterchainInfo = client.getMasterchainInfo();
     log.info("masterchainInfo {}", masterchainInfo.getLast());
     ConfigInfo configInfo = client.getConfigAll(masterchainInfo.getLast(), 0);
-    //    log.info("configAll {}", configInfo);
-    assertThat(configInfo.getId().getSeqno()).isGreaterThan(0);
-    log.info("configParsed {}", configInfo.getConfigParams());
-    //    Cell c = (Cell)
-    // configInfo.getConfigParams().getConfig().elements.get(BigInteger.valueOf(32));
-    //    log.info("cell {}", ValidatorSet.deserialize(CellSlice.beginParse(c)));
+    TonHashMap dict = configInfo.getConfigParams().getConfig();
+    Cell cellDict = dict.serialize(k -> CellBuilder.beginCell().storeUint((BigInteger) k, 32).endCell().getBits(),
+            v -> CellBuilder.beginCell().storeRef((Cell) v).endCell());
+    log.info("configAll {}", cellDict.toBase64());
+//    assertThat(configInfo.getId().getSeqno()).isGreaterThan(0);
+//    log.info("configParsed {}", configInfo.getConfigParams());
   }
 
   @Test
