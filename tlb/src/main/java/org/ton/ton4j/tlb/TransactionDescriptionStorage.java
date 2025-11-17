@@ -46,4 +46,24 @@ public class TransactionDescriptionStorage implements TransactionDescription, Se
   public String getType() {
     return "storage";
   }
+
+  @Override
+  public Boolean isAborted() {
+    return null;
+  }
+
+  @Override
+  public Boolean isDestroyed() {
+    return null;
+  }
+
+  @Override
+  public Boolean isSuccess() {
+    return null;
+  }
+
+  @Override
+  public Long getExitCode() {
+    return null;
+  }
 }

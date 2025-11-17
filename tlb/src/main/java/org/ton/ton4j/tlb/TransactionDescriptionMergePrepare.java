@@ -56,4 +56,24 @@ public class TransactionDescriptionMergePrepare implements TransactionDescriptio
   public String getType() {
     return "merge-prepare";
   }
+
+  @Override
+  public Boolean isAborted() {
+    return aborted;
+  }
+
+  @Override
+  public Boolean isDestroyed() {
+    return null;
+  }
+
+  @Override
+  public Boolean isSuccess() {
+    return null;
+  }
+
+  @Override
+  public Long getExitCode() {
+    return null;
+  }
 }

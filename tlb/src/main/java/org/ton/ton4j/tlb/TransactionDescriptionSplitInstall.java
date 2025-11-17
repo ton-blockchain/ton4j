@@ -56,4 +56,25 @@ public class TransactionDescriptionSplitInstall implements TransactionDescriptio
   public String getType() {
     return "split-install";
   }
+
+
+  @Override
+  public Boolean isAborted() {
+    return null;
+  }
+
+  @Override
+  public Boolean isDestroyed() {
+    return null;
+  }
+
+  @Override
+  public Boolean isSuccess() {
+    return null;
+  }
+
+  @Override
+  public Long getExitCode() {
+    return null;
+  }
 }

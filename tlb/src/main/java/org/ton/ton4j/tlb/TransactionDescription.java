@@ -108,4 +108,8 @@ public interface TransactionDescription {
   }
 
   String getType();
+  Boolean isAborted();
+  Boolean isDestroyed();
+  Boolean isSuccess();
+  Long getExitCode();
 }

@@ -42,20 +42,20 @@ public class EmulateTransactionResult implements Serializable {
     }
   }
 
-  @ToString.Include(name = "transactionBase64")
-  public String getTransactionBase64() {
-    return transaction;
-  }
-
-  @ToString.Include(name = "shardAccountBase64")
-  public String getShardAccountBase64() {
-    return shard_account;
-  }
-
-  @ToString.Include(name = "actionsBase64")
-  public String getActionsBase64() {
-    return actions;
-  }
+//  @ToString.Include(name = "transactionBase64")
+//  public String getTransactionBase64() {
+//    return transaction;
+//  }
+//
+//  @ToString.Include(name = "shardAccountBase64")
+//  public String getShardAccountBase64() {
+//    return shard_account;
+//  }
+//
+//  @ToString.Include(name = "actionsBase64")
+//  public String getActionsBase64() {
+//    return actions;
+//  }
 
   public Transaction getTransaction() {
     if (StringUtils.isNotEmpty(transaction)) {

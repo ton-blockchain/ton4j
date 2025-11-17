@@ -77,4 +77,24 @@ public class TransactionDescriptionMergeInstall implements TransactionDescriptio
   public String getType() {
     return "merge-install";
   }
+
+  @Override
+  public Boolean isAborted() {
+    return aborted;
+  }
+
+  @Override
+  public Boolean isDestroyed() {
+    return destroyed;
+  }
+
+  @Override
+  public Boolean isSuccess() {
+    return ((ComputePhaseVM) computePhase).isSuccess();
+  }
+
+  @Override
+  public Long getExitCode() {
+    return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
+  }
 }
