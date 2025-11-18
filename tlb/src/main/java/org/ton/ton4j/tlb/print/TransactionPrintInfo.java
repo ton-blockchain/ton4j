@@ -32,17 +32,17 @@ public class TransactionPrintInfo {
   String computeSuccess;
   BigInteger computeGasFees;
   BigInteger computeGasUsed;
-  long computeVmSteps;
-  BigInteger computeExitCode;
+  String computeVmSteps;
+  String computeExitCode;
   String actionSuccess;
   BigInteger actionTotalFwdFees;
   BigInteger actionTotalActionFees;
-  long actionTotalActions;
-  long actionResultCode;
+  String actionTotalActions;
+  String actionResultCode;
   BigInteger inForwardFee;
   BigInteger outForwardFee;
   long exitCode;
-  long actionCode;
+//  Long actionCode;
   long outMsgs;
   BigInteger lt;
   String account;
@@ -51,9 +51,9 @@ public class TransactionPrintInfo {
   String aborted;
 
   private static String txHeaderInfoTop =
-      "|                                                                                                                                 |                  Compute Phase              |                          Action Phase                      |          |               |";
+      "|                                                                                                                                 |                  Compute Phase                         |                          Action Phase                      |               |";
   private static String txHeaderInfo =
-      "| timestamp | lt             | op        | type         | valueIn        | valueOut       | totalFees    | aborted | storageFees  | success | gasFees       | gasUsed | vmSteps | exitCode | success | fordwardFees | actionFees   | actions | exitCode | account       |";
+      "| timestamp | lt             | op        | type         | valueIn        | valueOut       | totalFees    | aborted | storageFees  | success | exitCode | gasFees       | gasUsed | vmSteps | exitCode | success | fordwardFees | actionFees   | actions |  account      |";
 
   public static TransactionPrintInfo getTransactionPrintInfo(Transaction tx) {
 
@@ -74,7 +74,8 @@ public class TransactionPrintInfo {
         nonNull(computePhase)
             ? computePhase.getDetails().getGasUsed().multiply(BigInteger.valueOf(1_000_000_000))
             : null;
-    long computeVmSteps = nonNull(computePhase) ? computePhase.getDetails().getVMSteps() : 0;
+    String computeVmSteps = nonNull(computePhase) ? String.valueOf(computePhase.getDetails().getVMSteps()) : "";
+    String computeExitCode = nonNull(computePhase) ? String.valueOf(computePhase.getDetails().getExitCode()) : "";
     String computeSuccess =
         nonNull(computePhase)
             ? computePhase.isSuccess() ? "yes" : "no"
@@ -85,15 +86,15 @@ public class TransactionPrintInfo {
         nonNull(actionPhase) ? actionPhase.getTotalActionFees() : null;
     String actionSuccess = nonNull(actionPhase) ? actionPhase.isSuccess() ? "yes" : "no" : "";
     String txAborted = getTxAborted(tx.getDescription());
-    long actionResultCode = nonNull(actionPhase) ? actionPhase.getResultCode() : 0;
+    String actionResultCode = nonNull(actionPhase) ? String.valueOf(actionPhase.getResultCode()) : "";
 
     BigInteger inForwardFees = BigInteger.ZERO;
     BigInteger valueIn = BigInteger.ZERO;
     BigInteger valueOut = BigInteger.ZERO;
     BigInteger op = null;
-    long exitCode = getExitCode(tx.getDescription());
-    long actionCode = getActionCode(tx.getDescription());
-    long totalActions = getTotalActions(tx.getDescription());
+//    long exitCode = tx.getDescription().getComputeExitCode();
+//    Long actionCode = tx.getDescription().getActionResultCode();
+    String totalActions = getTotalActions(tx.getDescription());
     long now = tx.getNow();
     BigInteger lt = tx.getLt();
     long outMsgs = tx.getOutMsgCount();
@@ -138,6 +139,7 @@ public class TransactionPrintInfo {
         .computeGasFees(computeGasFees)
         .computeGasUsed(computeGasUsed)
         .computeVmSteps(computeVmSteps)
+        .computeExitCode(computeExitCode)
         .actionSuccess(actionSuccess)
         .aborted(txAborted)
         .actionTotalFwdFees(actionTotalFwdFees)
@@ -145,8 +147,6 @@ public class TransactionPrintInfo {
         .actionTotalActions(totalActions)
         .actionResultCode(actionResultCode)
         .inForwardFee(inForwardFees)
-        .exitCode(exitCode)
-        .actionCode(actionCode)
         .lt(lt)
         .account(nonNull(tx.getAccountAddr()) ? tx.getAccountAddrShort() : "")
         .build();
@@ -234,86 +234,29 @@ public class TransactionPrintInfo {
     return null;
   }
 
-  private static long getTotalActions(TransactionDescription txDesc) {
+  private static String getTotalActions(TransactionDescription txDesc) {
     if (txDesc instanceof TransactionDescriptionOrdinary) {
       ActionPhase actionPhase = ((TransactionDescriptionOrdinary) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getTotalActions();
+      return isNull(actionPhase) ? "" : String.valueOf(actionPhase.getTotalActions());
     } else if (txDesc instanceof TransactionDescriptionSplitPrepare) {
       ActionPhase actionPhase = ((TransactionDescriptionSplitPrepare) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getTotalActions();
+      return isNull(actionPhase) ? "" :  String.valueOf(actionPhase.getTotalActions());
     } else if (txDesc instanceof TransactionDescriptionTickTock) {
       ActionPhase actionPhase = ((TransactionDescriptionTickTock) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getTotalActions();
+      return isNull(actionPhase) ? "" :  String.valueOf(actionPhase.getTotalActions());
     } else if (txDesc instanceof TransactionDescriptionMergeInstall) {
       ActionPhase actionPhase = ((TransactionDescriptionMergeInstall) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getTotalActions();
-    } else {
-      return -1;
-    }
-  }
-
-  private static long getActionCode(TransactionDescription txDesc) {
-    if (txDesc instanceof TransactionDescriptionOrdinary) {
-      ActionPhase actionPhase = ((TransactionDescriptionOrdinary) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getResultCode();
-    } else if (txDesc instanceof TransactionDescriptionSplitPrepare) {
-      ActionPhase actionPhase = ((TransactionDescriptionSplitPrepare) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getResultCode();
-    } else if (txDesc instanceof TransactionDescriptionTickTock) {
-      ActionPhase actionPhase = ((TransactionDescriptionTickTock) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getResultCode();
-    } else if (txDesc instanceof TransactionDescriptionMergeInstall) {
-      ActionPhase actionPhase = ((TransactionDescriptionMergeInstall) txDesc).getActionPhase();
-      return isNull(actionPhase) ? 0 : actionPhase.getResultCode();
-    } else {
-      return -1;
-    }
-  }
-
-  private static long getExitCode(TransactionDescription txDesc) {
-    if (txDesc instanceof TransactionDescriptionOrdinary) {
-      ComputePhase computePhase = ((TransactionDescriptionOrdinary) txDesc).getComputePhase();
-      if (computePhase instanceof ComputePhaseVM) {
-        return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
-      }
-    } else if (txDesc instanceof TransactionDescriptionSplitPrepare) {
-      ComputePhase computePhase = ((TransactionDescriptionSplitPrepare) txDesc).getComputePhase();
-      if (computePhase instanceof ComputePhaseVM) {
-        return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
-      }
-    } else if (txDesc instanceof TransactionDescriptionTickTock) {
-      ComputePhase computePhase = ((TransactionDescriptionTickTock) txDesc).getComputePhase();
-      if (computePhase instanceof ComputePhaseVM) {
-        return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
-      }
-    } else if (txDesc instanceof TransactionDescriptionMergeInstall) {
-      ComputePhase computePhase = ((TransactionDescriptionMergeInstall) txDesc).getComputePhase();
-      if (computePhase instanceof ComputePhaseVM) {
-        return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
-      }
-    } else {
-      return -1;
-    }
-    return -1;
-  }
-
-  private static String getTxAborted(TransactionDescription txDesc) {
-    if (txDesc instanceof TransactionDescriptionOrdinary) {
-      return ((TransactionDescriptionOrdinary) txDesc).isAborted() ? "yes" : "no";
-    } else if (txDesc instanceof TransactionDescriptionSplitPrepare) {
-      return ((TransactionDescriptionSplitPrepare) txDesc).isAborted() ? "yes" : "no";
-    } else if (txDesc instanceof TransactionDescriptionTickTock) {
-      return ((TransactionDescriptionTickTock) txDesc).isAborted() ? "yes" : "no";
-    } else if (txDesc instanceof TransactionDescriptionMergePrepare) {
-      return ((TransactionDescriptionMergePrepare) txDesc).isAborted() ? "yes" : "no";
-    } else if (txDesc instanceof TransactionDescriptionMergeInstall) {
-      return ((TransactionDescriptionMergeInstall) txDesc).isAborted() ? "yes" : "no";
+      return isNull(actionPhase) ? "" :  String.valueOf(actionPhase.getTotalActions());
     } else {
       return "";
     }
   }
 
-  /** Print txs data without header, footer, balance and block. */
+  private static String getTxAborted(TransactionDescription txDesc) {
+      return txDesc.isAborted() ? "yes" : "no";
+  }
+
+  /** Print txs data without a header, footer, balance and block. */
   public static void printTransactionInfo(Transaction transaction) {
     printTransactionInfo(transaction, false, false);
   }
@@ -569,7 +512,7 @@ public class TransactionPrintInfo {
   public static void printTxData(TransactionPrintInfo txPrintInfo) {
     String str =
         String.format(
-            "| %-10s| %-15s| %-10s| %-13s| %-15s| %-15s| %-13s| %-8s| %-13s| %-8s| %-14s| %-8s| %-8s| %-9s| %-8s| %-13s| %-13s| %-8s| %-9s| %-14s|",
+            "| %-10s| %-15s| %-10s| %-13s| %-15s| %-15s| %-13s| %-8s| %-13s| %-8s| %-9s| %-14s| %-8s| %-8s| %-9s| %-8s| %-13s| %-13s| %-8s| %-14s|",
             Utils.toUTCTimeOnly(txPrintInfo.getNow()),
             txPrintInfo.getLt(),
             txPrintInfo.getOp(),
@@ -579,19 +522,16 @@ public class TransactionPrintInfo {
             Utils.formatNanoValueZeroStripZeros(txPrintInfo.getTotalFees()),
             txPrintInfo.getAborted(),
             Utils.formatNanoValueZeroStripZeros(txPrintInfo.getStorageFeesCollected()),
-            //
-            // Utils.formatNanoValueZeroStripZeros(txPrintInfo.getStorageDueFees()),
-            //                        txPrintInfo.getStorageStatus(),
             txPrintInfo.getComputeSuccess(),
+            txPrintInfo.getComputeExitCode(),
             Utils.formatNanoValueZeroStripZeros(txPrintInfo.getComputeGasFees()),
             Utils.formatNanoValueZeroStripZeros(txPrintInfo.getComputeGasUsed()),
             txPrintInfo.getComputeVmSteps(),
-            Utils.formatNanoValueZeroStripZeros(txPrintInfo.getComputeExitCode()),
+            txPrintInfo.getActionResultCode(),
             txPrintInfo.getActionSuccess(),
             Utils.formatNanoValueZeroStripZeros(txPrintInfo.getActionTotalFwdFees()),
             Utils.formatNanoValueZeroStripZeros(txPrintInfo.getActionTotalActionFees()),
             txPrintInfo.getActionTotalActions(),
-            txPrintInfo.getActionResultCode(),
             txPrintInfo.getAccount());
     System.out.println(str);
   }

@@ -7,6 +7,8 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 
+import static java.util.Objects.nonNull;
+
 /**
  *
  *
@@ -94,7 +96,12 @@ public class TransactionDescriptionMergeInstall implements TransactionDescriptio
   }
 
   @Override
-  public Long getExitCode() {
+  public Long getComputeExitCode() {
     return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
+  }
+
+  @Override
+  public Long getActionResultCode() {
+    return nonNull(actionPhase) ? actionPhase.getResultCode() : null;
   }
 }

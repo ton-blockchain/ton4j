@@ -1916,7 +1916,7 @@ public class AdnlLiteClient {
         throw new Error("Can't deploy contract within specified timeout.");
       }
       Utils.sleep(2);
-      log.info("Waiting for deployment to be deployed, balance {}", getBalance(address));
+      log.info("Waiting for deployment to be deployed, balance {}", Utils.formatNanoValue(getBalance(address)));
     } while (!isDeployed(address));
   }
 

@@ -111,5 +111,6 @@ public interface TransactionDescription {
   Boolean isAborted();
   Boolean isDestroyed();
   Boolean isSuccess();
-  Long getExitCode();
+  Long getComputeExitCode();
+  Long getActionResultCode();
 }

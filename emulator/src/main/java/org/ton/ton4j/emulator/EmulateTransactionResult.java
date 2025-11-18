@@ -42,21 +42,6 @@ public class EmulateTransactionResult implements Serializable {
     }
   }
 
-//  @ToString.Include(name = "transactionBase64")
-//  public String getTransactionBase64() {
-//    return transaction;
-//  }
-//
-//  @ToString.Include(name = "shardAccountBase64")
-//  public String getShardAccountBase64() {
-//    return shard_account;
-//  }
-//
-//  @ToString.Include(name = "actionsBase64")
-//  public String getActionsBase64() {
-//    return actions;
-//  }
-
   public Transaction getTransaction() {
     if (StringUtils.isNotEmpty(transaction)) {
       return Transaction.deserialize(CellSlice.beginParse(Cell.fromBocBase64(transaction)));
@@ -88,5 +73,13 @@ public class EmulateTransactionResult implements Serializable {
     }
 
     return StateInit.builder().build();
+  }
+
+  public Long getComputePhaseExitCode() {
+    return getTransaction().getDescription().getComputeExitCode();
+  }
+
+  public Long getActionPhaseResultCode() {
+    return getTransaction().getDescription().getActionResultCode();
   }
 }

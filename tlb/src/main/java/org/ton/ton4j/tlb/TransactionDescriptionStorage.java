@@ -63,7 +63,12 @@ public class TransactionDescriptionStorage implements TransactionDescription, Se
   }
 
   @Override
-  public Long getExitCode() {
+  public Long getComputeExitCode() {
+    return null;
+  }
+
+  @Override
+  public Long getActionResultCode() {
     return null;
   }
 }

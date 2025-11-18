@@ -73,7 +73,12 @@ public class TransactionDescriptionMergePrepare implements TransactionDescriptio
   }
 
   @Override
-  public Long getExitCode() {
+  public Long getComputeExitCode() {
+    return null;
+  }
+
+  @Override
+  public Long getActionResultCode() {
     return null;
   }
 }

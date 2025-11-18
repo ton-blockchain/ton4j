@@ -74,7 +74,12 @@ public class TransactionDescriptionSplitInstall implements TransactionDescriptio
   }
 
   @Override
-  public Long getExitCode() {
+  public Long getComputeExitCode() {
+    return null;
+  }
+
+  @Override
+  public Long getActionResultCode() {
     return null;
   }
 }

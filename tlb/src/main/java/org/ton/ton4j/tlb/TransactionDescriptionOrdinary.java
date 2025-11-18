@@ -97,7 +97,12 @@ public class TransactionDescriptionOrdinary implements TransactionDescription, S
   }
 
   @Override
-  public Long getExitCode() {
+  public Long getComputeExitCode() {
     return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
+  }
+
+  @Override
+  public Long getActionResultCode() {
+    return nonNull(actionPhase) ? actionPhase.getResultCode() : null;
   }
 }
