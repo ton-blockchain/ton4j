@@ -1,0 +1,34 @@
+name: Lines of Code
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Test Run
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Launch the local action
+        uses: ./ # Uses an action in the root directory
+        id: badge
+        with:
+          debug: true
+          directory: ./
+          badge: ./output/badge.svg
+          patterns: '*.java'
+
+      - name: Print the output
+        run: |
+          echo "Scanned: ${{ steps.badge.outputs.counted_files }}";
+          echo "Line Count: ${{ steps.badge.outputs.total_lines }}";
+
+      - name: Deploy to image-data branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_dir: ./output
+          publish_branch: image-data
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+

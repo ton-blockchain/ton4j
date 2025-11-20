@@ -3,8 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Based on TON][ton-svg]][ton]
 ![GitHub last commit](https://img.shields.io/github/last-commit/ton-blockchain/ton4j)
-![](https://tokei.rs/b1/github/ton-blockchain/ton4j?category=code)
-![](https://tokei.rs/b1/github/ton-blockchain/ton4j?category=files)
+![Generated Button](https://raw.githubusercontent.com/neodix42/ton4j/image-data/badge.svg)
 
 
 Java libraries and wrapper for interacting with TON blockchain. ton4j requires minimum `Java 11`.
