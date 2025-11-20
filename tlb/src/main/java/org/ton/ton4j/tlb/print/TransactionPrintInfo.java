@@ -42,7 +42,6 @@ public class TransactionPrintInfo {
   BigInteger inForwardFee;
   BigInteger outForwardFee;
   long exitCode;
-//  Long actionCode;
   long outMsgs;
   BigInteger lt;
   String account;
@@ -57,7 +56,7 @@ public class TransactionPrintInfo {
 
   public static TransactionPrintInfo getTransactionPrintInfo(Transaction tx) {
 
-    BigInteger totalFees = tx.getTotalFees().getCoins();
+    BigInteger totalFees = nonNull(tx.getTotalFees()) ? tx.getTotalFees().getCoins() : null;
 
     StoragePhase storagePhase = getStoragePhase(tx.getDescription());
     ComputePhaseVM computePhase = getComputePhaseVm(tx.getDescription());
@@ -74,8 +73,10 @@ public class TransactionPrintInfo {
         nonNull(computePhase)
             ? computePhase.getDetails().getGasUsed().multiply(BigInteger.valueOf(1_000_000_000))
             : null;
-    String computeVmSteps = nonNull(computePhase) ? String.valueOf(computePhase.getDetails().getVMSteps()) : "";
-    String computeExitCode = nonNull(computePhase) ? String.valueOf(computePhase.getDetails().getExitCode()) : "";
+    String computeVmSteps =
+        nonNull(computePhase) ? String.valueOf(computePhase.getDetails().getVMSteps()) : "";
+    String computeExitCode =
+        nonNull(computePhase) ? String.valueOf(computePhase.getDetails().getExitCode()) : "";
     String computeSuccess =
         nonNull(computePhase)
             ? computePhase.isSuccess() ? "yes" : "no"
@@ -86,14 +87,15 @@ public class TransactionPrintInfo {
         nonNull(actionPhase) ? actionPhase.getTotalActionFees() : null;
     String actionSuccess = nonNull(actionPhase) ? actionPhase.isSuccess() ? "yes" : "no" : "";
     String txAborted = getTxAborted(tx.getDescription());
-    String actionResultCode = nonNull(actionPhase) ? String.valueOf(actionPhase.getResultCode()) : "";
+    String actionResultCode =
+        nonNull(actionPhase) ? String.valueOf(actionPhase.getResultCode()) : "";
 
     BigInteger inForwardFees = BigInteger.ZERO;
     BigInteger valueIn = BigInteger.ZERO;
     BigInteger valueOut = BigInteger.ZERO;
     BigInteger op = null;
-//    long exitCode = tx.getDescription().getComputeExitCode();
-//    Long actionCode = tx.getDescription().getActionResultCode();
+    //    long exitCode = tx.getDescription().getComputeExitCode();
+    //    Long actionCode = tx.getDescription().getActionResultCode();
     String totalActions = getTotalActions(tx.getDescription());
     long now = tx.getNow();
     BigInteger lt = tx.getLt();
@@ -240,20 +242,23 @@ public class TransactionPrintInfo {
       return isNull(actionPhase) ? "" : String.valueOf(actionPhase.getTotalActions());
     } else if (txDesc instanceof TransactionDescriptionSplitPrepare) {
       ActionPhase actionPhase = ((TransactionDescriptionSplitPrepare) txDesc).getActionPhase();
-      return isNull(actionPhase) ? "" :  String.valueOf(actionPhase.getTotalActions());
+      return isNull(actionPhase) ? "" : String.valueOf(actionPhase.getTotalActions());
     } else if (txDesc instanceof TransactionDescriptionTickTock) {
       ActionPhase actionPhase = ((TransactionDescriptionTickTock) txDesc).getActionPhase();
-      return isNull(actionPhase) ? "" :  String.valueOf(actionPhase.getTotalActions());
+      return isNull(actionPhase) ? "" : String.valueOf(actionPhase.getTotalActions());
     } else if (txDesc instanceof TransactionDescriptionMergeInstall) {
       ActionPhase actionPhase = ((TransactionDescriptionMergeInstall) txDesc).getActionPhase();
-      return isNull(actionPhase) ? "" :  String.valueOf(actionPhase.getTotalActions());
+      return isNull(actionPhase) ? "" : String.valueOf(actionPhase.getTotalActions());
     } else {
       return "";
     }
   }
 
   private static String getTxAborted(TransactionDescription txDesc) {
-      return txDesc.isAborted() ? "yes" : "no";
+    if (isNull(txDesc)) {
+      return null;
+    }
+    return txDesc.isAborted() ? "yes" : "no";
   }
 
   /** Print txs data without a header, footer, balance and block. */

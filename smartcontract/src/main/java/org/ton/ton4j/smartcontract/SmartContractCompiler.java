@@ -75,6 +75,28 @@ public class SmartContractCompiler {
    *
    * @return code of BoC in hex
    */
+
+  public String compile(boolean showContractCode)  {
+    if (showContractCode) {
+      if (StringUtils.isNotEmpty(contractAsResource)) {
+        try {
+          URL resource = SmartContractCompiler.class.getClassLoader().getResource(contractAsResource);
+          contractPath = Paths.get(resource.toURI()).toFile().getAbsolutePath();
+          String contractCode = FileUtils.readFileToString(new File(contractPath));
+          log.info("Contract code:\n{}", contractCode);
+        } catch (Exception e) {
+          throw new Error("Can't find resource " + contractAsResource);
+        }
+      }
+    }
+     return compile();
+  }
+
+  /**
+   * Compile to Boc in hex format
+   *
+   * @return code of BoC in hex
+   */
   public String compile() {
     if (StringUtils.isNotEmpty(contractAsResource)) {
       try {
@@ -146,5 +168,9 @@ public class SmartContractCompiler {
    */
   public Cell compileToCell() {
     return Cell.fromBoc(compile());
+  }
+
+  public Cell compileToCell(boolean showContractCode)  {
+    return Cell.fromBoc(compile(showContractCode));
   }
 }

@@ -8,6 +8,8 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.tlb.*;
 
+import static java.util.Objects.isNull;
+
 @Builder
 @Data
 public class EmulateTransactionResult implements Serializable {
@@ -76,10 +78,16 @@ public class EmulateTransactionResult implements Serializable {
   }
 
   public Long getComputePhaseExitCode() {
+    if (isNull(getTransaction().getDescription())) {
+      return null;
+    }
     return getTransaction().getDescription().getComputeExitCode();
   }
 
   public Long getActionPhaseResultCode() {
+    if (isNull(getTransaction().getDescription())) {
+      return null;
+    }
     return getTransaction().getDescription().getActionResultCode();
   }
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.fift.FiftRunner;
 import org.ton.ton4j.func.FuncRunner;
@@ -12,6 +13,8 @@ import org.ton.ton4j.smartcontract.GenericSmartContract;
 import org.ton.ton4j.smartcontract.SmartContractCompiler;
 import org.ton.ton4j.tolk.TolkRunner;
 import org.ton.ton4j.utils.Utils;
+
+import java.io.IOException;
 
 @Slf4j
 @RunWith(JUnit4.class)
@@ -64,18 +67,6 @@ public class TestSmartContractCompiler {
     log.info("    raw address: {}", rawAddress);
     log.info("pub-key {}", Utils.bytesToHex(smc.getKeyPair().getPublicKey()));
     log.info("prv-key {}", Utils.bytesToHex(smc.getKeyPair().getSecretKey()));
-    //
-    //        BigInteger balance = TestnetFaucet.topUpContract(tonlib,
-    // Address.of(nonBounceableAddress), Utils.toNano(0.1));
-    //        log.info("new wallet {} balance: {}", smc.getName(), Utils.formatNanoValue(balance));
-    //
-    //        Cell deployMessageBody = CellBuilder.beginCell()
-    //                .storeUint(42, 32) // wallet-id
-    //                .storeInt(-1, 32)  // valid-until
-    //                .storeUint(0, 32)  //seqno
-    //                .endCell();
-    //
-    //        smc.deploy(deployMessageBody);
   }
 
   @Test
@@ -91,6 +82,23 @@ public class TestSmartContractCompiler {
     String codeCellHex = smcFunc.compile();
 
     log.info("codeCellHex {}", codeCellHex);
+  }
+
+  @Test
+  public void testWalletV5CompilerShowCode() throws IOException {
+    SmartContractCompiler smcFunc =
+            SmartContractCompiler.builder()
+                    .contractAsResource("contracts/wallets/new-wallet-v5.fc")
+                    .funcRunner(FuncRunner.builder().funcExecutablePath(funcPath).build())
+                    .fiftRunner(FiftRunner.builder().fiftExecutablePath(fiftPath).build())
+                    .tolkRunner(TolkRunner.builder().tolkExecutablePath(tolkPath).build())
+                    .build();
+
+    String codeCellHex = smcFunc.compile(true);
+    log.info("codeCellHex {}", codeCellHex);
+
+    Cell codeCell = smcFunc.compileToCell(true);
+    log.info("codeCellHex {}", codeCell.toHex());
   }
 
   @Test
