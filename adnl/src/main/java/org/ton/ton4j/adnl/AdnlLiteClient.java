@@ -1912,11 +1912,11 @@ public class AdnlLiteClient {
 
     int i = 0;
     do {
-      if (++i * 2 >= timeoutSeconds) {
+      if (++i >= timeoutSeconds) {
         throw new Error("Can't deploy contract within specified timeout.");
       }
-      Utils.sleep(2);
-      log.info("Waiting for deployment to be deployed, balance {}", Utils.formatNanoValue(getBalance(address)));
+      Utils.sleep(1);
+      log.info("Waiting for state init to be deployed, balance {}", Utils.formatNanoValue(getBalance(address)));
     } while (!isDeployed(address));
   }
 
@@ -1925,11 +1925,11 @@ public class AdnlLiteClient {
     BigInteger initialBalance = getBalance(address);
     int i = 0;
     do {
-      if (++i * 2 >= timeoutSeconds) {
+      if (++i >= timeoutSeconds) {
         throw new Error(
             "Balance of " + address.toRaw() + " was not changed within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleep(1);
     } while (initialBalance.equals(getBalance(address)));
   }
 
@@ -1940,13 +1940,13 @@ public class AdnlLiteClient {
     long diff;
     int i = 0;
     do {
-      if (++i * 2 >= timeoutSeconds) {
+      if (++i >= timeoutSeconds) {
         throw new Error(
             "Balance was not changed by +/- "
                 + Utils.formatNanoValue(tolerateNanoCoins)
                 + " within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleep(1);
       BigInteger currentBalance = getBalance(address);
 
       diff =

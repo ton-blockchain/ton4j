@@ -84,11 +84,11 @@ public class ContractUtils {
     BigInteger initialBalance = getJettonBalance(adnlLiteClient, jettonMinter, address);
     int i = 0;
     do {
-      if (++i * 2 >= timeoutSeconds) {
+      if (++i  >= timeoutSeconds) {
         throw new Error(
             "Balance of " + address.toRaw() + " was not changed within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleep(1);
     } while (initialBalance.equals(getJettonBalance(adnlLiteClient, jettonMinter, address)));
   }
 

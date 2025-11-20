@@ -95,12 +95,12 @@ public class HighloadWalletV3S implements Contract {
   }
 
   @Override
-  public org.ton.ton4j.toncenter.TonCenter getTonCenterClient() {
+  public TonCenter getTonCenterClient() {
     return tonCenterClient;
   }
 
   @Override
-  public void setTonCenterClient(org.ton.ton4j.toncenter.TonCenter pTonCenterClient) {
+  public void setTonCenterClient(TonCenter pTonCenterClient) {
     tonCenterClient = pTonCenterClient;
   }
 
