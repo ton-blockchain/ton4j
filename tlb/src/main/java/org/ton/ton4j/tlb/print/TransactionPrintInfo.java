@@ -6,6 +6,8 @@ import static java.util.Objects.nonNull;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +55,30 @@ public class TransactionPrintInfo {
       "|                                                                                                                                 |                  Compute Phase                         |                          Action Phase                      |               |";
   private static String txHeaderInfo =
       "| timestamp | lt             | op        | type         | valueIn        | valueOut       | totalFees    | aborted | storageFees  | success | exitCode | gasFees       | gasUsed | vmSteps | exitCode | success | fordwardFees | actionFees   | actions |  account      |";
+
+  public static TransactionPrintInfo getTransactionPrintInfo(Transaction tx, Map<String,String> addrLabelMap) {
+    TransactionPrintInfo transactionPrintInfo = getTransactionPrintInfo(tx);
+    for (Map.Entry<String,String> entry: addrLabelMap.entrySet()) {
+      if (getAccountAddrShort(entry.getKey()).equals(transactionPrintInfo.getAccount())) {
+        String label = entry.getValue();
+        if (label.length() > 13) label = label.substring(0, 13);
+        transactionPrintInfo.setAccount(label);
+      }
+    }
+    return transactionPrintInfo;
+  }
+
+  private static String getAccountAddrShort(String accountAddr) {
+    if (nonNull(accountAddr)) {
+      if (accountAddr.contains(":")) {
+        accountAddr = accountAddr.substring(accountAddr.indexOf(":") + 1);
+      }
+      String str64 = StringUtils.leftPad(accountAddr, 64, "0");
+      return str64.substring(0, 5) + "..." + str64.substring(str64.length() - 5);
+    } else {
+      return "N/A";
+    }
+  }
 
   public static TransactionPrintInfo getTransactionPrintInfo(Transaction tx) {
 
@@ -264,6 +290,21 @@ public class TransactionPrintInfo {
   /** Print txs data without a header, footer, balance and block. */
   public static void printTransactionInfo(Transaction transaction) {
     printTransactionInfo(transaction, false, false);
+  }
+
+  public static void printTransactionInfo(
+          Transaction transaction, boolean withHeader, boolean withFooter, Map<String,String> addrLabelMap) {
+
+    TransactionPrintInfo txFees = getTransactionPrintInfo(transaction, addrLabelMap);
+
+    if (withHeader) {
+      printTxHeader();
+    }
+    printTxData(txFees);
+
+    if (withFooter) {
+      printTxFooter();
+    }
   }
 
   public static void printTransactionInfo(
@@ -480,6 +521,26 @@ public class TransactionPrintInfo {
 
   public static void printAllMessages(Transaction transaction, boolean withHeader) {
     printAllMessages(transaction, withHeader, false);
+  }
+
+  public static void printAllMessages(
+      Transaction transaction, boolean withHeader, boolean withFooter, Map<String,String> addrLabelMap) {
+    List<MessagePrintInfo> msgsPrintInfo = getAllMessagePrintInfo(transaction);
+    if (msgsPrintInfo.isEmpty()) {
+      //      System.out.println("No messages");
+      return;
+    }
+
+    if (withHeader) {
+      MessagePrintInfo.printMessageInfoHeader();
+    }
+
+    for (MessagePrintInfo msgPrintInfo : msgsPrintInfo) {
+      msgPrintInfo.printMessageInfo(addrLabelMap);
+    }
+    if (withFooter) {
+      MessagePrintInfo.printMessageInfoFooter();
+    }
   }
 
   public static void printAllMessages(

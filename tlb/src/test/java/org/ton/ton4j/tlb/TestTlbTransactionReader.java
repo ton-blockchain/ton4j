@@ -7,6 +7,10 @@ import org.junit.runners.JUnit4;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.tlb.print.TransactionPrintInfo;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RunWith(JUnit4.class)
@@ -37,6 +41,13 @@ public class TestTlbTransactionReader {
     CellSlice cs = CellSlice.beginParse(c);
     Transaction transaction = Transaction.deserialize(cs);
     log.info("transaction {}", transaction);
+
+    Map<String,String> labels = new HashMap<>();
+    labels.put("0:0c6e8053cae2db8db1f757877a20451406d17f8ab7e42b88aa3bf6022dd26662","admin");
+    labels.put("0:f772f61fa0add57765a13a6d5ca6762dea8ba1f7f7e30ed0b8f8d422bada607a","user");
+    labels.put("0:0dadd121fe5275d2c6848617ede7eaa342b380c1202b476e38ad7c2b1b023cfd","bank");
+    TransactionPrintInfo.printTransactionInfo(transaction, true, true, labels);
+    TransactionPrintInfo.printAllMessages(transaction,true, true, labels);
   }
 
   @Test
