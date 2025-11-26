@@ -83,11 +83,17 @@ public class TransactionDescriptionSplitPrepare implements TransactionDescriptio
 
   @Override
   public Boolean isSuccess() {
+    if (computePhase instanceof ComputeSkipReason) {
+      return true;
+    }
     return ((ComputePhaseVM) computePhase).isSuccess();
   }
 
   @Override
   public Long getComputeExitCode() {
+    if (computePhase instanceof ComputeSkipReason) {
+      return 0L;
+    }
     return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
   }
 

@@ -5,7 +5,7 @@ import com.sun.jna.Library;
 public interface TxEmulatorI extends Library {
 
   /**
-   * Creates Config object from base64 encoded BoC
+   * Creates a Config object from base64 encoded BoC
    * @param configParamBoc Base64 encoded BoC serialized Config dictionary (Hashmap 32 ^Cell)
    * @return Pointer to Config object or nullptr in case of error
    */
@@ -44,12 +44,22 @@ public interface TxEmulatorI extends Library {
    * @param txEmulator Pointer to TransactionEmulator object
    * @param shardAccountBoc Base64 encoded BoC serialized ShardAccount
    * @param messageBoc Base64 encoded BoC serialized inbound Message (internal or external)
-   * @return Json object with error: { "success": false, "error": "Error description",
-   *     "external_not_accepted": false, // and optional fields "vm_exit_code", "vm_log",
-   *     "elapsed_time" in case external message was not accepted. } Or success: { "success": true,
-   *     "transaction": "Base64 encoded Transaction boc", "shard_account": "Base64 encoded new
-   *     ShardAccount boc", "vm_log": "execute DUP...", "actions": "Base64 encoded compute phase
-   *     actions boc (OutList n)", "elapsed_time": 0.02 }
+   * @return Json object with error:
+   * <pre>
+   *  { "success": false,
+   *    "error": "Error description",
+   *     "external_not_accepted": false,
+   *     "vm_exit_code", "vm_log", "elapsed_time"
+   *     }
+   *     </pre> in case an external message was not accepted.
+   *     Or success:
+   *     <pre>{ "success": true,
+   *     "transaction": "Base64 encoded Transaction boc",
+   *     "shard_account": "Base64 encoded new
+   *     ShardAccount boc",
+   *     "vm_log": "execute DUP...",
+   *     "actions": "Base64 encoded compute phase actions boc (OutList n)", "elapsed_time": 0.02 }
+   *     </pre>
    */
   String transaction_emulator_emulate_transaction(
       long txEmulator, String shardAccountBoc, String messageBoc);
@@ -124,12 +134,12 @@ public interface TxEmulatorI extends Library {
       long txEmulator, String shardAccountBoc, boolean isTock);
 
   /**
-   * Set global verbosity level of the library
+   * Set the global verbosity level of the library
    *
    * @param verbosityLevel New verbosity level (0 - never, 1 - error, 2 - warning, 3 - info, 4 -
    *     debug)
    */
-  void emulator_set_verbosity_level(long txEmulator, int verbosityLevel);
+  void emulator_set_verbosity_level(int verbosityLevel);
 
   /**
    * Set lt for emulation

@@ -47,6 +47,7 @@ public class TvmEmulator {
   private String dataBoc;
   private TvmVerbosityLevel verbosityLevel;
   private Boolean printEmulatorInfo;
+  private Boolean debugEnabled;
   private List<Cell> libraries;
   private String extraCurrencies;
 
@@ -72,6 +73,10 @@ public class TvmEmulator {
 
         if (isNull(super.printEmulatorInfo)) {
           super.printEmulatorInfo = true;
+        }
+
+        if (isNull(super.debugEnabled)) {
+          super.debugEnabled = true;
         }
 
         super.tvmEmulatorI = Native.load(super.pathToEmulatorSharedLib, TvmEmulatorI.class);
@@ -125,9 +130,10 @@ public class TvmEmulator {
             super.tvmEmulatorI.tvm_emulator_create(
                 super.codeBoc, super.dataBoc, super.verbosityLevel.ordinal());
 
-        if (super.verbosityLevel.ordinal() >= TvmVerbosityLevel.UNLIMITED.ordinal()) {
+        if (super.debugEnabled) {
           super.tvmEmulatorI.tvm_emulator_set_debug_enabled(super.tvmEmulator, true);
         }
+
         StateInit stateInit =
             StateInit.builder()
                 .code(Cell.fromBocBase64(super.codeBoc))

@@ -39,6 +39,7 @@ public class TxEmulator {
   private String customConfig;
   private TxVerbosityLevel verbosityLevel;
   private Boolean printEmulatorInfo;
+  private Boolean debugEnabled;
   private List<Cell> libraries;
   private ShardAccount shardAccount;
 
@@ -65,6 +66,10 @@ public class TxEmulator {
 
         if (isNull(super.printEmulatorInfo)) {
           super.printEmulatorInfo = true;
+        }
+
+        if (isNull(super.debugEnabled)) {
+          super.debugEnabled = true;
         }
 
         super.txEmulatorI = Native.load(super.pathToEmulatorSharedLib, TxEmulatorI.class);
@@ -104,14 +109,13 @@ public class TxEmulator {
             }
         }
 
+        super.txEmulatorI.emulator_set_verbosity_level(0);
+
         super.txEmulator =
             super.txEmulatorI.transaction_emulator_create(
                 configBoc, super.verbosityLevel.ordinal());
 
-        super.txEmulatorI.emulator_set_verbosity_level(
-            super.txEmulator, super.verbosityLevel.ordinal());
-
-        if (super.verbosityLevel.ordinal() >= TxVerbosityLevel.UNLIMITED.ordinal()) {
+        if (super.debugEnabled) {
           super.txEmulatorI.transaction_emulator_set_debug_enabled(super.txEmulator, true);
         }
 
@@ -245,7 +249,7 @@ public class TxEmulator {
    *     wshardAccountBocBase64arning, 3 - info, 4 - debug)
    */
   public void setVerbosityLevel(int verbosityLevel) {
-    txEmulatorI.emulator_set_verbosity_level(txEmulator, verbosityLevel);
+    txEmulatorI.emulator_set_verbosity_level(verbosityLevel);
   }
 
   /**

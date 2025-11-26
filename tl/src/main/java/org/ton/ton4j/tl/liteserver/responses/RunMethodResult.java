@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.tlb.*;
@@ -173,5 +174,11 @@ public class RunMethodResult implements Serializable, LiteServerAnswer {
   public VmCellSlice getSliceByIndex(int stackIndex) {
     VmStack vmStack = VmStack.deserialize(CellSlice.beginParse(Cell.fromBoc(result)));
     return ((VmStackValueSlice) vmStack.getStack().getTos().get(stackIndex)).getCell();
+  }
+
+  public Address getAddressByIndex(int stackIndex) {
+    VmStack vmStack = VmStack.deserialize(CellSlice.beginParse(Cell.fromBoc(result)));
+    Cell cell = ((VmStackValueCell) vmStack.getStack().getTos().get(stackIndex)).getCell();
+    return CellSlice.beginParse(cell).loadAddress();
   }
 }

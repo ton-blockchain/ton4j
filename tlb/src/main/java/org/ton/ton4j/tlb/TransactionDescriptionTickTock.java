@@ -88,11 +88,17 @@ public class TransactionDescriptionTickTock implements TransactionDescription, S
 
   @Override
   public Boolean isSuccess() {
+    if (computePhase instanceof ComputeSkipReason) {
+      return null;
+    }
     return ((ComputePhaseVM) computePhase).isSuccess();
   }
 
   @Override
   public Long getComputeExitCode() {
+    if (computePhase instanceof ComputeSkipReason) {
+      return null;
+    }
     return ((ComputePhaseVM) computePhase).getDetails().getExitCode();
   }
 
