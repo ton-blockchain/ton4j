@@ -347,6 +347,21 @@ public class TonCenter {
     return executeGet("/getTransactions", params, responseType);
   }
 
+  /** Get transaction history of a given address (standardized version) */
+  public TonResponse<TransactionsStdResponse> getTransactionsStd(
+      String address, Integer limit, Long lt, String hash, Long toLt, Boolean archival) {
+    Map<String, String> params = new HashMap<>();
+    params.put("address", address);
+    if (nonNull(limit)) params.put("limit", limit.toString());
+    if (nonNull(lt)) params.put("lt", lt.toString());
+    if (nonNull(hash)) params.put("hash", hash);
+    if (nonNull(toLt)) params.put("to_lt", toLt.toString());
+    if (nonNull(archival)) params.put("archival", archival.toString());
+
+    Type responseType = new TypeToken<TonResponse<TransactionsStdResponse>>() {}.getType();
+    return executeGet("/getTransactionsStd", params, responseType);
+  }
+
   /** Get balance (in nanotons) of a given address */
   public TonResponse<String> getAddressBalance(String address) {
     Map<String, String> params = new HashMap<>();
@@ -551,9 +566,15 @@ public class TonCenter {
   }
 
   /** Get info with current sizes of messages queues by shards */
-  public TonResponse<OutMsgQueueSizesResponse> getOutMsgQueueSizes() {
+  public TonResponse<OutMsgQueueSizesResponse> getOutMsgQueueSize() {
     Type responseType = new TypeToken<TonResponse<OutMsgQueueSizesResponse>>() {}.getType();
-    return executeGet("/getOutMsgQueueSizes", null, responseType);
+    return executeGet("/getOutMsgQueueSize", null, responseType);
+  }
+
+  /** @deprecated Use getOutMsgQueueSize() instead. This method name was changed in API v2.1.1 */
+  @Deprecated
+  public TonResponse<OutMsgQueueSizesResponse> getOutMsgQueueSizes() {
+    return getOutMsgQueueSize();
   }
 
   // ========== CONFIGURATION METHODS ==========
@@ -561,7 +582,7 @@ public class TonCenter {
   /** Get config by id */
   public TonResponse<ConfigParamResponse> getConfigParam(Integer configId, Long seqno) {
     Map<String, String> params = new HashMap<>();
-    params.put("config_id", configId.toString());
+    params.put("param", configId.toString());
     if (nonNull(seqno)) params.put("seqno", seqno.toString());
 
     Type responseType = new TypeToken<TonResponse<ConfigParamResponse>>() {}.getType();
@@ -643,6 +664,20 @@ public class TonCenter {
   public TonResponse<RunGetMethodResponse> runGetMethod(
       String address, Object method, List<List<Object>> stack) {
     return runGetMethod(address, method, stack, null);
+  }
+
+  /** Run get method on smart contract (standardized version with TVM stack entries) */
+  public TonResponse<RunGetMethodStdResponse> runGetMethodStd(
+      String address, Object method, List<Object> stack, Long seqno) {
+    RunGetMethodStdRequest request = new RunGetMethodStdRequest(address, method, stack, seqno);
+    Type responseType = new TypeToken<TonResponse<RunGetMethodStdResponse>>() {}.getType();
+    return executePost("/runGetMethodStd", request, responseType);
+  }
+
+  /** Run get method on smart contract (standardized version without seqno) */
+  public TonResponse<RunGetMethodStdResponse> runGetMethodStd(
+      String address, Object method, List<Object> stack) {
+    return runGetMethodStd(address, method, stack, null);
   }
 
   public long getSeqno(String address) {
@@ -843,21 +878,16 @@ public class TonCenter {
     }
   }
 
-  /** Send query - unpacked external message */
+  /** 
+   * @deprecated This endpoint has been removed in API v2.1.1. Use estimateFee() instead for fee estimation,
+   * or sendBoc()/sendBocReturnHash() for sending messages.
+   */
+  @Deprecated
   public TonResponse<SendQueryResponse> sendQuery(
       String address, String body, String initCode, String initData) {
-    Map<String, Object> requestMap = new HashMap<>();
-    requestMap.put("address", address);
-    requestMap.put("body", body);
-    if (nonNull(initCode) && !initCode.isEmpty()) {
-      requestMap.put("init_code", initCode);
-    }
-    if (nonNull(initData) && !initData.isEmpty()) {
-      requestMap.put("init_data", initData);
-    }
-
-    Type responseType = new TypeToken<TonResponse<SendQueryResponse>>() {}.getType();
-    return executePost("/sendQuery", requestMap, responseType);
+    throw new UnsupportedOperationException(
+        "sendQuery endpoint has been removed in API v2.1.1. " +
+        "Use estimateFee() for fee estimation or sendBoc()/sendBocReturnHash() for sending messages.");
   }
 
   /** Estimate fees required for query processing */
