@@ -56,4 +56,17 @@ public class TestTolkRunner {
     String result = tolkRunner.run(tolkFile.getParent(), absolutePath);
     log.info("output: {}", result);
   }
+
+  @Test
+  public void testTolkRunnerCompilerAbsolutePath() throws URISyntaxException {
+
+    File tolkFile = new File ("/home/neodix/gitProjects/dex/dex-zero/target/classes/dex.tolk");
+
+
+    TolkRunner tolkRunner =
+            TolkRunner.builder().printInfo(true).tolkExecutablePath(Utils.getArtifactGithubUrl("tolk","tolk-1.1.0")).build();
+
+    String result = tolkRunner.run(tolkFile.getParent(), "/home/neodix/gitProjects/dex/dex-zero/target/classes/dex.tolk");
+    log.info("output: {}", result);
+  }
 }

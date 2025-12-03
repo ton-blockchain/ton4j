@@ -3,8 +3,10 @@ package org.ton.ton4j.fift;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -226,13 +228,38 @@ public class FiftRunner {
       pb.directory(new File(workDir));
       Process p = pb.start();
 
-      p.waitFor(1, TimeUnit.SECONDS);
+      // Read output in a separate thread to avoid deadlock from buffer overflow
+      StringBuilder output = new StringBuilder();
+      Thread readerThread = new Thread(() -> {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(p.getInputStream()))) {
+          String line;
+          while ((line = reader.readLine()) != null) {
+            output.append(line).append("\n");
+          }
+        } catch (IOException e) {
+          log.error("Error reading process output", e);
+        }
+      });
+      readerThread.start();
 
-      String resultInput = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
+      // Wait for process to complete
+      boolean completed = p.waitFor(30, TimeUnit.SECONDS);
+      
+      // Wait for reader thread to finish consuming all output
+      readerThread.join(5000); // Wait up to 5 seconds for reader to finish
+
+      if (!completed) {
+        p.destroy();
+        throw new Exception("Process timed out after 30 seconds");
+      }
+
+      String resultInput = output.toString();
 
       p.getInputStream().close();
       p.getErrorStream().close();
       p.getOutputStream().close();
+      
       if (p.exitValue() == 2 || p.exitValue() == 0) {
         return Pair.of(p, resultInput);
       } else {
@@ -292,13 +319,38 @@ public class FiftRunner {
       pb.directory(new File(workDir));
       Process p = pb.start();
 
-      p.waitFor(1, TimeUnit.SECONDS);
+      // Read output in a separate thread to avoid deadlock from buffer overflow
+      StringBuilder output = new StringBuilder();
+      Thread readerThread = new Thread(() -> {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(p.getInputStream()))) {
+          String line;
+          while ((line = reader.readLine()) != null) {
+            output.append(line).append("\n");
+          }
+        } catch (IOException e) {
+          log.error("Error reading process output", e);
+        }
+      });
+      readerThread.start();
 
-      String resultInput = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
+      // Wait for process to complete
+      boolean completed = p.waitFor(30, TimeUnit.SECONDS);
+      
+      // Wait for reader thread to finish consuming all output
+      readerThread.join(5000); // Wait up to 5 seconds for reader to finish
+
+      if (!completed) {
+        p.destroy();
+        throw new Exception("Process timed out after 30 seconds");
+      }
+
+      String resultInput = output.toString();
 
       p.getInputStream().close();
       p.getErrorStream().close();
       p.getOutputStream().close();
+      
       if (p.exitValue() == 2 || p.exitValue() == 0) {
         return Pair.of(p, resultInput);
       } else {

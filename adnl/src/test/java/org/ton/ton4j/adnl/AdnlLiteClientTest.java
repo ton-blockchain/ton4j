@@ -801,6 +801,25 @@ public class AdnlLiteClientTest {
     log.info("blockHeader {}", blockHeader);
   }
 
+
+  @Test
+  void testLookupBlockWithProofMode1() throws Exception {
+    log.info("Testing lookupBlockWithProof query");
+    assertTrue(client.isConnected(), "Client should be connected");
+
+    MasterchainInfo masterchainInfo = client.getMasterchainInfo();
+
+    LookupBlockResult lookupBlockResult =
+            client.lookupBlockWithProof(
+                    1,
+                    masterchainInfo.getLast().getBlockId(),
+                    masterchainInfo.getLast(),
+                    0,
+                    0);
+
+    log.info("lookupBlockResult {}", lookupBlockResult);
+  }
+
   @Test
   void testLookupBlockWithProofMode2() throws Exception { // by LT
     log.info("Testing lookupBlockWithProof query");
