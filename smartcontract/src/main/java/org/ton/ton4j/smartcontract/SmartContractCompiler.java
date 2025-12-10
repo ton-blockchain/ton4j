@@ -51,6 +51,10 @@ public class SmartContractCompiler {
       if (isNull(super.printInfo)) {
         super.printInfo = true;
       }
+      if (isNull(super.tolkRunner)) {
+        super.tolkRunner =
+                TolkRunner.builder().tolkExecutablePath(Utils.getTolkGithubUrl()).build();
+      }
       if (isNull(super.funcRunner)) {
         super.funcRunner =
             FuncRunner.builder().funcExecutablePath(Utils.getFuncGithubUrl()).build();
@@ -61,10 +65,6 @@ public class SmartContractCompiler {
                 .fiftExecutablePath(Utils.getFiftGithubUrl())
                 .printInfo(true)
                 .build();
-      }
-      if (isNull(super.tolkRunner)) {
-        super.tolkRunner =
-            TolkRunner.builder().tolkExecutablePath(Utils.getTolkGithubUrl()).build();
       }
       return super.build();
     }

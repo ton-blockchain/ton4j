@@ -82,7 +82,7 @@ public class TolkRunner {
                     + "/smartcont_lib.zip";
 
             File tmpFileSmartcont =
-                new File(System.getProperty("user.dir") + "/smartcont/stdlib.fc");
+                new File(System.getProperty("user.dir") + "/smartcont/tolk-stdlib/common.tolk");
             if (!tmpFileSmartcont.exists()) {
               String smartcontPath = Utils.getLocalOrDownload(smartcont);
               ZipFile zipFile = new ZipFile(smartcontPath);
@@ -129,6 +129,14 @@ public class TolkRunner {
       return result.getRight();
     }
 
+    return "";
+  }
+
+  public String getTolkVersion() {
+    Pair<Process, String> result = execute(tolkExecutable, new File(tolkExecutable).getParent(),"-v");
+    if (result != null && result.getRight() != null) {
+      return result.getRight().trim();
+    }
     return "";
   }
 

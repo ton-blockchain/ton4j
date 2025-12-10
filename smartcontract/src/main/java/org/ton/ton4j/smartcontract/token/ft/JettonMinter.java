@@ -36,6 +36,7 @@ public class JettonMinter implements Contract {
   Address adminAddress;
   Cell content;
   Address customAddress;
+  Cell cellCode;
 
   public static Cell CODE_CELL =
       CellBuilder.beginCell().fromBoc(WalletCodes.jettonMinter.getValue()).endCell();
@@ -59,9 +60,7 @@ public class JettonMinter implements Contract {
   private AdnlLiteClient adnlLiteClient;
   private TonCenter tonCenterClient;
 
-  /**
-   * used only with TopUp faucets and emulators
-   */
+  /** used only with TopUp faucets and emulators */
   BigInteger initialBalance;
 
   @Override
@@ -113,13 +112,22 @@ public class JettonMinter implements Contract {
    */
   @Override
   public Cell createDataCell() {
-
-    return CellBuilder.beginCell()
-        .storeCoins(BigInteger.ZERO)
-        .storeAddress(adminAddress)
-        .storeRef(content)
-        .storeRef(CellBuilder.beginCell().fromBoc(WalletCodes.jettonWallet.getValue()).endCell())
-        .endCell();
+    if (isNull(cellCode)) {
+      return CellBuilder.beginCell()
+          .storeCoins(BigInteger.ZERO)
+          .storeAddress(adminAddress)
+          .storeRef(content)
+          .storeRef(CellBuilder.beginCell().fromBoc(WalletCodes.jettonWallet.getValue()).endCell())
+          .endCell();
+    }
+    else {
+      return CellBuilder.beginCell()
+              .storeCoins(BigInteger.ZERO)
+              .storeAddress(adminAddress)
+              .storeRef(content)
+              .storeRef(cellCode)
+              .endCell();
+    }
   }
 
   @Override

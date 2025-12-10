@@ -22,7 +22,9 @@ public class TestTolkRunner {
     String absolutePath = tolkFile.getAbsolutePath();
 
     TolkRunner tolkRunner =
-        TolkRunner.builder().tolkExecutablePath(Utils.getArtifactGithubUrl("tolk","tolk-1.0.0")).build();
+        TolkRunner.builder()
+            .tolkExecutablePath(Utils.getArtifactGithubUrl("tolk", "tolk-1.0.0"))
+            .build();
 
     String result = tolkRunner.run(tolkFile.getParent(), absolutePath);
     log.info("output: {}", result);
@@ -36,8 +38,9 @@ public class TestTolkRunner {
     String absolutePath = tolkFile.getAbsolutePath();
 
     TolkRunner tolkRunner =
-            TolkRunner.builder()
-                    .tolkExecutablePath(Utils.getArtifactGithubUrl("tolk","tolk-1.0.0")).build();
+        TolkRunner.builder()
+            .tolkExecutablePath(Utils.getArtifactGithubUrl("tolk", "tolk-1.0.0"))
+            .build();
 
     String result = tolkRunner.run(tolkFile.getParent(), absolutePath);
     log.info("output: {}", result);
@@ -51,7 +54,9 @@ public class TestTolkRunner {
     String absolutePath = tolkFile.getAbsolutePath();
 
     TolkRunner tolkRunner =
-            TolkRunner.builder().tolkExecutablePath(Utils.getArtifactGithubUrl("tolk","tolk-1.0.0")).build();
+        TolkRunner.builder()
+            .tolkExecutablePath(Utils.getArtifactGithubUrl("tolk", "tolk-1.0.0"))
+            .build();
 
     String result = tolkRunner.run(tolkFile.getParent(), absolutePath);
     log.info("output: {}", result);
@@ -60,13 +65,25 @@ public class TestTolkRunner {
   @Test
   public void testTolkRunnerCompilerAbsolutePath() throws URISyntaxException {
 
-    File tolkFile = new File ("/home/neodix/gitProjects/dex/dex-zero/target/classes/dex.tolk");
-
+    File tolkFile = new File("/home/neodix/gitProjects/dex/dex-zero/target/classes/dex.tolk");
 
     TolkRunner tolkRunner =
-            TolkRunner.builder().printInfo(true).tolkExecutablePath(Utils.getArtifactGithubUrl("tolk","tolk-1.1.0")).build();
+        TolkRunner.builder()
+            .printInfo(true)
+            .tolkExecutablePath(Utils.getArtifactGithubUrl("tolk", "tolk-1.2.0"))
+            .build();
 
-    String result = tolkRunner.run(tolkFile.getParent(), "/home/neodix/gitProjects/dex/dex-zero/target/classes/dex.tolk");
+    String result =
+        tolkRunner.run(
+            tolkFile.getParent(), "/home/neodix/gitProjects/dex/dex-zero/target/classes/dex.tolk");
     log.info("output: {}", result);
+  }
+
+  @Test
+  public void testTolkRunnerVersion() {
+
+    TolkRunner tolkRunner = TolkRunner.builder().printInfo(true).tolkExecutablePath(Utils.getTolkGithubUrl()).build();
+
+    log.info(tolkRunner.getTolkVersion());
   }
 }

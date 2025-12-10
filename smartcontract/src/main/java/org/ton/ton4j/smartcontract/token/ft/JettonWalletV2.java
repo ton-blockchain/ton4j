@@ -107,7 +107,7 @@ public class JettonWalletV2 implements Contract {
   }
 
   public String getName() {
-    return "jettonWallet";
+    return "jettonWalletV2";
   }
 
   @Override

@@ -3,10 +3,8 @@ package org.ton.ton4j.fift;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -51,7 +49,7 @@ public class FiftRunner {
           log.info("Checking if Fift is installed...");
         }
         String errorMsg =
-            "You can specify full path via FiftRunner.builder().fiftExecutablePath(Utils.getFiftGithubUrl()).\nOr make sure you have Fift installed. See https://github.com/ton-blockchain/packages for instructions.";
+                "You can specify full path via FiftRunner.builder().fiftExecutablePath(Utils.getFiftGithubUrl()).\nOr make sure you have Fift installed. See https://github.com/ton-blockchain/packages for instructions.";
         try {
           ProcessBuilder pb = new ProcessBuilder("fift", "-h").redirectErrorStream(true);
           Process p = pb.start();
@@ -71,11 +69,11 @@ public class FiftRunner {
         if (super.fiftExecutablePath.contains("http") && super.fiftExecutablePath.contains("://")) {
           try {
             String smartcont =
-                StringUtils.substringBeforeLast(super.fiftExecutablePath, "/")
-                    + "/smartcont_lib.zip";
+                    StringUtils.substringBeforeLast(super.fiftExecutablePath, "/")
+                            + "/smartcont_lib.zip";
 
             File tmpFileSmartcont =
-                new File(System.getProperty("user.dir") + "/smartcont/stdlib.fc");
+                    new File(System.getProperty("user.dir") + "/smartcont/stdlib.fc");
             if (!tmpFileSmartcont.exists()) {
               String smartcontPath = Utils.getLocalOrDownload(smartcont);
               ZipFile zipFile = new ZipFile(smartcontPath);
@@ -94,7 +92,7 @@ public class FiftRunner {
         }
         if (StringUtils.isEmpty(super.fiftSmartcontLibraryPath)) {
           super.fiftSmartcontLibraryPath =
-              new File(super.fiftExecutablePath).getParent() + "/smartcont";
+                  new File(super.fiftExecutablePath).getParent() + "/smartcont";
         }
         if (super.printInfo) {
           log.info("Using {}", super.fiftExecutablePath);
@@ -116,7 +114,7 @@ public class FiftRunner {
 
       if (super.printInfo) {
         log.info(
-            "Using include dirs: {}, {}", super.fiftAsmLibraryPath, super.fiftSmartcontLibraryPath);
+                "Using include dirs: {}, {}", super.fiftAsmLibraryPath, super.fiftSmartcontLibraryPath);
       }
       return super.build();
     }
@@ -157,7 +155,7 @@ public class FiftRunner {
     String[] withInclude;
     if (Utils.getOS() == Utils.OS.WINDOWS) {
       withInclude =
-          new String[] {"-I", "\"" + fiftAsmLibraryPath + "@" + fiftSmartcontLibraryPath + "\""};
+              new String[] {"-I", "\"" + fiftAsmLibraryPath + "@" + fiftSmartcontLibraryPath + "\""};
     } else {
       withInclude = new String[] {"-I", fiftAsmLibraryPath + ":" + fiftSmartcontLibraryPath};
     }
@@ -179,7 +177,7 @@ public class FiftRunner {
     String withInclude;
     if (Utils.getOS() == Utils.OS.WINDOWS) {
       withInclude =
-          "-I" + "\"" + fiftAsmLibraryPath + "@" + fiftSmartcontLibraryPath + "\"" + " -s -";
+              "-I" + "\"" + fiftAsmLibraryPath + "@" + fiftSmartcontLibraryPath + "\"" + " -s -";
     } else {
       withInclude = "-I" + fiftAsmLibraryPath + ":" + fiftSmartcontLibraryPath + " -s -";
     }
@@ -228,38 +226,13 @@ public class FiftRunner {
       pb.directory(new File(workDir));
       Process p = pb.start();
 
-      // Read output in a separate thread to avoid deadlock from buffer overflow
-      StringBuilder output = new StringBuilder();
-      Thread readerThread = new Thread(() -> {
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(p.getInputStream()))) {
-          String line;
-          while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
-          }
-        } catch (IOException e) {
-          log.error("Error reading process output", e);
-        }
-      });
-      readerThread.start();
+      p.waitFor(1, TimeUnit.SECONDS);
 
-      // Wait for process to complete
-      boolean completed = p.waitFor(30, TimeUnit.SECONDS);
-      
-      // Wait for reader thread to finish consuming all output
-      readerThread.join(5000); // Wait up to 5 seconds for reader to finish
-
-      if (!completed) {
-        p.destroy();
-        throw new Exception("Process timed out after 30 seconds");
-      }
-
-      String resultInput = output.toString();
+      String resultInput = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
 
       p.getInputStream().close();
       p.getErrorStream().close();
       p.getOutputStream().close();
-      
       if (p.exitValue() == 2 || p.exitValue() == 0) {
         return Pair.of(p, resultInput);
       } else {
@@ -278,7 +251,7 @@ public class FiftRunner {
   }
 
   public Pair<Process, String> executeStdIn(
-      String pathToBinary, String workDir, String stdin, String include) {
+          String pathToBinary, String workDir, String stdin, String include) {
 
     try {
       final ProcessBuilder pb;
@@ -286,30 +259,30 @@ public class FiftRunner {
       if (Utils.getOS() == Utils.OS.WINDOWS) {
 
         pb =
-            new ProcessBuilder(
-                    "powershell", "-c", "'" + stdin + "' | " + pathToBinary + " " + include)
-                .redirectErrorStream(true);
+                new ProcessBuilder(
+                        "powershell", "-c", "'" + stdin + "' | " + pathToBinary + " " + include)
+                        .redirectErrorStream(true);
         cmd =
-            String.join(
-                " ", "powershell", "-c", "'" + stdin + "' | " + pathToBinary + " " + include);
+                String.join(
+                        " ", "powershell", "-c", "'" + stdin + "' | " + pathToBinary + " " + include);
       } else { // linux & macos
         pb =
-            new ProcessBuilder(
-                    "/bin/bash",
-                    "-c",
-                    "echo",
-                    "\"" + stdin + "\" | " + pathToBinary + " " + include)
-                .redirectErrorStream(true);
+                new ProcessBuilder(
+                        "/bin/bash",
+                        "-c",
+                        "echo",
+                        "\"" + stdin + "\" | " + pathToBinary + " " + include)
+                        .redirectErrorStream(true);
         cmd =
-            String.join(
-                " ",
-                "/bin/bash",
-                "-c",
-                "\"echo",
-                "'",
-                stdin,
-                "'|",
-                pathToBinary + " " + include + "\"");
+                String.join(
+                        " ",
+                        "/bin/bash",
+                        "-c",
+                        "\"echo",
+                        "'",
+                        stdin,
+                        "'|",
+                        pathToBinary + " " + include + "\"");
       }
 
       if (printInfo) {
@@ -319,38 +292,13 @@ public class FiftRunner {
       pb.directory(new File(workDir));
       Process p = pb.start();
 
-      // Read output in a separate thread to avoid deadlock from buffer overflow
-      StringBuilder output = new StringBuilder();
-      Thread readerThread = new Thread(() -> {
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(p.getInputStream()))) {
-          String line;
-          while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
-          }
-        } catch (IOException e) {
-          log.error("Error reading process output", e);
-        }
-      });
-      readerThread.start();
+      p.waitFor(1, TimeUnit.SECONDS);
 
-      // Wait for process to complete
-      boolean completed = p.waitFor(30, TimeUnit.SECONDS);
-      
-      // Wait for reader thread to finish consuming all output
-      readerThread.join(5000); // Wait up to 5 seconds for reader to finish
-
-      if (!completed) {
-        p.destroy();
-        throw new Exception("Process timed out after 30 seconds");
-      }
-
-      String resultInput = output.toString();
+      String resultInput = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
 
       p.getInputStream().close();
       p.getErrorStream().close();
       p.getOutputStream().close();
-      
       if (p.exitValue() == 2 || p.exitValue() == 0) {
         return Pair.of(p, resultInput);
       } else {
