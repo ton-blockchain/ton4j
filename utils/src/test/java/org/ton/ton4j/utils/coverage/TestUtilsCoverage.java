@@ -850,6 +850,17 @@ public class TestUtilsCoverage {
   }
 
   @Test
+  public void testFormatUsdtValueZero() {
+    // null -> empty string
+    assertThat(Utils.formatUsdtValueZero(null)).isEqualTo("");
+    // zero -> "0"
+    assertThat(Utils.formatUsdtValueZero(BigInteger.ZERO)).isEqualTo("0");
+    // positive -> formatted with 6 decimals
+    String s = Utils.formatUsdtValueZero(new BigInteger("123000000")); // 123 * 1e6
+    assertThat(s).isEqualTo("123.000000");
+  }
+
+  @Test
   public void testCalculateMethodIdAndCRC16Bytes() {
     int crc = Utils.getCRC16ChecksumAsInt("test".getBytes());
     assertThat(crc).isBetween(0, 0xFFFF);
@@ -913,6 +924,7 @@ public class TestUtilsCoverage {
     assertThat(Utils.formatNanoValue(nano)).isEqualTo("1.500000000");
     assertThat(Utils.formatNanoValueStripZeros(nano)).isEqualTo("1.5");
     assertThat(Utils.formatNanoValueZeroStripZeros(BigInteger.ZERO)).isEqualTo("0");
+    assertThat(Utils.formatUsdtValueZeroStripZeros(BigInteger.ZERO)).isEqualTo("0");
 
     assertThat(Utils.formatNanoValue(nano, 2)).isEqualTo("1.50");
     assertThat(Utils.formatNanoValue("1500000000", 2)).isEqualTo("1.50");
@@ -1206,6 +1218,14 @@ public class TestUtilsCoverage {
     // BigDecimal.valueOf(float) yields a representation with scale > 9 for many floats,
     // which should trigger the error path in toNano(float)
     Utils.toNano(0.123456789f);
+  }
+
+  @Test
+  public void testToUsdtLongAndDoublePrecision() {
+    assertThat(Utils.toUsdt(2L, 6)).isEqualTo(java.math.BigInteger.valueOf(2_000_000L));
+    // Treat float via double overload
+    float f = 1.5f;
+    assertThat(Utils.toUsdt((double) f, 6)).isEqualTo(new java.math.BigInteger("1500000"));
   }
 
   @Test

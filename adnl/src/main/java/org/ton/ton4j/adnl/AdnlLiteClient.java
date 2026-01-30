@@ -524,6 +524,15 @@ public class AdnlLiteClient {
     }
   }
 
+  public ConfigParams19 getConfigParam19() {
+    try {
+      Cell c = getConfigParamCell(19);
+      return ConfigParams19.deserialize(CellSlice.beginParse(c));
+    } catch (Throwable e) {
+      return ConfigParams19.builder().build();
+    }
+  }
+
   /** GasLimitsPrices masterchain */
   public ConfigParams20 getConfigParam20() {
     try {

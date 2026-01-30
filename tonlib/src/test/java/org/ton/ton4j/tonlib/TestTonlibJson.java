@@ -299,7 +299,7 @@ public class TestTonlibJson {
     Tonlib tonlib =
         Tonlib.builder()
             .pathToTonlibSharedLib(tonlibPath)
-            .pathToGlobalConfig("g:/libs/global-config-archive.json")
+            .pathToGlobalConfig("/home/neodix/gitProjects//global-config-archive.json")
             .build();
     Address address = Address.of(TON_FOUNDATION);
 
@@ -330,6 +330,42 @@ public class TestTonlibJson {
     }
     tonlib.destroy();
     assertThat(rawTransactions.getTransactions().size()).isLessThan(4);
+  }
+
+  @Test
+  public void testTonlibGetAllBlockTransactions() {
+
+    Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(tonlibPath).testnet(true).build();
+
+    BlockIdExt fullblock = tonlib.getLast().getLast();
+    assertThat(fullblock).isNotNull();
+
+    log.info(fullblock.toString());
+
+    Map<String, RawTransactions> txs = tonlib.getAllBlockTransactions(fullblock, 100, null);
+    for (Map.Entry<String, RawTransactions> entry : txs.entrySet()) {
+      for (RawTransaction tx : entry.getValue().getTransactions()) {
+        if (nonNull(tx.getIn_msg())
+                && (!tx.getIn_msg().getSource().getAccount_address().equals(""))) {
+          log.info(
+                  "{} <<<<< {} : {} ",
+                  tx.getIn_msg().getSource().getAccount_address(),
+                  tx.getIn_msg().getDestination().getAccount_address(),
+                  Utils.formatNanoValue(tx.getIn_msg().getValue(), 9));
+        }
+        if (nonNull(tx.getOut_msgs())) {
+          for (RawMessage msg : tx.getOut_msgs()) {
+            log.info(
+                    "{} >>>>> {} : {} ",
+                    msg.getSource().getAccount_address(),
+                    msg.getDestination().getAccount_address(),
+                    Utils.formatNanoValue(msg.getValue()));
+          }
+        }
+      }
+    }
+    tonlib.destroy();
+    assertThat(txs.size()).isNotEqualTo(0);
   }
 
   @Test

@@ -32,10 +32,10 @@ public class TestnetJettonFaucet {
   public static BigInteger topUpContractWithNeoj(
       Tonlib tonlib, Address destinationAddress, BigInteger jettonsAmount) {
 
-    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
-      throw new Error(
-          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
-    }
+//    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
+//      throw new Error(
+//          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
+//    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
@@ -85,10 +85,10 @@ public class TestnetJettonFaucet {
   public static BigInteger topUpContractWithNeoj(
       AdnlLiteClient adnlLiteClient, Address destinationAddress, BigInteger jettonsAmount) {
 
-    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
-      throw new Error(
-          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
-    }
+//    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
+//      throw new Error(
+//          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
+//    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
@@ -141,10 +141,10 @@ public class TestnetJettonFaucet {
       BigInteger jettonsAmount,
       boolean avoidRateLimit) {
 
-    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
-      throw new Error(
-          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
-    }
+//    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
+//      throw new Error(
+//          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
+//    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));

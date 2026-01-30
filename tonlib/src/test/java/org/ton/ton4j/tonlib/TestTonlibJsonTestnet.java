@@ -20,6 +20,7 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.mnemonic.Mnemonic;
+import org.ton.ton4j.tlb.ConfigParams19;
 import org.ton.ton4j.tlb.Transaction;
 import org.ton.ton4j.tonlib.types.*;
 import org.ton.ton4j.utils.Utils;
@@ -578,6 +579,14 @@ public class TestTonlibJsonTestnet {
     log.info("pastElections: {}", listResult);
     tonlib.destroy();
     assertThat(result.getExit_code()).isZero();
+  }
+
+  @Test
+  public void testTonlibGetConfig19() {
+    Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(tonlibPath).testnet(false).build();
+    ConfigParams19 c = tonlib.getConfigParam19();
+    log.info(c.toString());
+    tonlib.destroy();
   }
 
   @Test

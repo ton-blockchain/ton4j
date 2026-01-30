@@ -1,0 +1,22 @@
+{
+  "name": "ton4j (IntelliJ, Java 17, Maven)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  "customizations": {
+    "jetbrains": {
+      "backend": "IntelliJ",
+      "plugins": [
+        "com.intellij.java",
+        "org.jetbrains.idea.maven"
+      ]
+    }
+  },
+
+  "containerEnv": {
+    "MAVEN_OPTS": "-Xmx2g -Dfile.encoding=UTF-8"
+  },
+
+  "postCreateCommand": "java -version && mvn -version && mvn -q -DskipTests package"
+}

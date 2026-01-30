@@ -140,10 +140,10 @@ public class MyLocalTonJettonFaucet {
       BigInteger jettonsAmount,
       boolean avoidRateLimit) {
 
-    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
-      throw new Error(
-          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
-    }
+//    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
+//      throw new Error(
+//          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
+//    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));

@@ -442,6 +442,14 @@ public class AdnlLiteClientTest {
   }
 
   @Test
+  void testGetConfigParam19() {
+    log.info("Testing testConfigParam19 query");
+    assertTrue(client.isConnected(), "Client should be connected");
+
+    log.info("configParams20 {}", client.getConfigParam19());
+  }
+
+  @Test
   void testGetConfigParam20() {
     log.info("Testing testConfigParam20 query");
     assertTrue(client.isConnected(), "Client should be connected");
