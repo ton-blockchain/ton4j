@@ -282,8 +282,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
   /** Sends 1000 messages with jetton values with comment */
   @Test
-  public void testBulkJettonTransferSimplified_1000()
-      throws InterruptedException, NoSuchAlgorithmException {
+  public void testBulkJettonTransferSimplified_1000() throws InterruptedException {
 
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
@@ -329,7 +328,6 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    log.info("sent 1000 messages");
   }
 
   @Test

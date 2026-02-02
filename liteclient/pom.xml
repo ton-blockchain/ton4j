@@ -38,6 +38,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.ton.ton4j</groupId>
+            <artifactId>utils</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>

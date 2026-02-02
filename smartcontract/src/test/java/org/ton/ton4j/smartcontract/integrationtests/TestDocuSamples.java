@@ -57,7 +57,7 @@ public class TestDocuSamples {
     log.info("private key[64 bytes]: {}", Utils.bytesToHex(keyPairQuick.getSecretKey()));
   }
 
-  /** test used to show different wallet's addresses in testnet */
+  /** Test used to show different wallet's addresses in the testnet */
   @Test
   public void test_addresses_testnet() {
 
@@ -76,7 +76,7 @@ public class TestDocuSamples {
     log.info("wallet[nonBounceableAddress] {}", wallet.getAddress().toNonBounceableTestnet());
   }
 
-  /** test used to show different wallet's addresses in mainnet */
+  /** Test used to show different wallet's addresses in the mainnet */
   @Test
   public void test_addresses_mainnet() {
 
@@ -96,7 +96,7 @@ public class TestDocuSamples {
   }
 
   /**
-   * test shows usage of keypair with WalletV3R2, ton4j faucet for quick top up of wallets and
+   * Test shows usage of the keypair with WalletV3R2, ton4j faucet for quick top up of wallets and
    * deployment of a WalletV3R2.
    */
   @Test
@@ -142,8 +142,8 @@ public class TestDocuSamples {
   }
 
   /**
-   * test shows usage of keypair with WalletV3R2, ton4j faucet for cannot be used in mainnet. Once
-   * you got the wallet's address top it up externally and only then proceed with the wallet
+   * Test shows usage of the keypair with WalletV3R2, ton4j faucet for cannot be used in the mainnet. Once
+   * you got the wallet's address, top it up externally and only then proceed with the wallet
    * deployment.
    */
   @Test
@@ -182,8 +182,8 @@ public class TestDocuSamples {
   }
 
   /**
-   * test shows usage of public key only with WalletV3R2, ton4j faucet for quick top up of wallets
-   * and deployment of a WalletV3R2. The payload should be signed without exposing private key, e.g.
+   * Test shows usage of a public key only with WalletV3R2, ton4j faucet for quick top up of wallets
+   * and deployment of a WalletV3R2. The payload should be signed without exposing private key, e.g.,
    * on HSM or other secure place.
    */
   @Test
@@ -232,7 +232,7 @@ public class TestDocuSamples {
   }
 
   /**
-   * test show deployment of Highload Wallet V3S using Secp256k1 signature without exposing private
+   * test show deployment of Highload Wallet V3S using Secp256k1 signature without exposing a private
    * key
    */
   @Test
@@ -270,7 +270,7 @@ public class TestDocuSamples {
 
     Cell deployBody = wallet.createDeployMessage(config);
 
-    // sign deployBody elsewhere without exposing private key and come back with a signature
+    // sign deployBody elsewhere without exposing a private key and come back with a signature
     byte[] signedDeployBody =
         Utils.signDataSecp256k1(
                 deployBody.hash(),

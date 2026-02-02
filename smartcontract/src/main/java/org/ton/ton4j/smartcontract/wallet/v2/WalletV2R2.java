@@ -233,7 +233,7 @@ public class WalletV2R2 implements Contract {
   }
 
   /**
-   * Sends amount of nano toncoins to destination address and waits till message found among
+   * Sends amount of nano toncoins to the destination address and waits till a message found among
    * account's transactions
    */
   public RawTransaction sendWithConfirmation(WalletV2R2Config config) throws Exception {

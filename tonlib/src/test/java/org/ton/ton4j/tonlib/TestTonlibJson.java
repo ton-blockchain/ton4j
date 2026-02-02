@@ -22,6 +22,7 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.tlb.*;
+import org.ton.ton4j.tlb.print.TransactionPrintInfo;
 import org.ton.ton4j.tonlib.types.*;
 import org.ton.ton4j.tonlib.types.BlockHeader;
 import org.ton.ton4j.tonlib.types.BlockIdExt;

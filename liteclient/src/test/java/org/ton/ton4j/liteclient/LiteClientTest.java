@@ -22,6 +22,7 @@ import org.ton.ton4j.liteclient.api.ResultListBlockTransactions;
 import org.ton.ton4j.liteclient.api.block.Block;
 import org.ton.ton4j.liteclient.api.block.MessageFees;
 import org.ton.ton4j.liteclient.api.block.Transaction;
+import org.ton.ton4j.utils.Utils;
 
 /** Integration Tests that run against live testnet */
 @Slf4j
@@ -86,31 +87,11 @@ public class LiteClientTest {
     }
   }
 
-  /**
-   * Get the URL for an artifact
-   *
-   * @param artifactName The artifact name
-   * @param release The release
-   * @return The URL
-   */
-  public static String getArtifactGithubUrl(String artifactName, String release) {
-    return getArtifactGithubUrl(artifactName, release, "ton-blockchain", "ton");
-  }
-
-  /**
-   * Get the URL for the lite client
-   *
-   * @return The URL
-   */
-  public static String getLiteClientGithubUrl() {
-    return getArtifactGithubUrl("lite-client", "");
-  }
-
   @BeforeClass
   public static void executedBeforeEach() {
 
     liteClient =
-        LiteClient.builder().testnet(true).pathToLiteClientBinary(getLiteClientGithubUrl()).build();
+        LiteClient.builder().testnet(true).pathToLiteClientBinary(Utils.getLiteClientGithubUrl()).build();
   }
 
   @Test
@@ -125,7 +106,7 @@ public class LiteClientTest {
   public void testLastExecutedDownloadBoth() {
     LiteClient liteClient =
         LiteClient.builder()
-            .pathToLiteClientBinary(getLiteClientGithubUrl())
+            .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
             .pathToGlobalConfig(getGlobalConfigUrlMainnet())
             .build();
     assertThat(liteClient.executeLast())
