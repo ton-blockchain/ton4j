@@ -112,10 +112,10 @@ public class TestHashMap {
   @Test
   public void testHashMapDeserializationWithBothEdges() {
 
-    String t =
+    String boc =
         "B5EE9C7241010501001D0002012001020201CF03040009BC0068054C0007B91012180007BEFDF218CFA830D9";
 
-    Cell cellWithDict = CellBuilder.beginCell().fromBoc(t).endCell();
+    Cell cellWithDict = CellBuilder.beginCell().fromBoc(boc).endCell();
     log.info("cell {}", cellWithDict.print());
     log.info("cell {}", Utils.bytesToHex(cellWithDict.toBoc()));
 

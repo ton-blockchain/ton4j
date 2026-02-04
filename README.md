@@ -108,14 +108,13 @@ You can use each submodule individually. Click the module below to get more deta
 - [Cells](#Cells)
   - [Create using CellBuilder](#Cell-Builder)
   - [Parse using CellSlice](#Cell-Slice)
-  - [TLB Loader/Serializer](#TLB-Loader)
-  - [BoC](#BoC)
-  - [Proof creation](#Proofs)
-- [Emulator](emulator)
+  - [Hashmaps / Dicts](#Hashmaps)
+  - [TLB Loader/Serializer](#TLB-Serialize-Deserialize)
+- [Emulators](#Emulators)
   - [TVM emulator](#tvm-emulator)
-  - [TX emulator](#tx-emulator)    
+  - [TX emulator](#Transaction-emulator)    
 - [TON Connect](#ton-connect)
-- [Smart contract disassembler](#disassembler)
+- [Smart contract disassembler](#Smart-contract-disassembler)
 - [Notes](#notes)
 
 ## Connection
@@ -131,10 +130,10 @@ Connect to the TON Mainnet with the latest tonlibjson downloaded from the TON gi
 
 ```java
 Tonlib tonlib =
-    Tonlib.builder()
-        .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-        .testnet(false)
-        .build();
+  Tonlib.builder()
+    .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
+    .testnet(false)
+    .build();
 BlockIdExt block = tonlib.getLast().getLast();
 log.info("block {}", block);
 ```
@@ -173,33 +172,29 @@ LiteClient liteClient =
     .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
   .build();
 liteClient.executeLast();
-liteClient.executeRunMethod(
-    "EQDCJVrezD71y-KPcTIG-YeKNj4naeiR7odpQgVA1uDsZqPC",
+liteClient.executeRunMethod( "EQDCJVrezD71y-KPcTIG-YeKNj4naeiR7odpQgVA1uDsZqPC",
             "(-1,8000000000000000,20301499):070D07EB64D36CCA2D8D20AA644489637059C150E2CD466247C25B4997FB8CD9:D7D7271D466D52D0A98771F9E8DCAA06E43FCE01C977AACD9DE9DAD9A9F9A424",
-            "seqno",
-            "");
+            "seqno", "");
 ```
 Parse result if required
 ```java
 LiteClient liteClient =
-        LiteClient.builder()
-                .testnet(false)
-                .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
-                .build();
+  LiteClient.builder()
+    .testnet(false)
+    .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
+    .build();
 String resultLast = liteClient.executeLast();
 ResultLastBlock blockIdLast = LiteClientParser.parseLast(resultLast);
-String stdout =
-    liteClient.executeBySeqno(
-        blockIdLast.getWc(), blockIdLast.getShard(), blockIdLast.getSeqno());
+String stdout = liteClient.executeBySeqno(blockIdLast.getWc(), blockIdLast.getShard(), blockIdLast.getSeqno());
 ResultLastBlock blockId = LiteClientParser.parseBySeqno(stdout);
 ```
 Download block's dump and parse it
 ```java
 LiteClient liteClient =
-        LiteClient.builder()
-                .testnet(false)
-                .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
-                .build();
+  LiteClient.builder()
+    .testnet(false)
+    .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
+    .build();
 String stdoutLast = liteClient.executeLast();
 ResultLastBlock blockIdLast = LiteClientParser.parseLast(stdoutLast);
 String stdoutDumpblock = liteClient.executeDumpblock(blockIdLast);
@@ -323,18 +318,11 @@ Create a simple wallet V3R2 in the Mainnet
 ```java
 // prepare 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-AdnlLiteClient adnlLiteClient =
-    AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-WalletV3R2 contract =
-    WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
+WalletV3R2 contract = WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
-String bounceableAddress = contract.getAddress().toBounceable();
-String rawAddress = contract.getAddress().toRaw();
-log.info("non-bounceable address: {}", nonBounceableAddress);
-log.info("    bounceable address: {}", bounceableAddress);
-log.info("           raw address: {}", rawAddress);
 
 // retrieve the address and send some toncoins to it, normally up to 0.1 toncoins are more than enough
 // then deploy the wallet
@@ -345,18 +333,12 @@ contract.deploy();
 ```java
 // prepare 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-AdnlLiteClient adnlLiteClient =
-    AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-WalletV3R2 contract =
-    WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
+WalletV3R2 contract = WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
-String bounceableAddress = contract.getAddress().toBounceable();
-String rawAddress = contract.getAddress().toRaw();
 log.info("non-bounceable address: {}", nonBounceableAddress);
-log.info("    bounceable address: {}", bounceableAddress);
-log.info("           raw address: {}", rawAddress);
 
 // in testnet you can use a helper method that uses Testnet Faucet to top up the address with test toncoins
 TestnetFaucet.topUpContract(adnlLiteClient, Address.of(nonBounceableAddress), Utils.toNano(1));
@@ -462,10 +444,6 @@ String bounceableAddress = contract.getAddress().toBounceable();
 String rawAddress = contract.getAddress().toRaw();
 
 log.info("non-bounceable address {}", nonBounceableAddress);
-log.info("    bounceable address {}", bounceableAddress);
-log.info("           raw address {}", rawAddress);
-log.info("pub-key {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
-log.info("prv-key {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
 
 // top up new wallet using test-faucet-wallet
 BigInteger balance =  TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(2));
@@ -473,10 +451,10 @@ Utils.sleep(30, "topping up...");
 log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
 HighloadV3Config config =
-        HighloadV3Config.builder()
-                .walletId(42)
-                .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
-                .build();
+  HighloadV3Config.builder()
+    .walletId(42)
+    .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
+    .build();
 
 SendResponse sendResponse = contract.deploy(config);
 assertThat(sendResponse.getCode()).isZero();
@@ -484,10 +462,10 @@ assertThat(sendResponse.getCode()).isZero();
 contract.waitForDeployment();
 
 config = HighloadV3Config.builder()
-        .walletId(42)
-        .queryId(HighloadQueryId.fromSeqno(1).getQueryId())
-        .body(contract.createBulkTransfer(createDummyDestinations(1000), BigInteger.valueOf(HighloadQueryId.fromSeqno(1).getQueryId())))
-        .build();
+  .walletId(42)
+  .queryId(HighloadQueryId.fromSeqno(1).getQueryId())
+  .body(contract.createBulkTransfer(createDummyDestinations(1000), BigInteger.valueOf(HighloadQueryId.fromSeqno(1).getQueryId())))
+  .build();
 
 sendResponse = contract.send(config);
 assertThat(sendResponse.getCode()).isZero();
@@ -502,12 +480,11 @@ In the example above we used method `createDummyDestinations()`, replace it with
       String dstDummyAddress = Utils.generateRandomAddress(0);
 
       result.add(
-          Destination.builder()
-              .bounce(false)
-              .address(dstDummyAddress)
-              .amount(Utils.toNano(0.001))
-              // .comment("comment-" + i)
-              .build());
+        Destination.builder()
+          .bounce(false)
+          .address(dstDummyAddress)
+          .amount(Utils.toNano(0.001))
+          .build());
     }
     return result;
   }
@@ -521,11 +498,11 @@ Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 byte[] pubKey = keyPair.getPublicKey();
 
 HighloadWalletV3S contract =
-    HighloadWalletV3S.builder()
-        .tonlib(tonlib)
-        .publicKey(pubKey) // no private key is used
-        .walletId(42)
-        .build();
+  HighloadWalletV3S.builder()
+    .tonlib(tonlib)
+    .publicKey(pubKey) // no private key is used
+    .walletId(42)
+    .build();
 
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
 String bounceableAddress = contract.getAddress().toBounceable();
@@ -542,10 +519,10 @@ Utils.sleep(30, "topping up...");
 log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
 HighloadV3Config config =
-    HighloadV3Config.builder()
-        .walletId(42)
-        .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
-        .build();
+  HighloadV3Config.builder()
+    .walletId(42)
+    .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
+    .build();
 
 Cell deployBody = contract.createDeployMessage(config);
 
@@ -559,10 +536,10 @@ contract.waitForDeployment();
 
 int queryId = HighloadQueryId.fromSeqno(1).getQueryId();
 config = HighloadV3Config.builder()
-        .walletId(42)
-        .queryId(queryId)
-        .body(contract.createBulkTransfer(createDummyDestinations(1000), BigInteger.valueOf(HighloadQueryId.fromSeqno(1).getQueryId())))
-        .build();
+  .walletId(42)
+  .queryId(queryId)
+  .body(contract.createBulkTransfer(createDummyDestinations(1000), BigInteger.valueOf(HighloadQueryId.fromSeqno(1).getQueryId())))
+  .build();
 
 Cell transferBody = contract.createTransferMessage(config);
 
@@ -619,11 +596,11 @@ AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlob
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
 WalletV3R2 wallet =
-    WalletV3R2.builder()
-        .adnlLiteClient(adnlLiteClient)
-        .publicKey(keyPair.getPublicKey()) // no private key in app
-        .walletId(42)
-        .build();
+  WalletV3R2.builder()
+    .adnlLiteClient(adnlLiteClient)
+    .publicKey(keyPair.getPublicKey()) // no private key in app
+    .walletId(42)
+    .build();
 
 // Create a payload, sign elsewhere (HSM), then deploy
 Cell deployBody = wallet.createDeployMessage();
@@ -643,7 +620,7 @@ With the help of an ADNL lite-client limited by 10 transactions
 AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
 TransactionList transactionList = client.getTransactions(Address.of("wallet-address"), 0, null, 10);
 for (Transaction tx : transactionList.getTransactionsParsed()) {
-    log.info("tx {}", tx);
+  log.info("tx {}", tx);
 }
 ```
 
@@ -664,10 +641,10 @@ tonlib.printAccountMessages(Address.of("wallet-address"), 20, true);
 With help of Tonlibjson shared library
 ```java
 Tonlib tonlib =
-    Tonlib.builder()
-        .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-        .testnet(false)
-        .build();
+  Tonlib.builder()
+    .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
+    .testnet(false)
+    .build();
 BigInteger balance = tonlib.getAccountBalance(Address.of("wallet-address"));
 ```
 
@@ -681,12 +658,12 @@ log.info("balance {}", adnlLiteClient.getBalance(Address.of("wallet-address")));
 - Using TonCenter V3 client
 ```java
   TonCenterV3 client =
-      TonCenterV3.builder()
-          .mainnet()
-          .connectTimeout(Duration.ofSeconds(15))
-          .readTimeout(Duration.ofSeconds(30))
-          .apiKey(API_KEY);
-          .build(); 
+    TonCenterV3.builder()
+      .mainnet()
+      .connectTimeout(Duration.ofSeconds(15))
+      .readTimeout(Duration.ofSeconds(30))
+      .apiKey(API_KEY);
+      .build(); 
 try {
   List<String> addresses = Collections.singletonList(TEST_ADDRESS);
   AccountStatesResponse response = client.getAccountStates(addresses, true);
@@ -749,15 +726,571 @@ TweetNaclFast.Signature.KeyPair quickKeyPair = Utils.generateSignatureKeyPair();
 ### Using GET methods
 ### Compile-smart contract
 
-## BitString 
+## BitString
+`BitString` used to construct an array of bits, and later read out of it. 
+BitString may contain up to 1023 bits, which is the maximum size of a cell.
+Once you write anything to a BitString, it shifts the writing cursor and subsequent writes will be appended it.
+The same happens when you read data from a BitString, it moves reading cursor forward.
+
+Construct and read a BitString
+```java
+// write
+BitString bitString = new BitString(3);
+bitString.writeUint(7, 3);
+assertThat(bitString.toBitString()).isEqualTo("111");
+// read
+bitString.readUint(3); // returns 7
+```
+
+Write signed integers (int)
+```java
+BitString bitString = new BitString(32);
+bitString.writeInt(BigInteger.valueOf(200), 9);
+assertThat(bitString.toBitString()).isEqualTo("011001000");
+assertThat(bitString.toHex()).isEqualTo("644_");
+
+BitString bitStringMax64 = new BitString(64); // Long.MAX_VALUE, 8 bytes
+bitStringMax64.writeInt(new BigInteger("9223372036854775807"), 64);
+assertThat(bitStringMax64.toBitString()).isEqualTo("0111111111111111111111111111111111111111111111111111111111111111");
+
+BitString bitStringMax128 = new BitString(128);
+bitStringMax128.writeInt(new BigInteger("92233720368547758070"), 128);
+assertThat(bitStringMax128.toBitString()).isEqualTo("00000000000000000000000000000000000000000000000000000000000001001111111111111111111111111111111111111111111111111111111111110110");
+
+BitString bitStringMaxA = new BitString(128);
+bitStringMaxA.writeInt(new BigInteger("99999999999999999999999999999999999999"), 128);
+assertThat(bitStringMaxA.toBitString()).isEqualTo("01001011001110110100110010101000010110101000011011000100011110100000100110001010001000100011111111111111111111111111111111111111");
+
+BigInteger i = bitStringMaxA.readInt(128);
+assertThat(i.toString(16).toUpperCase()).isEqualTo("4B3B4CA85A86C47A098A223FFFFFFFFF");
+
+BitString bitStringMaxB = new BitString(256);
+bitStringMaxB.writeInt(new BigInteger("9999999999999999999999999999999999999999999999999999999999"), 256);
+assertThat(bitStringMaxB.toHex()).isEqualTo("000000000000000197D4DF19D605767337E9F14D3EEC8920E3FFFFFFFFFFFFFF");
+```
+
+Write unsigned integers (uint)
+```java
+BitString bitString = new BitString(16);
+bitString.writeUint(BigInteger.valueOf(255), 8);
+assertThat(bitString.toBitString()).isEqualTo("11111111");
+assertThat(bitString.toHex()).isEqualTo("FF");
+
+bitString = new BitString(64);
+bitString.writeUint(BigInteger.valueOf(Long.MAX_VALUE), 64);
+assertThat(bitString.toBitString()).isEqualTo("0111111111111111111111111111111111111111111111111111111111111111");
+assertThat(bitString.toHex()).isEqualTo("7FFFFFFFFFFFFFFF");
+
+bitString = new BitString(128);
+bitString.writeUint(15, 4);
+```
+Read unsigned integers (uint)
+```java
+BitString bitString = new BitString(128);
+bitString.writeUint(200, 8);
+bitString.writeUint(400, 16);
+bitString.writeUint(600000, 32);
+bitString.writeUint(new BigInteger("9000000000000"), 64);
+
+assertThat(bitString.readUint8().toString(10)).isEqualTo("200");
+assertThat(bitString.readUint16().toString(10)).isEqualTo("400");
+assertThat(bitString.readUint32().toString(10)).isEqualTo("600000");
+assertThat(bitString.readUint64().toString(10)).isEqualTo("9000000000000");
+```
+Read signed integers (int)
+```java
+BitString bitString = new BitString(128);
+bitString.writeInt(BigInteger.valueOf(20), 8);
+bitString.writeInt(BigInteger.valueOf(400), 16);
+bitString.writeInt(BigInteger.valueOf(600000), 32);
+bitString.writeInt(new BigInteger("9000000000000"), 64);
+
+assertThat(bitString.readInt8().toString(10)).isEqualTo("20");
+assertThat(bitString.readInt16().toString(10)).isEqualTo("400");
+assertThat(bitString.readInt32().toString(10)).isEqualTo("600000");
+assertThat(bitString.readInt64().toString(10)).isEqualTo("9000000000000");
+```
+
+Write mixed data type to BitString
+```java
+BitString bitString = new BitString(1023);
+bitString.writeInt(BigInteger.valueOf(-200), 16);
+bitString.writeUint(BigInteger.valueOf(200), 9);
+bitString.writeCoins(BigInteger.TEN);
+bitString.writeString("A");
+Address address = Address.of("0QAs9VlT6S776tq3unJcP5Ogsj-ELLunLXuOb1EKcOQi4-QO");
+bitString.writeAddress(address);
+```
+You can also get a number of `free` and `used` bits using `getFreeBits` and `getUsedBits` methods.
+
+There are lots of helpful methods, like `writeAddress`, `writeCoins`, `writeUint8`, `writeBytes`, `readBit`, `readBits` etc.
+
+More examples in [tests](bitstring/src/test/java/org/ton/ton4j/bitstring).
+
 ## Cells
+The TON Virtual Machine (TVM) memory, persistent storage, and smart contract code consist of cells.
+
+[Get familiar with the Cell concept in the official documentation.](https://docs.ton.org/foundations/serialization/cells#cells) 
 ### Cell Builder
+`CellBuilder` class helps to construct TON cell out of primitives as well as from [Bag of Cells (BoC)](https://docs.ton.org/foundations/serialization/boc).
+
+Construct ordinary Cell using CellBuilder with various types of data
+```java
+Cell cell1 =
+  CellBuilder.beginCell()
+  .storeBytes(new byte[] {65, 66, 67})
+  .storeUint(new BigInteger("538bd272cc81b9d5f470a18a946cbb8fb621ca57593836014e0f12fd5d34942f", 16), 256)
+  .storeString("test sdk")
+  .endCell();
+
+Cell cell2 =
+  CellBuilder.beginCell()
+  .storeInt(new BigInteger("568E7E73CDA9C3D5FF8641E77EED4EE65EDB702EA100290F2E7A043771C9CA5A", 16), 256)
+  .storeCoins(Utils.toNano("2.56"))
+  .storeAddress(Address.of("0QAljlSWOKaYCuXTx2OCr9P08y40SC2vw3UeM1hYnI3gDY7I"))
+  .storeRef(cell1)
+  .endCell();
+
+log.info("cell2 {}", cell2.print());
+// serialize cell to BoC
+byte[] boc = cell2.toBoc(true);
+```
+
+Construct Merkle Proof Cell Type
+```java
+Cell c =
+  CellBuilder.beginCell()
+    .storeUint(3, 8) // Merkle Proof Cell Type
+    .storeBytes(mc.getHash())
+    .storeUint(mc.getDepthLevels()[0], 16)
+    .storeRef(mc)
+    .cellType(CellType.MERKLE_PROOF)
+    .setExotic(true)
+    .endCell();
+```
+
+Construct Pruned Cell Type
+```java
+Cell c =
+  CellBuilder.beginCell()
+    .storeUint(1, 8) // Merkle Proof Cell Type
+    .storeBytes(mc.getHash())
+    .storeUint(mc.getDepthLevels()[0], 16)
+    .storeRef(mc)
+    .setExotic(true)
+    .cellType(CellType.PRUNED_BRANCH)
+    .endCell();
+```
+
+### Cell Serialization
+To serialize a Cell means to transform it into BoC format. 
+
+To serialize any Cell you have to use `toBoc()` method, e.g.:  
+```java
+Cell c1 = CellBuilder.beginCell().storeUint((long) Math.pow(2, 25), 26).endCell();
+Cell c2 = CellBuilder.beginCell().storeUint((long) Math.pow(2, 37), 38).storeRef(c1).endCell();
+Cell c3 = CellBuilder.beginCell().storeUint((long) Math.pow(2, 41), 42).endCell();
+Cell c4 = CellBuilder.beginCell().storeUint((long) Math.pow(2, 42), 44).endCell();
+Cell c5 =
+    CellBuilder.beginCell()
+        .storeAddress(Address.parseFriendlyAddress("0QAljlSWOKaYCuXTx2OCr9P08y40SC2vw3UeM1hYnI3gDY7I"))
+        .storeString("HELLO")
+        .storeRef(c2)
+        .storeRefs(c3, c4)
+        .endCell();
+
+assertThat(c5.getUsedRefs()).isEqualTo(3);
+byte[] serializedCell5 = c5.toBoc(false);
+```
+
+### Cell Deserialization
+To deserialize a Cell means to transform it to Cell from BoC format. BoC can be provided in a format of an array of bytes, hex or base64 string, e.g.:
+```java
+Cell c = CellBuilder.beginCell().storeUint(42, 7).endCell();
+byte[] serializedCell = c.toBoc(true);
+Cell dc = CellBuilder.beginCell().fromBoc(serializedCell).endCell();
+```
+
+Deserialize BoC 
+```java
+Cell c = CellBuilder.beginCell()
+        .fromBoc("b5ee9c724101030100d700026fc00c419e2b8a3b6cd81acd3967dbbaf4442e1870e99eaf32278b7814a6ccaac5f802068148c314b1854000006735d812370d00764ce8d340010200deff0020dd2082014c97ba218201339cbab19f71b0ed44d0d31fd31f31d70bffe304e0a4f2608308d71820d31fd31fd31ff82313bbf263ed44d0d31fd31fd3ffd15132baf2a15144baf2a204f901541055f910f2a3f8009320d74a96d307d402fb00e8d101a4c8cb1fcb1fcbffc9ed5400500000000229a9a317d78e2ef9e6572eeaa3f206ae5c3dd4d00ddd2ffa771196dc0ab985fa84daf451c340d7fa")
+        .endCell();
+log.info("CellType {}", c.getCellType());
+log.info(c.toString());
+log.info("length {}", c.getBitLength());
+```
+More examples on CellBuilder in [tests](cell/src/test/java/org/ton/ton4j/cell).
+
 ### Cell Slice
-### TLBLoader
+`CellSlice` used to parse Cell data
+
+Let's construct a Cell first
+```java
+BitString bs0 = new BitString(10);
+
+bs0.writeUint(40, 8);
+
+Cell cRef0 = CellBuilder.beginCell().storeUint(1, 3).storeUint(100, 8).endCell();
+Cell cRef1 = CellBuilder.beginCell().storeUint(2, 3).storeUint(200, 8).endCell();
+
+Address addr = Address.of("0QAs9VlT6S776tq3unJcP5Ogsj-ELLunLXuOb1EKcOQi4-QO");
+
+Cell c0 =
+    CellBuilder.beginCell()
+        .storeUint(10, 8)
+        .storeUint(20, 8)
+        .storeInt(30, 8)
+        .storeRef(cRef0)
+        .storeRef(cRef1)
+        .storeBitString(bs0)
+        .storeAddress(addr)
+        .endCell();
+```
+and now let's extract data out of it using `CellSlice` class
+```java
+CellSlice cs0 = CellSlice.beginParse(c0);
+
+assertThat(cs0.loadUint(8).longValue()).isEqualTo(10);
+assertThat(cs0.loadUint(8).longValue()).isEqualTo(20);
+assertThat(cs0.loadUint(8).longValue()).isEqualTo(30);
+
+CellSlice csRef0 = CellSlice.beginParse(cs0.loadRef());
+CellSlice csRef1 = CellSlice.beginParse(cs0.loadRef());
+
+assertThat(csRef0.loadUint(3)).isEqualTo(1);
+assertThat(csRef0.loadUint(8)).isEqualTo(100);
+assertThat(cs0.loadUint(8).longValue()).isEqualTo(40);
+assertThat(csRef1.loadUint(3)).isEqualTo(2);
+assertThat(csRef1.loadUint(8)).isEqualTo(200);
+assertThat(cs0.loadAddress().toString(false)).isEqualTo(Address.of("0:2cf55953e92efbeadab7ba725c3f93a0b23f842cbba72d7b8e6f510a70e422e3").toString(false));
+```
+
+Another example of creating a Cell out of BoC and extracting uint value from it
+```java
+Cell c1 = CellBuilder.beginCell().fromBoc("b5ee9c72410101010003000001558501ef11").endCell();
+CellSlice cs = CellSlice.beginParse(c1);
+BigInteger i = cs.loadUint(7);
+assertThat(i.longValue()).isEqualTo(42);
+cs.endParse();
+```
+
+### Hashmaps
+There are [several types of Hashmaps](https://docs.ton.org/foundations/whitepapers/tvm#3-3-hashmaps-or-dictionaries) (also called Dicts) in TON.
+- **Hashmap** - fixed size keys, hashmap cannot be empty;
+- **HashmapE**- fixed size keys, hashmap can be empty;
+- **PfxHashmap** - variable size keys, hashmap cannot be empty and the keys cannot be prefixes of each other;
+- **PfxHashmapE** - variable size keys, hashmap can be empty;
+- **AugHashmap** - fixed size keys, hashmap cannot be empty. Similar to the Hashmap. However, each intermediate node of the Patricia tree representing an augmented hashmap is augmented by a value of type Y.
+- **AugHashmapE** - fixed size keys, hashmap can be empty;
+- **VarHashmap** - variable size keys, hashmap cannot be empty, not supported by ton4j;
+- **VarHashmapE** - variable size keys, hashmap can be empty, not supported by ton4j;
+ 
+#### Serialization
+Example of serialization of TonHashMap with four elements
+```java
+TonHashMap x = new TonHashMap(9);
+
+x.elements.put(100L, (byte) 1);
+x.elements.put(200L, (byte) 2);
+x.elements.put(300L, (byte) 3);
+x.elements.put(400L, (byte) 4);
+
+Cell dictCell =
+    x.serialize(
+        k -> CellBuilder.beginCell().storeUint((Long) k, 9).endCell().getBits(),
+        v -> CellBuilder.beginCell().storeUint((byte) v, 3).endCell());
+```
+
+Another example of TonHashMapE serialization
+```java
+TonHashMapE x = new TonHashMapE(9);
+
+x.elements.put(100L, Address.of("0QAljlSWOKaYCuXTx2OCr9P08y40SC2vw3UeM1hYnI3gDY7I"));
+x.elements.put(200L, Address.of("Uf-CRYz9HRGdb19t7DOZUfUjwUZmngz-zJvpD8vpmF3xqeXg"));
+x.elements.put(300L, Address.of("UQCnuv+ZuR0QsIh5vwxUBuzzocSowbCa7ctdwl6QizBKzDiJ"));
+x.elements.put(400L, Address.of("Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF"));
+
+Cell dictCell =
+    x.serialize(
+        k -> CellBuilder.beginCell().storeUint((Long) k, 9).endCell().getBits(),
+        v -> CellBuilder.beginCell().storeAddress((Address) v).endCell());
+```
+#### Deserialization
+When you deserialize Hashmap from Cell, you must pass deserialization methods (parsing rules) for keys and values.
+
+Deserialize Hashmap stored in BoC
+```java
+String boc = "B5EE9C7241010501001D0002012001020201CF03040009BC0068054C0007B91012180007BEFDF218CFA830D9";
+
+Cell cellWithDict = CellBuilder.beginCell().fromBoc(boc).endCell();
+
+CellSlice cs = CellSlice.beginParse(cellWithDict);
+TonHashMap dex = cs.loadDict(16, k -> k.readUint(16), v -> CellSlice.beginParse(v).loadUint(16));
+
+log.info("Deserialized hashmap from cell {}", dex);
+```
+
+Deserialize HashMapE, that might be empty.
+
+Notice we use `loadDictE` here.
+```java
+TonHashMapE x = new TonHashMapE(9);
+x.elements.put(100L, Address.of("0QAljlSWOKaYCuXTx2OCr9P08y40SC2vw3UeM1hYnI3gDY7I"));
+
+Cell dictCell =
+    x.serialize(
+        k -> CellBuilder.beginCell().storeUint((Long) k, 9).endCell().getBits(),
+        v -> CellBuilder.beginCell().storeAddress((Address) v).endCell());
+
+Cell cellWithDict = CellBuilder.beginCell().storeDict(dictCell).endCell();
+
+CellSlice cs = CellSlice.beginParse(cellWithDict);
+TonHashMapE dex =
+    cs.loadDictE(9, k -> k.readUint(9), v -> CellSlice.beginParse(v).loadAddress());
+
+log.info("Deserialized hashmap from cell {}", dex);
+assertThat(dex.elements.size()).isEqualTo(1);
+```
+
+### TLB Serialize Deserialize
+The Type Language Binary (TL-B) for TON Blockchain is a domain-specific language designed to describe the structure of data in the TON Blockchain.
+All TL-B types defined in [schema](https://github.com/ton-blockchain/ton/blob/master/crypto/block/block.tlb).
+
+Special TL-B parsers can read schemes to deserialize binary data into different objects.
+
+ton4j supports constructors and parsers of all TON TL-B types.
+
+For example, if you know that BoC contains ValueFlow type, you can deserialize it in the following way
+```java
+Cell c = CellBuilder.beginCell()
+        .fromBoc("b5ee9c72410106010054000211b8e48dfb4a0eebb0040105022581fa7454b05a2ea2ac0fd3a2a5d348d2954008020202012004030015bfffffffbcbd0efda563d00015be000003bcb355ab466ad0001d43b9aca00250775d8011954fc40008b63e6951")
+        .endCell();
+log.info("CellType {}", c.getCellType());
+ValueFlow valueFlow = ValueFlow.deserialize(CellSlice.beginParse(c));
+log.info("valueFlow {}", valueFlow);
+assertThat(valueFlow.getFeesCollected().getCoins()).isEqualTo(2700000000L);
+assertThat(valueFlow.getRecovered().getCoins()).isEqualTo(2700000000L);
+assertThat(valueFlow.getFeesImported().getCoins()).isEqualTo(1000000000L);
+assertThat(valueFlow.getFromPrevBlk().getCoins()).isEqualTo(new BigInteger("2280867924805872170"));
+```
+The next example shows how to create POJO, serialize it to Cell and deserialize back to a TL-B type Java object. 
+
+```java
+Address src = Address.of("EQAOp1zuKuX4zY6L9rEdSLam7J3gogIHhfRu_gH70u2MQnmd");
+InternalMessageInfo internalMessageInfo =
+  InternalMessageInfo.builder()
+    .iHRDisabled(false)
+    .bounce(true)
+    .bounced(false)
+    .srcAddr(
+        MsgAddressIntStd.builder().workchainId(src.wc).address(src.toBigInteger()).build())
+    .dstAddr(
+      MsgAddressIntStd.builder()
+        .workchainId((byte) 2)
+        .address(BigInteger.valueOf(2))
+        .build())
+    .value(CurrencyCollection.builder().coins(Utils.toNano(0.5)).build())
+    .createdAt(5L)
+    .createdLt(BigInteger.valueOf(2))
+    .build();
+
+InternalMessageInfo loadedInternalMessageInfo = InternalMessageInfo.deserialize(CellSlice.beginParse(internalMessageInfo.toCell()));
+```
+## Emulators
+TON provides two types of Emulators: `Transaction` and `TVM`. 
+Both are used to quickly test behavior in an emulated environment. 
+
+Both emulators require tonlibjson shared library.
+
+### TVM Emulator
+TVM emulator allows you to replay `run_method`, `external` and `internal` message against account's `StateInit` (code+data)
+
+#### Emulate run methods
+```java
+// create WalletV4R2
+WalletV4R2 walletV4R2 = WalletV4R2.builder().keyPair(keyPair).walletId(42).build();
+
+// create TVM emulator
+TvmEmulator tvmEmulator =
+  TvmEmulator.builder()
+    .pathToEmulatorSharedLib(Utils.getEmulatorGithubUrl())
+    .codeBoc(walletV4R2.getStateInit().getCode())
+    .dataBoc(walletV4R2.getStateInit().getData())
+    .verbosityLevel(TvmVerbosityLevel.UNLIMITED)
+    .build();
+
+// execute method seqno against smart contract 
+GetMethodResult methodResult = tvmEmulator.runGetMethod(Utils.calculateMethodId("seqno"));
+// or use a shorter version
+GetMethodResult methodResult = tvmEmulator.runGetSeqNo();
+
+// emulator a call of a method with parameters
+String stackSerialized =
+  VmStack.builder()
+    .depth(0)
+    .stack(VmStackList.builder().tos(Collections.emptyList()).build())
+    .build()
+    .toCell()
+    .toBase64();
+
+GetMethodResult methodResult = tvmEmulator.runGetMethod(Utils.calculateMethodId("get_plugin_list"), stackSerialized);
+```
+
+#### Emulate internal transaction
+```java
+Cell body =
+    CellBuilder.beginCell()
+        .storeUint(0x706c7567, 32) // op request funds
+        .endCell();
+
+SendInternalMessageResult result = tvmEmulator.sendInternalMessage(body.toBase64(), Utils.toNano(0.11).longValue());
+
+log.info("result sendInternalMessage, {}", result);
+
+OutList actions = result.getActions();
+log.info("compute phase actions {}", actions);
+```
+
+#### Emulate external message
+```java
+WalletV4R2Config config =
+  WalletV4R2Config.builder()
+    .operation(0)
+    .walletId(42)
+    .seqno(0)
+    .destination(Address.of("0:258e549638a6980ae5d3c76382afd3f4f32e34482dafc3751e3358589c8de00d"))
+    .amount(Utils.toNano(0.124))
+    .build();
+
+Message msg = walletV4R2.prepareExternalMsg(config);
+SendExternalMessageResult result = tvmEmulator.sendExternalMessage(msg.getBody().toBase64());
+OutList actions = result.getActions();
+log.info("compute phase actions {}", actions);
+
+// send one more time
+config =  
+  WalletV4R2Config.builder()
+    .operation(0)
+    .walletId(42)
+    .seqno(1)
+    .destination(Address.of("0:258e549638a6980ae5d3c76382afd3f4f32e34482dafc3751e3358589c8de00d"))
+    .amount(Utils.toNano(0.123))
+    .build();
+
+msg = walletV4R2.prepareExternalMsg(config);
+tvmEmulator.sendExternalMessage(msg.getBody().toBase64());
+
+assertEquals(2, tvmEmulator.runGetSeqNo().longValue());
+```
+
+### Transaction Emulator
+The main difference between TVM and Transaction emulators is that the latter one executes transactions 
+against `ShardAccount` and proceeds additionally through the Action [phase](https://docs.ton.org/foundations/phases#execution-phases). 
+```java
+// create a test account to simulate tx against
+Account testAccount =
+    Account.builder()
+    .isNone(false)
+    .address(MsgAddressIntStd.of("-1:0000000000000000000000000000000000000000000000000000000000000000"))
+    .storageInfo(StorageInfo.builder()
+      .storageUsed(StorageUsed.builder()
+      .cellsUsed(BigInteger.ZERO)
+      .bitsUsed(BigInteger.ZERO)
+      .build())
+    .storageExtraInfo(StorageExtraNone.builder().build())
+    .lastPaid(System.currentTimeMillis() / 1000)
+    .duePayment(BigInteger.ZERO)
+    .build())
+    .accountStorage(
+      AccountStorage.builder()
+        .balance(CurrencyCollection.builder().coins(Utils.toNano(2)) // initial balance
+        .build())
+      .accountState(AccountStateActive.builder()
+         .stateInit(StateInit.builder()
+          .code(CellBuilder.beginCell().fromBoc("b5ee9c7241010101004e000098ff0020dd2082014c97ba9730ed44d0d70b1fe0a4f260810200d71820d70b1fed44d0d31fd3ffd15112baf2a122f901541044f910f2a2f80001d31f31d307d4d101fb00a4c8cb1fcbffc9ed5470102286")
+          .endCell())    
+          .build())
+      .build())
+      .accountStatus("ACTIVE")
+      .build())
+    .build();
+
+// create a shard account to simulate against 
+ShardAccount shardAccount =
+    ShardAccount.builder()
+        .account(testAccount)
+        .lastTransHash(BigInteger.ZERO)
+        .lastTransLt(BigInteger.ZERO)
+        .build();
+
+String shardAccountBocBase64 = shardAccount.toCell().toBase64();
+
+// create an internal message to simulate 
+Message internalMsg =
+  Message.builder()
+    .info(
+      InternalMessageInfo.builder()
+        .srcAddr(
+          MsgAddressIntStd.builder()
+            .workchainId((byte) 0)
+            .address(BigInteger.ZERO)
+            .build())
+        .dstAddr(
+          MsgAddressIntStd.builder()
+            .workchainId((byte) 0)
+            .address(BigInteger.ZERO)
+            .build())
+        .value(CurrencyCollection.builder().coins(Utils.toNano(1)).build())
+        .bounce(false)
+        .createdAt(0)
+        .build())
+    .init(null)
+    .body(null)
+    .build();
+
+String internalMsgBocBase64 = internalMsg.toCell().toBase64();
+
+// simulate an internal message against the shard account 
+EmulateTransactionResult result =  txEmulator.emulateTransaction(shardAccountBocBase64, internalMsgBocBase64);
+log.info("result {}", result);
+assertThat(result.isSuccess()).isTrue();
+log.info("new shardAccount {}", result.getNewShardAccount());
+log.info("new transaction {}", result.getTransaction());
+log.info("new actions {}", result.getActions());
+```
+## TON connect
+```java
+
+```
+## Smart contract disassembler
+
+Provides Fift-like code from a smart contract compiled source.
+
+Decompile from Cell or BoC 
+```java
+//Load Cell from BoC
+Cell codeCell = Cell.fromBoc(code);
+String result = Disassembler.fromCode(codeCell);
+// or simply decompile directly from BoC
+String result = Disassembler.fromBoc(codeAsBoc);
+```
+Get account code by address and disassemble it
+```java
+Tonlib tonlib = Tonlib.builder()
+    .testnet(false)
+    .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
+    .build();
+
+Address address = Address.of("smart-contract-address");
+FullAccountState accountState = tonlib.getAccountState(address);
+byte[] accountStateCode = Utils.base64ToBytes(accountState.getAccount_state().getCode());
+String disassembledInstructions = Disassembler.fromBoc(accountStateCode);
+```
 
 ## Notes
 
-- Testnet faucet only works on testnet. On mainnet, top up the wallet address externally before deploying.
+- Testnet faucet only works on testnet. On the mainnet, top up the wallet address externally before deploying.
 - Prefer public-key-only flows and external signing when private keys must not be exposed.
 - More wallet and smart-contract examples live in `smartcontract/src/test/java/org/ton/ton4j/smartcontract`.
 
@@ -782,7 +1315,7 @@ TweetNaclFast.Signature.KeyPair quickKeyPair = Utils.generateSignatureKeyPair();
 * ✅ Generate or import private key, sign, encrypt and decrypt using Tonlib
 * ✅ Encrypt/decrypt with mnemonic
 * ✅ Deploy contracts and send external messages using Tonlib
-* ✅ Wallets - Simple (V1), V2, V3, V4 (plugins), V5, Lockup, ~~Highload~~/Highload-V3, Highload-V3S (Secp256k1), DNS,
+* ✅ Wallets: Simple (V1), V2, V3, V4 (plugins), V5, Lockup, ~~Highload~~/Highload-V3, Highload-V3S (Secp256k1), DNS,
   Jetton/Jetton V2, StableCoin, NFT,
   Payment-channels, ~~Multisig V1~~, Multisig V2
 * ✅ HashMap, HashMapE, PfxHashMap, PfxHashMapE, HashMapAug, HashMapAugE serialization / deserialization

@@ -252,7 +252,7 @@ public class TonCenterV3MyLocalTonTest {
               () -> {
                 MasterchainInfo info = client.getMasterchainInfo();
                 assertNotNull(info);
-                log.info(Thread.currentThread().getName() + " - Success");
+                log.info("{} - Success", Thread.currentThread().getName());
               });
       threads[i].start();
     }

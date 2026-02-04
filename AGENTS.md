@@ -1,8 +1,8 @@
 # AGENTS.md — ton4j (TON Java SDK)
 
 ## What this repo is
-ton4j is a multi-module Maven project providing Java libraries for The Open Network (TON).
-Modules are independent; prefer the smallest module that satisfies a change.
+ton4j is a multi-module Maven project providing Java SDK for The Open Network (TON).
+Some modules are dependent; prefer the smallest module that satisfies a change.
 
 ## Fast start (local)
 - Requirements: Java 11+ (library baseline), Maven
@@ -44,4 +44,5 @@ Some modules wrap external binaries/shared libraries. If a test requires them:
 ## PR expectations
 - Small, focused diffs.
 - Update README/examples if user-facing behavior changes.
+- Update AGENTS.md if required
 - Add/adjust tests.

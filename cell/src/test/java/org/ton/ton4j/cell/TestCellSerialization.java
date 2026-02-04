@@ -397,6 +397,8 @@ public class TestCellSerialization {
             .storeUint(1, 8)
             .storeUint(123456, 256)
             .storeUint(1, 16)
+            .setExotic(true)
+            .cellType(CellType.PRUNED_BRANCH)
             .endCell();
 
     log.info("c levelMask {}, maxLevel {}", c.resolveMask(), c.getMaxLevel());
