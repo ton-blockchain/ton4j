@@ -86,7 +86,7 @@ public class TestWalletV1R3Short extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
     WalletV1R3 contract =
-        WalletV1R3.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).build();
+        WalletV1R3.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();

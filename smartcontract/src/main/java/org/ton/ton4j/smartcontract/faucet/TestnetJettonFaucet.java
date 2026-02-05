@@ -128,7 +128,7 @@ public class TestnetJettonFaucet {
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().adnlLiteClient(adnlLiteClient).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(adnlLiteClient).walletId(42).keyPair(keyPair).build();
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
@@ -188,7 +188,7 @@ public class TestnetJettonFaucet {
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().tonCenterClient(tonCenterClient).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(tonCenterClient).walletId(42).keyPair(keyPair).build();
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()

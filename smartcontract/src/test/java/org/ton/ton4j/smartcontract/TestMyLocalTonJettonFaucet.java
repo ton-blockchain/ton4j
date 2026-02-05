@@ -49,11 +49,11 @@ public class TestMyLocalTonJettonFaucet {
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().adnlLiteClient(adnlLiteClient).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(adnlLiteClient).walletId(42).keyPair(keyPair).build();
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .customAddress(Address.of(FAUCET_MASTER_ADDRESS))
             .build();
 

@@ -254,7 +254,7 @@ public class TestWalletV1R3 extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
     WalletV1R3 contract =
-        WalletV1R3.builder().adnlLiteClient(adnlLiteClient).publicKey(publicKey).build();
+        WalletV1R3.builder().tonProvider(adnlLiteClient).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =
@@ -297,7 +297,7 @@ public class TestWalletV1R3 extends CommonTest {
     TonCenter tonCenterClient =
         TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().debug().build();
     WalletV1R3 contract =
-        WalletV1R3.builder().tonCenterClient(tonCenterClient).publicKey(publicKey).build();
+        WalletV1R3.builder().tonProvider(tonCenterClient).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
     log.info("address: {}", contract.getAddress().toBounceable());
 

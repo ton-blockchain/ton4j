@@ -156,7 +156,7 @@ public class TestWalletV1R1 extends CommonTest {
             .build();
 
     WalletV1R1 contract =
-        WalletV1R1.builder().adnlLiteClient(adnlLiteClient).wc(0).keyPair(keyPair).build();
+        WalletV1R1.builder().tonProvider(adnlLiteClient).wc(0).keyPair(keyPair).build();
 
     log.info("Wallet version {}", contract.getName());
     log.info("Wallet pub-key {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
@@ -207,7 +207,7 @@ public class TestWalletV1R1 extends CommonTest {
     TonCenter tonCenterClient = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().build();
 
     WalletV1R1 contract =
-        WalletV1R1.builder().tonCenterClient(tonCenterClient).wc(0).keyPair(keyPair).build();
+        WalletV1R1.builder().tonProvider(tonCenterClient).wc(0).keyPair(keyPair).build();
 
     log.info("Wallet version {}", contract.getName());
     log.info("Wallet pub-key {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));

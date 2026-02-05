@@ -209,22 +209,9 @@ public class WalletV5 implements Contract {
    * Sends amount of nano toncoins to the destination address and waits till a message found among
    * account's transactions
    */
-  public RawTransaction sendWithConfirmation(WalletV5Config config) throws Exception {
+  public Transaction sendWithConfirmation(WalletV5Config config) throws Exception {
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      ((TonCenter) provider)
-          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
-      return null;
-    } else if (provider instanceof AdnlLiteClient) {
-      ((AdnlLiteClient) provider)
-          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
-      return null;
-    } else if (provider instanceof Tonlib) {
-      return ((Tonlib) provider)
-          .sendRawMessageWithConfirmation(prepareExternalMsg(config).toCell().toBase64(), getAddress());
-    } else {
-      throw new Error("Provider not set");
-    }
+    return provider.sendExternalMessageWithConfirmation(prepareExternalMsg(config));
   }
 
   /** Deploy wallet without any extensions. One can be installed later into the wallet. */

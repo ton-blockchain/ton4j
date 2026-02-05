@@ -571,7 +571,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
     TonCenter tonCenter = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().uniqueRequests().build();
 
     WalletV4R2 contract =
-        WalletV4R2.builder().tonCenterClient(tonCenter).keyPair(keyPair).walletId(42).build();
+        WalletV4R2.builder().tonProvider(tonCenter).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 

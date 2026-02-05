@@ -20,7 +20,7 @@ import org.ton.ton4j.toncenter.Network;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.toncenter.TonResponse;
 import org.ton.ton4j.toncenter.model.SendBocResponse;
-import org.ton.ton4j.tonlib.types.RawTransaction;
+import org.ton.ton4j.tlb.Transaction;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
@@ -58,8 +58,8 @@ public class TestWalletV2R1Short extends CommonTest {
             .amount1(Utils.toNano(0.1))
             .build();
 
-    RawTransaction rawTransaction = contract.sendWithConfirmation(config);
-    assertThat(rawTransaction).isNotNull();
+    Transaction transaction = contract.sendWithConfirmation(config);
+    assertThat(transaction).isNotNull();
 
     log.info("sending to 4 destinations...");
     config =
@@ -75,8 +75,8 @@ public class TestWalletV2R1Short extends CommonTest {
             .amount4(Utils.toNano(0.15))
             .build();
 
-    rawTransaction = contract.sendWithConfirmation(config);
-    assertThat(rawTransaction).isNotNull();
+    transaction = contract.sendWithConfirmation(config);
+    assertThat(transaction).isNotNull();
 
     Utils.sleep(30);
 
@@ -135,7 +135,7 @@ public class TestWalletV2R1Short extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
     WalletV2R1 contract =
-        WalletV2R1.builder().adnlLiteClient(adnlLiteClient).publicKey(publicKey).build();
+        WalletV2R1.builder().tonProvider(adnlLiteClient).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =

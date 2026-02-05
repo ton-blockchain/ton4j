@@ -66,7 +66,7 @@ public class TestDns extends CommonTest {
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
             .liteServerIndex(0)
             .build();
-    Dns dns = Dns.builder().adnlLiteClient(adnlLiteClient).build();
+    Dns dns = Dns.builder().tonProvider(adnlLiteClient).build();
     log.info("root DNS address = {}", dns.getRootDnsAddress());
 
     Object result = dns.resolve("apple.ton", DNS_CATEGORY_NEXT_RESOLVER, true);
@@ -104,7 +104,7 @@ public class TestDns extends CommonTest {
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
             .liteServerIndex(0)
             .build();
-    Dns dns = Dns.builder().adnlLiteClient(adnlLiteClient).build();
+    Dns dns = Dns.builder().tonProvider(adnlLiteClient).build();
     Address rootAddress = dns.getRootDnsAddress();
     log.info("root DNS address = {}", rootAddress.toString(true, true, true));
 
@@ -122,7 +122,7 @@ public class TestDns extends CommonTest {
     TonCenter tonCenterClient =
         TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
 
-    Dns dns = Dns.builder().tonCenterClient(tonCenterClient).build();
+    Dns dns = Dns.builder().tonProvider(tonCenterClient).build();
     log.info("root DNS address = {}", dns.getRootDnsAddress());
 
     Object result = dns.resolve("apple.ton", DNS_CATEGORY_NEXT_RESOLVER, true);
@@ -139,7 +139,7 @@ public class TestDns extends CommonTest {
   public void testDnsResolveMainnetTonCenterClient() throws Exception {
     TonCenter tonCenterClient = TonCenter.builder().network(Network.MAINNET).build();
 
-    Dns dns = Dns.builder().tonCenterClient(tonCenterClient).build();
+    Dns dns = Dns.builder().tonProvider(tonCenterClient).build();
     Address rootAddress = dns.getRootDnsAddress();
     log.info("root DNS address = {}", rootAddress.toString(true, true, true));
 

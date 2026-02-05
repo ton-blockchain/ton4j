@@ -132,7 +132,7 @@ public class TestnetFaucet {
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(SECRET_KEY));
 
     WalletV1R3 faucet =
-        WalletV1R3.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).build();
+        WalletV1R3.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
 
     BigInteger faucetBalance = null;
     int i = 0;
@@ -211,7 +211,7 @@ public class TestnetFaucet {
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(SECRET_KEY));
 
     WalletV1R3 faucet =
-        WalletV1R3.builder().tonCenterClient(tonCenterClient).keyPair(keyPair).build();
+        WalletV1R3.builder().tonProvider(tonCenterClient).keyPair(keyPair).build();
 
     BigInteger faucetBalance = null;
     int i = 0;

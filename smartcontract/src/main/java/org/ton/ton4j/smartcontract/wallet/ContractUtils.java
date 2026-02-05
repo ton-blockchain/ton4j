@@ -97,7 +97,7 @@ public class ContractUtils {
 
     try {
       JettonMinter jettonMinterWallet =
-          JettonMinter.builder().adnlLiteClient(adnlLiteClient).customAddress(jettonMinter).build();
+          JettonMinter.builder().tonProvider(adnlLiteClient).customAddress(jettonMinter).build();
 
       JettonWallet jettonWallet = jettonMinterWallet.getJettonWallet(destinationAddress);
       return jettonWallet.getBalance();
@@ -127,7 +127,7 @@ public class ContractUtils {
 
     try {
       JettonMinter jettonMinterWallet =
-          JettonMinter.builder().tonCenterClient(tonCenterClient).customAddress(jettonMinter).build();
+          JettonMinter.builder().tonProvider(tonCenterClient).customAddress(jettonMinter).build();
 
       JettonWallet jettonWallet = jettonMinterWallet.getJettonWallet(destinationAddress);
       return jettonWallet.getBalance();

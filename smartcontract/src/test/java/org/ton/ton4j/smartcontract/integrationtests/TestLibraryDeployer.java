@@ -105,7 +105,7 @@ public class TestLibraryDeployer extends CommonTest {
     Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
 
     LibraryDeployer libraryDeployer =
-        LibraryDeployer.builder().adnlLiteClient(adnlLiteClient).libraryCode(walletV5Code).build();
+        LibraryDeployer.builder().tonProvider(adnlLiteClient).libraryCode(walletV5Code).build();
 
     log.info("boc {}", walletV5Code.toHex());
 
@@ -149,7 +149,7 @@ public class TestLibraryDeployer extends CommonTest {
     Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
 
     LibraryDeployer libraryDeployer =
-        LibraryDeployer.builder().tonCenterClient(tonCenter).libraryCode(walletV5Code).build();
+        LibraryDeployer.builder().tonProvider(tonCenter).libraryCode(walletV5Code).build();
 
     log.info("boc {}", walletV5Code.toHex());
 

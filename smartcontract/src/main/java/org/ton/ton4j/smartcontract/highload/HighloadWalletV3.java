@@ -279,7 +279,7 @@ public class HighloadWalletV3 implements Contract {
    * Sends amount of nano toncoins to destination address and waits till message found among
    * account's transactions
    */
-  public RawTransaction sendWithConfirmation(HighloadV3Config highloadConfig) throws Exception {
+  public Transaction sendWithConfirmation(HighloadV3Config highloadConfig) throws Exception {
     Address ownAddress = getAddress();
 
     Cell body = createTransferMessage(highloadConfig);
@@ -303,27 +303,10 @@ public class HighloadWalletV3 implements Contract {
             .build();
 
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      try {
-        ((TonCenter) provider).sendBoc(externalMessage.toCell().toBase64());
-        return null;
-      } catch (Exception e) {
-        throw new Error(e);
-      }
-    }
-    if (provider instanceof AdnlLiteClient) {
-      ((AdnlLiteClient) provider)
-          .sendRawMessageWithConfirmation(externalMessage, getAddress());
-      return null;
-    } else if (provider instanceof Tonlib) {
-      return ((Tonlib) provider)
-          .sendRawMessageWithConfirmation(externalMessage.toCell().toBase64(), getAddress());
-    } else {
-      throw new Error("Provider not set");
-    }
+    return provider.sendExternalMessageWithConfirmation(externalMessage);
   }
 
-  public RawTransaction sendWithConfirmation(HighloadV3Config highloadConfig, byte[] signedBody)
+  public Transaction sendWithConfirmation(HighloadV3Config highloadConfig, byte[] signedBody)
       throws Exception {
     Address ownAddress = getAddress();
 
@@ -343,24 +326,7 @@ public class HighloadWalletV3 implements Contract {
             .build();
 
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      try {
-        ((TonCenter) provider).sendBoc(externalMessage.toCell().toBase64());
-        return null;
-      } catch (Exception e) {
-        throw new Error(e);
-      }
-    }
-    if (provider instanceof AdnlLiteClient) {
-      ((AdnlLiteClient) provider)
-          .sendRawMessageWithConfirmation(externalMessage, getAddress());
-      return null;
-    } else if (provider instanceof Tonlib) {
-      return ((Tonlib) provider)
-          .sendRawMessageWithConfirmation(externalMessage.toCell().toBase64(), getAddress());
-    } else {
-      throw new Error("Provider not set");
-    }
+    return provider.sendExternalMessageWithConfirmation(externalMessage);
   }
 
   private Cell createDeployMessageTemp(HighloadV3Config highloadConfig) {

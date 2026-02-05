@@ -240,18 +240,12 @@ public interface Contract {
     return provider.sendExternalMessage(externalMessage);
   }
 
-  default void sendWithConfirmation(Message externalMessage) throws Exception {
+  default Transaction sendWithConfirmation(Message externalMessage) throws Exception {
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      ((TonCenter) provider).sendRawMessageWithConfirmation(externalMessage, getAddress());
-    } else if (provider instanceof AdnlLiteClient) {
-      ((AdnlLiteClient) provider).sendRawMessageWithConfirmation(externalMessage, getAddress());
-    } else if (provider instanceof Tonlib) {
-      ((Tonlib) provider)
-          .sendRawMessageWithConfirmation(externalMessage.toCell().toBase64(), getAddress());
-    } else {
+    if (provider == null) {
       throw new Error("Provider not set");
     }
+    return provider.sendExternalMessageWithConfirmation(externalMessage);
   }
 
   /** Checks every 2 seconds for 60 seconds if account state was deployed at the address */

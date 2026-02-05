@@ -109,7 +109,7 @@ public class TestExampleContract extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     ExampleContract exampleContract =
-        ExampleContract.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).build();
+        ExampleContract.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
 
     log.info("pubkey {}", Utils.bytesToHex(exampleContract.getKeyPair().getPublicKey()));
 
@@ -167,7 +167,7 @@ public class TestExampleContract extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     ExampleContract exampleContract =
-        ExampleContract.builder().tonCenterClient(tonCenter).keyPair(keyPair).build();
+        ExampleContract.builder().tonProvider(tonCenter).keyPair(keyPair).build();
 
     log.info("pubkey {}", Utils.bytesToHex(exampleContract.getKeyPair().getPublicKey()));
 

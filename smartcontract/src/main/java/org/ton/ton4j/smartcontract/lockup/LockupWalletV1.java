@@ -30,7 +30,6 @@ import org.ton.ton4j.toncenter.TonResponse;
 import org.ton.ton4j.toncenter.model.RunGetMethodResponse;
 import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.tonlib.types.ExtMessageInfo;
-import org.ton.ton4j.tonlib.types.RawTransaction;
 import org.ton.ton4j.tonlib.types.RunResult;
 import org.ton.ton4j.tonlib.types.TvmStackEntryNumber;
 import org.ton.ton4j.utils.Utils;
@@ -488,7 +487,7 @@ public class LockupWalletV1 implements Contract {
    * Sends amount of nano toncoins to destination address and waits till message found among
    * account's transactions
    */
-  public RawTransaction sendWithConfirmation(LockupWalletV1Config config) {
+  public Transaction sendWithConfirmation(LockupWalletV1Config config) {
     Cell body = createTransferBody(config);
 
     Message externalMessage =
@@ -502,22 +501,6 @@ public class LockupWalletV1 implements Contract {
                     .endCell())
             .build();
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      try {
-        ((TonCenter) provider).sendBoc(externalMessage.toCell().toBase64());
-        return null;
-      } catch (Exception e) {
-        throw new Error(e);
-      }
-    }
-    if (provider instanceof AdnlLiteClient) {
-      send(externalMessage);
-      return null;
-    } else if (provider instanceof Tonlib) {
-      return ((Tonlib) provider)
-          .sendRawMessageWithConfirmation(externalMessage.toCell().toBase64(), getAddress());
-    } else {
-      throw new Error("Provider not set");
-    }
+    return provider.sendExternalMessageWithConfirmation(externalMessage);
   }
 }

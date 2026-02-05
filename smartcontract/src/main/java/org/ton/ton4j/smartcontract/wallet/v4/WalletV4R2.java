@@ -715,22 +715,9 @@ public class WalletV4R2 implements Contract {
    * Sends amount of nano toncoins to destination address and waits till message found among
    * account's transactions
    */
-  public RawTransaction sendWithConfirmation(WalletV4R2Config config) throws Exception {
+  public Transaction sendWithConfirmation(WalletV4R2Config config) throws Exception {
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      ((TonCenter) provider)
-          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
-      return null;
-    } else if (provider instanceof AdnlLiteClient) {
-      ((AdnlLiteClient) provider)
-          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
-      return null;
-    } else if (provider instanceof Tonlib) {
-      return ((Tonlib) provider)
-          .sendRawMessageWithConfirmation(prepareExternalMsg(config).toCell().toBase64(), getAddress());
-    } else {
-      throw new Error("Provider not set");
-    }
+    return provider.sendExternalMessageWithConfirmation(prepareExternalMsg(config));
   }
 
   public Cell createInternalSignedBody(WalletV4R2Config config) {

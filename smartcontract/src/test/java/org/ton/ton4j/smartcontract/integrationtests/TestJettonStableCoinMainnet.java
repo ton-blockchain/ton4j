@@ -262,7 +262,7 @@ public class TestJettonStableCoinMainnet {
 
     // use your wallet
     WalletV4R2 myWallet =
-        WalletV4R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+        WalletV4R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = myWallet.getAddress().toNonBounceable();
     String bounceableAddress = myWallet.getAddress().toBounceable();

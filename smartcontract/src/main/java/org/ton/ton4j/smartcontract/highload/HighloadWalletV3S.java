@@ -382,7 +382,7 @@ public class HighloadWalletV3S implements Contract {
    * Sends amount of nano toncoins to destination address and waits till message found among
    * account's transactions
    */
-  public RawTransaction sendWithConfirmation(HighloadV3Config highloadConfig) throws Exception {
+  public Transaction sendWithConfirmation(HighloadV3Config highloadConfig) throws Exception {
 
     Cell body = createTransferMessage(highloadConfig);
 
@@ -390,34 +390,8 @@ public class HighloadWalletV3S implements Contract {
         Utils.signDataSecp256k1(body.hash(), keyPair.getPrivateKey(), keyPair.getPublicKey());
 
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      try {
-        ((TonCenter) provider)
-            .sendBoc(
-                prepareExternalMsg(body, signature.getV()[0], signature.getSignature())
-                    .toCell()
-                    .toBase64());
-        return null;
-      } catch (Exception e) {
-        throw new Error(e);
-      }
-    }
-    if (provider instanceof AdnlLiteClient) {
-      ((AdnlLiteClient) provider)
-          .sendRawMessageWithConfirmation(
-              prepareExternalMsg(body, signature.getV()[0], signature.getSignature()),
-              getAddress());
-      return null;
-    } else if (provider instanceof Tonlib) {
-      return ((Tonlib) provider)
-          .sendRawMessageWithConfirmation(
-              prepareExternalMsg(body, signature.getV()[0], signature.getSignature())
-                  .toCell()
-                  .toBase64(),
-              getAddress());
-    } else {
-      throw new Error("Provider not set");
-    }
+    return provider.sendExternalMessageWithConfirmation(
+        prepareExternalMsg(body, signature.getV()[0], signature.getSignature()));
   }
 
   public Message prepareExternalMsg(Cell body, byte v, byte[] signedBodyHash) {

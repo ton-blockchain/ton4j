@@ -288,11 +288,12 @@ try {
 More TonCenter V3 examples in [tests](toncenter-indexer-v3/src/test/java/org/ton/ton4j/toncenterv3/TonCenterV3Test.java).
 
 ## Smart contract address
-In TON smart contract address have various [formats](https://docs.ton.org/foundations/addresses/formats).
+In TON smart contract address has various [formats](https://docs.ton.org/foundations/addresses/formats).
 
 ```java
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-WalletV3R2 wallet = WalletV3R2.builder().keyPair(keyPair).walletId(42).build();
+Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).build();
+WalletV3R2 wallet = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
 String raw = wallet.getAddress().toRaw();
 String bounceableTestnet = wallet.getAddress().toBounceableTestnet();
@@ -319,7 +320,7 @@ Create a simple wallet V3R2 in the Mainnet
 // prepare 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-WalletV3R2 contract = WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+WalletV3R2 contract = WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
@@ -334,7 +335,7 @@ contract.deploy();
 // prepare 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-WalletV3R2 contract = WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+WalletV3R2 contract = WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
@@ -499,7 +500,7 @@ byte[] pubKey = keyPair.getPublicKey();
 
 HighloadWalletV3S contract =
   HighloadWalletV3S.builder()
-    .tonlib(tonlib)
+    .tonProvider(tonlib)
     .publicKey(pubKey) // no private key is used
     .walletId(42)
     .build();
@@ -557,7 +558,7 @@ You can also send a custom payload to a smart contract
 // prepare 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 AdnlLiteClient adnlLiteClient =  AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-WalletV3R2 contract =  WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+WalletV3R2 contract =  WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
@@ -597,7 +598,7 @@ TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
 WalletV3R2 wallet =
   WalletV3R2.builder()
-    .adnlLiteClient(adnlLiteClient)
+    .tonProvider(adnlLiteClient)
     .publicKey(keyPair.getPublicKey()) // no private key in app
     .walletId(42)
     .build();
@@ -1108,8 +1109,9 @@ TVM emulator allows you to replay `run_method`, `external` and `internal` messag
 
 #### Emulate run methods
 ```java
+Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).build();
 // create WalletV4R2
-WalletV4R2 walletV4R2 = WalletV4R2.builder().keyPair(keyPair).walletId(42).build();
+WalletV4R2 walletV4R2 = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
 // create TVM emulator
 TvmEmulator tvmEmulator =

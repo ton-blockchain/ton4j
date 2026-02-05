@@ -1306,7 +1306,7 @@ public class TestWalletV5 extends CommonTest {
             .liteServerIndex(0)
             .build();
     WalletV3R1 contractV3 =
-        WalletV3R1.builder().adnlLiteClient(adnlLiteClient).walletId(43).build();
+        WalletV3R1.builder().tonProvider(adnlLiteClient).walletId(43).build();
 
     Address walletAddressV3 = contractV3.getAddress();
 
@@ -1471,7 +1471,7 @@ public class TestWalletV5 extends CommonTest {
     // create user wallet that sends an internal message to wallet v5
     TonCenter tonCenterClient = TonCenter.builder().testnet().build();
     WalletV3R1 contractV3 =
-        WalletV3R1.builder().tonCenterClient(tonCenterClient).walletId(43).build();
+        WalletV3R1.builder().tonProvider(tonCenterClient).walletId(43).build();
 
     Address walletAddressV3 = contractV3.getAddress();
 

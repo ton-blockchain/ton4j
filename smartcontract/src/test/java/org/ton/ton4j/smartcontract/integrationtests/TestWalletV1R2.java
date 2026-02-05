@@ -116,7 +116,7 @@ public class TestWalletV1R2 extends CommonTest {
             .liteServerIndex(0)
             .build();
     WalletV1R2 contract =
-        WalletV1R2.builder().adnlLiteClient(adnlLiteClient).initialSeqno(2).build();
+        WalletV1R2.builder().tonProvider(adnlLiteClient).initialSeqno(2).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -166,7 +166,7 @@ public class TestWalletV1R2 extends CommonTest {
             .liteServerIndex(0)
             .build();
     WalletV1R2 contract =
-        WalletV1R2.builder().adnlLiteClient(adnlLiteClient).initialSeqno(2).build();
+        WalletV1R2.builder().tonProvider(adnlLiteClient).initialSeqno(2).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -209,7 +209,7 @@ public class TestWalletV1R2 extends CommonTest {
   public void testNewWalletV1R2TonCenterClient() throws Exception {
     TonCenter tonCenterClient = TonCenter.builder().testnet().build();
     WalletV1R2 contract =
-        WalletV1R2.builder().tonCenterClient(tonCenterClient).initialSeqno(2).build();
+        WalletV1R2.builder().tonProvider(tonCenterClient).initialSeqno(2).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -258,7 +258,7 @@ public class TestWalletV1R2 extends CommonTest {
     TonCenter tonCenterClient = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().build();
 
     WalletV1R2 contract =
-        WalletV1R2.builder().tonCenterClient(tonCenterClient).initialSeqno(2).keyPair(keyPair).build();
+        WalletV1R2.builder().tonProvider(tonCenterClient).initialSeqno(2).keyPair(keyPair).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();

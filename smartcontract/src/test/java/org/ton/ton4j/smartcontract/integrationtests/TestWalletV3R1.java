@@ -153,7 +153,7 @@ public class TestWalletV3R1 extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
     WalletV3R1 contract =
-        WalletV3R1.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+        WalletV3R1.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
     Message msg =
         MsgUtils.createExternalMessageWithSignedBody(

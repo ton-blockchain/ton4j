@@ -472,7 +472,7 @@ public class TestWalletV3R2Short extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
     WalletV3R2 contract1 =
-        WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress1 = contract1.getAddress().toNonBounceable();
     String bounceableAddress1 = contract1.getAddress().toBounceable();
@@ -485,7 +485,7 @@ public class TestWalletV3R2Short extends CommonTest {
     log.info("prv-key {}", Utils.bytesToHex(contract1.getKeyPair().getSecretKey()));
 
     WalletV3R2 contract2 =
-        WalletV3R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(98).build();
+        WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(98).build();
 
     String nonBounceableAddress2 = contract2.getAddress().toNonBounceable();
     String bounceableAddress2 = contract2.getAddress().toBounceable();

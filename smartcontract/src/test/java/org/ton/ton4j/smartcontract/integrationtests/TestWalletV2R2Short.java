@@ -136,7 +136,7 @@ public class TestWalletV2R2Short extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
     WalletV2R2 contract =
-        WalletV2R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).build();
+        WalletV2R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();

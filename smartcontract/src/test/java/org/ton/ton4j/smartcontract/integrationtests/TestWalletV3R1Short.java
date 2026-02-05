@@ -6,11 +6,11 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
-import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.types.WalletV3Config;
 import org.ton.ton4j.smartcontract.wallet.v3.WalletV3R1;
@@ -108,7 +108,7 @@ public class TestWalletV3R1Short extends CommonTest {
   public void testWalletV3R1AdnlLiteClient() throws Exception {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-    WalletV3R1 contract = WalletV3R1.builder().adnlLiteClient(adnlLiteClient).walletId(42).build();
+    WalletV3R1 contract = WalletV3R1.builder().tonProvider(adnlLiteClient).walletId(42).build();
     log.info("pub key: {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
     log.info("prv key: {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
 
