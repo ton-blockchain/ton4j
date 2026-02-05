@@ -32,7 +32,7 @@ public class TestWalletV2R1Short extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV2R1 contract = WalletV2R1.builder().tonlib(tonlib).keyPair(keyPair).build();
+    WalletV2R1 contract = WalletV2R1.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -92,7 +92,7 @@ public class TestWalletV2R1Short extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] publicKey = keyPair.getPublicKey();
 
-    WalletV2R1 contract = WalletV2R1.builder().tonlib(tonlib).publicKey(publicKey).build();
+    WalletV2R1 contract = WalletV2R1.builder().tonProvider(tonlib).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =

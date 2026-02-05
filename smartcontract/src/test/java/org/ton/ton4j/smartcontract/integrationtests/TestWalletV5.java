@@ -707,7 +707,7 @@ public class TestWalletV5 extends CommonTest {
 
     // create user wallet that sends an internal message to wallet v5
 
-    WalletV3R1 contractV3 = WalletV3R1.builder().tonlib(tonlib).walletId(43).build();
+    WalletV3R1 contractV3 = WalletV3R1.builder().tonProvider(tonlib).walletId(43).build();
 
     Address walletAddressV3 = contractV3.getAddress();
 
@@ -804,7 +804,7 @@ public class TestWalletV5 extends CommonTest {
 
     // create a wallet v3r1 that will be an extension
 
-    WalletV3R1 contractV3 = WalletV3R1.builder().tonlib(tonlib).walletId(43).build();
+    WalletV3R1 contractV3 = WalletV3R1.builder().tonProvider(tonlib).walletId(43).build();
 
     Address walletAddressV3 = contractV3.getAddress();
 
@@ -897,7 +897,7 @@ public class TestWalletV5 extends CommonTest {
 
     // create a wallet v3r1 that will be an extension
 
-    WalletV3R1 contractV3 = WalletV3R1.builder().tonlib(tonlib).walletId(43).build();
+    WalletV3R1 contractV3 = WalletV3R1.builder().tonProvider(tonlib).walletId(43).build();
 
     Address walletAddressV3 = contractV3.getAddress();
 

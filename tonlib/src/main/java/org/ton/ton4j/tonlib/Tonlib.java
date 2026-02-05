@@ -28,6 +28,7 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.tlb.*;
 import org.ton.ton4j.tlb.print.MessagePrintInfo;
 import org.ton.ton4j.tlb.print.TransactionPrintInfo;
@@ -41,7 +42,7 @@ import org.ton.ton4j.utils.Utils;
 
 @Slf4j
 @Builder
-public class Tonlib {
+public class Tonlib implements TonProvider {
 
   public static final Address ELECTION_ADDRESS =
       Address.of("-1:3333333333333333333333333333333333333333333333333333333333333333");

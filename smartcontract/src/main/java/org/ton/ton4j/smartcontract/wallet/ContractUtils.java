@@ -66,7 +66,7 @@ public class ContractUtils {
 
     try {
       JettonMinter jettonMinterWallet =
-          JettonMinter.builder().tonlib(tonlib).customAddress(jettonMinter).build();
+          JettonMinter.builder().tonProvider(tonlib).customAddress(jettonMinter).build();
 
       JettonWallet jettonWallet = jettonMinterWallet.getJettonWallet(destinationAddress);
 

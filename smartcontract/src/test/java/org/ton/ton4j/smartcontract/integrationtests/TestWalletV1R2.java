@@ -26,7 +26,7 @@ public class TestWalletV1R2 extends CommonTest {
   @Test
   public void testNewWalletV1R2() throws InterruptedException {
 
-    WalletV1R2 contract = WalletV1R2.builder().tonlib(tonlib).initialSeqno(2).build();
+    WalletV1R2 contract = WalletV1R2.builder().tonProvider(tonlib).initialSeqno(2).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -72,7 +72,7 @@ public class TestWalletV1R2 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] publicKey = keyPair.getPublicKey();
 
-    WalletV1R2 contract = WalletV1R2.builder().tonlib(tonlib).publicKey(publicKey).build();
+    WalletV1R2 contract = WalletV1R2.builder().tonProvider(tonlib).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =

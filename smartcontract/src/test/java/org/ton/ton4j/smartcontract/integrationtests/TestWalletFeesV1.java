@@ -33,7 +33,7 @@ public class TestWalletFeesV1 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairA = Utils.generateSignatureKeyPair();
 
-    WalletV1R3 walletA = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPairA).build();
+    WalletV1R3 walletA = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPairA).build();
 
     String nonBounceableAddrWalletA = walletA.getAddress().toNonBounceable();
     String rawAddrWalletA = walletA.getAddress().toRaw();
@@ -44,7 +44,7 @@ public class TestWalletFeesV1 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairB = Utils.generateSignatureKeyPair();
 
-    WalletV1R3 walletB = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPairB).build();
+    WalletV1R3 walletB = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPairB).build();
 
     String nonBounceableAddrWalletB = walletB.getAddress().toNonBounceable();
     String rawAddrWalletB = walletB.getAddress().toRaw();
@@ -133,7 +133,7 @@ public class TestWalletFeesV1 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairA = Utils.generateSignatureKeyPair();
 
-    WalletV1R3 walletA = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPairA).build();
+    WalletV1R3 walletA = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPairA).build();
 
     String nonBounceableAddrWalletA = walletA.getAddress().toNonBounceable();
     String rawAddrWalletA = walletA.getAddress().toRaw();
@@ -144,7 +144,7 @@ public class TestWalletFeesV1 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairB = Utils.generateSignatureKeyPair();
 
-    WalletV1R3 walletB = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPairB).build();
+    WalletV1R3 walletB = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPairB).build();
 
     String nonBounceableAddrWalletB = walletB.getAddress().toNonBounceable();
     String rawAddrWalletB = walletB.getAddress().toRaw();

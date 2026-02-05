@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.types.ItemData;
 import org.ton.ton4j.smartcontract.types.Royalty;
 import org.ton.ton4j.smartcontract.types.WalletCodes;
@@ -33,10 +35,19 @@ public class NftItem implements Contract {
   BigInteger index;
   Address collectionAddress;
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -96,7 +107,11 @@ public class NftItem implements Contract {
   private static class CustomNftItemBuilder extends NftItemBuilder {
     @Override
     public NftItem build() {
-      return super.build();
+      NftItem instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
@@ -121,11 +136,12 @@ public class NftItem implements Contract {
    * @return DnsData
    */
   public ItemData getData() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get NFT data
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(getAddress().toBounceable(), "get_nft_data", new ArrayList<>())
                 .getResult();
 
@@ -185,14 +201,17 @@ public class NftItem implements Contract {
       } catch (Exception e) {
         throw new Error("Error getting NFT data: " + e.getMessage());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       // Implementation for AdnlLiteClient
       // Not implemented yet
       throw new Error("AdnlLiteClient implementation for getData not yet available");
     }
 
+    if (!(provider instanceof Tonlib)) {
+      throw new Error("provider not set");
+    }
     // Fallback to Tonlib
-    RunResult result = tonlib.runMethod(getAddress(), "get_nft_data");
+    RunResult result = ((Tonlib) provider).runMethod(getAddress(), "get_nft_data");
 
     if (result.getExit_code() != 0) {
       throw new Error("method get_nft_data, returned an exit code " + result.getExit_code());
@@ -284,12 +303,13 @@ public class NftItem implements Contract {
   public Royalty getRoyaltyParams(Tonlib tonlib) {
     Address myAddress = this.getAddress();
 
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get royalty params
         List<List<Object>> stack = new ArrayList<>();
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(myAddress.toBounceable(), "royalty_params", stack)
                 .getResult();
 
@@ -315,7 +335,7 @@ public class NftItem implements Contract {
       } catch (Exception e) {
         throw new Error("Error getting royalty params: " + e.getMessage());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       // Implementation for AdnlLiteClient
       // Not implemented yet
       throw new Error("AdnlLiteClient implementation for getRoyaltyParams not yet available");

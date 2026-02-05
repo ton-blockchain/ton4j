@@ -38,6 +38,10 @@
             <groupId>org.ton.ton4j</groupId>
             <artifactId>tl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ton.ton4j</groupId>
+            <artifactId>provider</artifactId>
+        </dependency>
         <!-- JSON handling for lite client -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

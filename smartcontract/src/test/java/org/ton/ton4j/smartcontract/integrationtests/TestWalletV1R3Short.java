@@ -30,7 +30,7 @@ public class TestWalletV1R3Short extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV1R3 contract = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPair).build();
+    WalletV1R3 contract = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();

@@ -5,11 +5,13 @@ import static java.util.Objects.isNull;
 import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import java.time.Instant;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.CustomContractConfig;
 import org.ton.ton4j.smartcontract.wallet.Contract;
@@ -39,13 +41,28 @@ public class ExampleContract implements Contract {
         super.keyPair = Utils.generateSignatureKeyPair();
       }
 
-      return super.build();
+      ExampleContract instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**

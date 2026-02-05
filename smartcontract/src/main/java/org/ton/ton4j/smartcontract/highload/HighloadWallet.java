@@ -7,11 +7,13 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.TonHashMap;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.Destination;
 import org.ton.ton4j.smartcontract.types.HighloadConfig;
@@ -50,14 +52,27 @@ public class HighloadWallet implements Contract {
       if (isNull(super.keyPair)) {
         super.keyPair = Utils.generateSignatureKeyPair();
       }
-      return super.build();
+      HighloadWallet instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -186,18 +201,25 @@ public class HighloadWallet implements Contract {
   //    }
 
   public String getPublicKey() throws Exception {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         return Utils.bytesToHex(
-            Utils.to32ByteArray(tonCenterClient.getPublicKey(getAddress().toBounceable())));
+            Utils.to32ByteArray(
+                ((TonCenter) provider).getPublicKey(getAddress().toBounceable())));
       } catch (Exception e) {
         throw new Error(e);
       }
     }
-    if (nonNull(adnlLiteClient)) {
-      return Utils.bytesToHex(Utils.to32ByteArray(adnlLiteClient.getPublicKey(getAddress())));
+    if (provider instanceof AdnlLiteClient) {
+      return Utils.bytesToHex(
+          Utils.to32ByteArray(((AdnlLiteClient) provider).getPublicKey(getAddress())));
     }
-    return Utils.bytesToHex(Utils.to32ByteArray(tonlib.getPublicKey(getAddress())));
+    if (provider instanceof Tonlib) {
+      return Utils.bytesToHex(
+          Utils.to32ByteArray(((Tonlib) provider).getPublicKey(getAddress())));
+    }
+    throw new Error("Provider not set");
   }
 
   /**

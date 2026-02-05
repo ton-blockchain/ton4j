@@ -9,10 +9,12 @@ import java.util.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.*;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.wallet.Contract;
@@ -56,14 +58,27 @@ public class MultiSigWallet implements Contract {
       if (isNull(super.keyPair)) {
         super.keyPair = Utils.generateSignatureKeyPair();
       }
-      return super.build();
+      MultiSigWallet instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -158,8 +173,10 @@ public class MultiSigWallet implements Contract {
 
   public List<BigInteger> getPublicKeys() {
     List<BigInteger> publicKeys = new ArrayList<>();
-    if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(getAddress(), "get_public_keys");
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(getAddress(), "get_public_keys");
       if (runMethodResult.getExitCode() != 0) {
         throw new Error(
             "method get_public_keys, returned an exit code " + runMethodResult.getExitCode());
@@ -178,10 +195,9 @@ public class MultiSigWallet implements Contract {
         publicKeys.add(pubKey);
       }
       return publicKeys;
-    } else {
-
+    } else if (provider instanceof Tonlib) {
       Address myAddress = this.getAddress();
-      RunResult result = tonlib.runMethod(myAddress, "get_public_keys");
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "get_public_keys");
 
       if (result.getExit_code() != 0) {
         throw new Error("method get_public_keys, returned an exit code " + result.getExit_code());
@@ -203,6 +219,8 @@ public class MultiSigWallet implements Contract {
         publicKeys.add(pubKey);
       }
       return publicKeys;
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
@@ -226,9 +244,11 @@ public class MultiSigWallet implements Contract {
    */
   public Cell getInitState(long walletId, int n, int k, Cell ownersInfo) {
 
-    if (nonNull(adnlLiteClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(),
               "create_init_state",
               VmStackValueInt.builder().value(BigInteger.valueOf(walletId)).build(),
@@ -240,14 +260,14 @@ public class MultiSigWallet implements Contract {
             "method create_init_state, returned an exit code " + runMethodResult.getExitCode());
       }
       return runMethodResult.getCellByIndex(0);
-    } else {
+    } else if (provider instanceof Tonlib) {
       Deque<String> stack = new ArrayDeque<>();
 
       stack.offer("[num, " + walletId + "]");
       stack.offer("[num, " + n + "]");
       stack.offer("[num, " + k + "]");
       stack.offer("[cell, " + ownersInfo.toHex(false) + "]");
-      RunResult result = tonlib.runMethod(getAddress(), "create_init_state", stack);
+      RunResult result = ((Tonlib) provider).runMethod(getAddress(), "create_init_state", stack);
 
       if (result.getExit_code() != 0) {
         throw new Error("method createInitState, returned an exit code " + result.getExit_code());
@@ -255,6 +275,8 @@ public class MultiSigWallet implements Contract {
 
       TvmStackEntryCell domainCell = (TvmStackEntryCell) result.getStack().get(0);
       return CellBuilder.beginCell().fromBocBase64(domainCell.getCell().getBytes()).endCell();
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
@@ -643,14 +665,15 @@ public class MultiSigWallet implements Contract {
 
   public Pair<Long, Long> getNandK() {
 
-    if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(getAddress(), "get_n_k");
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(getAddress(), "get_n_k");
       return Pair.of(
           runMethodResult.getIntByIndex(0).longValue(),
           runMethodResult.getIntByIndex(1).longValue());
-    } else {
-
-      RunResult result = tonlib.runMethod(getAddress(), "get_n_k");
+    } else if (provider instanceof Tonlib) {
+      RunResult result = ((Tonlib) provider).runMethod(getAddress(), "get_n_k");
 
       if (result.getExit_code() != 0) {
         throw new Error("method get_n_k, returned an exit code " + result.getExit_code());
@@ -660,6 +683,8 @@ public class MultiSigWallet implements Contract {
       TvmStackEntryNumber kNumber = (TvmStackEntryNumber) result.getStack().get(1);
 
       return Pair.of(nNumber.getNumber().longValue(), kNumber.getNumber().longValue());
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
@@ -669,9 +694,10 @@ public class MultiSigWallet implements Contract {
    * @return List<Cell> pending queries
    */
   public Map<BigInteger, Cell> getMessagesUnsigned() {
-    if (nonNull(adnlLiteClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(getAddress(), "get_messages_unsigned");
+          ((AdnlLiteClient) provider).runMethod(getAddress(), "get_messages_unsigned");
       if (runMethodResult.getExitCode() != 0) {
         throw new Error(
             "method get_messages_signed_by_id, returned an exit code "
@@ -689,9 +715,9 @@ public class MultiSigWallet implements Contract {
         resultMap.put((BigInteger) entry.getKey(), (Cell) entry.getValue());
       }
       return resultMap;
-    } else {
+    } else if (provider instanceof Tonlib) {
       Address myAddress = this.getAddress();
-      RunResult result = tonlib.runMethod(myAddress, "get_messages_unsigned");
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "get_messages_unsigned");
 
       if (result.getExit_code() != 0) {
         throw new Error(
@@ -717,6 +743,8 @@ public class MultiSigWallet implements Contract {
       }
 
       return resultMap;
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
@@ -727,9 +755,11 @@ public class MultiSigWallet implements Contract {
    */
   public Map<BigInteger, Cell> getMessagesSignedByIndex(long index) {
 
-    if (nonNull(adnlLiteClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(),
               "get_messages_signed_by_id",
               VmStackValueInt.builder().value(BigInteger.valueOf(index)).build());
@@ -750,14 +780,14 @@ public class MultiSigWallet implements Contract {
         resultMap.put((BigInteger) entry.getKey(), (Cell) entry.getValue());
       }
       return resultMap;
-    } else {
+    } else if (provider instanceof Tonlib) {
 
       Address myAddress = this.getAddress();
       Deque<String> stack = new ArrayDeque<>();
 
       stack.offer("[num, " + index + "]");
 
-      RunResult result = tonlib.runMethod(myAddress, "get_messages_signed_by_id", stack);
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "get_messages_signed_by_id", stack);
 
       if (result.getExit_code() != 0) {
         throw new Error(
@@ -782,6 +812,8 @@ public class MultiSigWallet implements Contract {
         resultMap.put((BigInteger) entry.getKey(), (Cell) entry.getValue());
       }
       return resultMap;
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
@@ -792,9 +824,11 @@ public class MultiSigWallet implements Contract {
    */
   public Map<BigInteger, Cell> getMessagesUnsignedByIndex(long index) {
 
-    if (nonNull(adnlLiteClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(),
               "get_messages_unsigned_by_id",
               VmStackValueInt.builder().value(BigInteger.valueOf(index)).build());
@@ -815,13 +849,14 @@ public class MultiSigWallet implements Contract {
         resultMap.put((BigInteger) entry.getKey(), (Cell) entry.getValue());
       }
       return resultMap;
-    } else {
+    } else if (provider instanceof Tonlib) {
 
       Deque<String> stack = new ArrayDeque<>();
 
       stack.offer("[num, " + index + "]");
 
-      RunResult result = tonlib.runMethod(getAddress(), "get_messages_unsigned_by_id", stack);
+      RunResult result =
+          ((Tonlib) provider).runMethod(getAddress(), "get_messages_unsigned_by_id", stack);
 
       if (result.getExit_code() != 0) {
         throw new Error(
@@ -846,6 +881,8 @@ public class MultiSigWallet implements Contract {
         resultMap.put((BigInteger) entry.getKey(), (Cell) entry.getValue());
       }
       return resultMap;
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
@@ -857,9 +894,11 @@ public class MultiSigWallet implements Contract {
    */
   public Pair<Long, Long> getQueryState(BigInteger queryId) {
 
-    if (nonNull(adnlLiteClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(), "get_query_state", VmStackValueInt.builder().value(queryId).build());
       if (runMethodResult.getExitCode() != 0) {
         throw new Error(
@@ -869,13 +908,13 @@ public class MultiSigWallet implements Contract {
           runMethodResult.getIntByIndex(0).longValue(),
           runMethodResult.getIntByIndex(1).longValue());
 
-    } else {
+    } else if (provider instanceof Tonlib) {
 
       Deque<String> stack = new ArrayDeque<>();
 
       stack.offer("[num, " + queryId.toString(10) + "]");
 
-      RunResult result = tonlib.runMethod(getAddress(), "get_query_state", stack);
+      RunResult result = ((Tonlib) provider).runMethod(getAddress(), "get_query_state", stack);
 
       if (result.getExit_code() != 0) {
         throw new Error("method get_query_state, returned an exit code " + result.getExit_code());
@@ -884,6 +923,8 @@ public class MultiSigWallet implements Contract {
       TvmStackEntryNumber r = (TvmStackEntryNumber) result.getStack().get(0);
       TvmStackEntryNumber n = (TvmStackEntryNumber) result.getStack().get(1);
       return Pair.of(r.getNumber().longValue(), n.getNumber().longValue());
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
@@ -896,9 +937,11 @@ public class MultiSigWallet implements Contract {
    */
   public Pair<Long, Long> checkQuerySignatures(Tonlib tonlib, Cell query) {
 
-    if (nonNull(adnlLiteClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(),
               "check_query_signatures",
               VmStackValueCell.builder().cell(query).build());
@@ -966,9 +1009,11 @@ public class MultiSigWallet implements Contract {
    */
   public long processed(Tonlib tonlib, BigInteger queryId) {
 
-    if (nonNull(adnlLiteClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(), "processed?", VmStackValueInt.builder().value(queryId).build());
       if (runMethodResult.getExitCode() != 0) {
         throw new Error(

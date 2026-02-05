@@ -109,7 +109,7 @@ public class GaslessTransactionTest {
     Address relay = getRelayAddress(gaslessMethod);
 
     JettonMinterStableCoin usdtMasterWallet =
-        JettonMinterStableCoin.builder().tonlib(tonlib).customAddress(USDT_MASTER).build();
+        JettonMinterStableCoin.builder().tonProvider(tonlib).customAddress(USDT_MASTER).build();
 
     log.info(
         "USDT total supply: {}", Utils.formatJettonValue(usdtMasterWallet.getTotalSupply(), 6, 2));

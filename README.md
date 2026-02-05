@@ -367,7 +367,7 @@ contract.send(config);
 ```java
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 byte[] publicKey = keyPair.getPublicKey();
-WalletV3R2 contract = WalletV3R2.builder().tonlib(tonlib).publicKey(publicKey).walletId(42).build();
+WalletV3R2 contract = WalletV3R2.builder().tonProvider(tonlib).publicKey(publicKey).walletId(42).build();
 
 BigInteger balance = TestnetFaucet.topUpContract(tonlib, contract.getAddress(), Utils.toNano(0.1));
 log.info("walletId {} new wallet {} balance: {}",
@@ -410,7 +410,7 @@ You can use WalletV2R2 to send toncoins to up to four recipients
 // generate keypair
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 // create wallet
-WalletV2R2 contract = WalletV2R2.builder().tonlib(tonlib).keyPair(keyPair).build();
+WalletV2R2 contract = WalletV2R2.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
 // deploy wallet as per the above examples and then define recipients
 config = WalletV2R2Config.builder()
@@ -437,7 +437,7 @@ To send toncoins or custom payloads to more than 4 recipients, use Highload Wall
 ```java
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-HighloadWalletV3 contract = HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+HighloadWalletV3 contract = HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
 String bounceableAddress = contract.getAddress().toBounceable();

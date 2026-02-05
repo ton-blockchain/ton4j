@@ -7,9 +7,11 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.WalletCodes;
 import org.ton.ton4j.smartcontract.types.WalletV1R1Config;
@@ -43,13 +45,26 @@ public class WalletV1R1 implements Contract {
           super.keyPair = Utils.generateSignatureKeyPair();
         }
       }
-      return super.build();
+      WalletV1R1 instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -173,15 +188,20 @@ public class WalletV1R1 implements Contract {
    * account's transactions
    */
   public RawTransaction sendWithConfirmation(WalletV1R1Config config) throws Exception {
-    if (nonNull(tonCenterClient)) {
-      tonCenterClient.sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
+      ((TonCenter) provider)
+          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
       return null;
-    } else if (nonNull(adnlLiteClient)) {
-      adnlLiteClient.sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
+    } else if (provider instanceof AdnlLiteClient) {
+      ((AdnlLiteClient) provider)
+          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
       return null;
+    } else if (provider instanceof Tonlib) {
+      return ((Tonlib) provider)
+          .sendRawMessageWithConfirmation(prepareExternalMsg(config).toCell().toBase64(), getAddress());
     } else {
-      return tonlib.sendRawMessageWithConfirmation(
-          prepareExternalMsg(config).toCell().toBase64(), getAddress());
+      throw new Error("Provider not set");
     }
   }
 

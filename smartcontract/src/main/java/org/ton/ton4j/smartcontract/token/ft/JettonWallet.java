@@ -6,11 +6,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;
 import org.ton.ton4j.smartcontract.types.JettonWalletData;
 import org.ton.ton4j.smartcontract.types.WalletCodes;
@@ -45,14 +47,27 @@ public class JettonWallet implements Contract {
     @Override
     public JettonWallet build() {
 
-      return super.build();
+      JettonWallet instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -154,11 +169,12 @@ public class JettonWallet implements Contract {
   }
 
   public JettonWalletData getData() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get jetton wallet data
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(address.toBounceable(), "get_wallet_data", new ArrayList<>())
                 .getResult();
 
@@ -189,8 +205,9 @@ public class JettonWallet implements Contract {
       } catch (Exception e) {
         throw new Error("Error getting jetton wallet data: " + e.getMessage());
       }
-    } else if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(address, "get_wallet_data");
+    } else if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(address, "get_wallet_data");
       BigInteger balance = runMethodResult.getIntByIndex(0);
       VmCellSlice slice = runMethodResult.getSliceByIndex(1);
       Address ownerAddress =
@@ -206,9 +223,8 @@ public class JettonWallet implements Contract {
           .jettonMinterAddress(jettonMinterAddress)
           .jettonWalletCode(jettonWalletCode)
           .build();
-    }
-
-    RunResult result = tonlib.runMethod(address, "get_wallet_data");
+    } else if (provider instanceof Tonlib) {
+      RunResult result = ((Tonlib) provider).runMethod(address, "get_wallet_data");
 
     if (result.getExit_code() != 0) {
       throw new Error("method get_wallet_data, returned an exit code " + result.getExit_code());
@@ -236,20 +252,24 @@ public class JettonWallet implements Contract {
         CellBuilder.beginCell()
             .fromBoc(Utils.base64ToBytes(jettonWallet.getCell().getBytes()))
             .endCell();
-    return JettonWalletData.builder()
-        .balance(balance)
-        .ownerAddress(ownerAddress)
-        .jettonMinterAddress(jettonMinterAddress)
-        .jettonWalletCode(jettonWalletCode)
-        .build();
+      return JettonWalletData.builder()
+          .balance(balance)
+          .ownerAddress(ownerAddress)
+          .jettonMinterAddress(jettonMinterAddress)
+          .jettonWalletCode(jettonWalletCode)
+          .build();
+    } else {
+      throw new Error("Provider not set");
+    }
   }
 
   public BigInteger getBalance() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get jetton wallet balance
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(address.toBounceable(), "get_wallet_data", new ArrayList<>())
                 .getResult();
 
@@ -259,12 +279,16 @@ public class JettonWallet implements Contract {
       } catch (Exception e) {
         throw new Error("Error getting jetton wallet balance: " + e.getMessage());
       }
-    } else if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(address, "get_wallet_data");
+    } else if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(address, "get_wallet_data");
       return runMethodResult.getIntByIndex(0);
     }
 
-    RunResult result = tonlib.runMethod(address, "get_wallet_data");
+    if (!(provider instanceof Tonlib)) {
+      throw new Error("Provider not set");
+    }
+    RunResult result = ((Tonlib) provider).runMethod(address, "get_wallet_data");
 
     if (result.getExit_code() != 0) {
       throw new Error("method get_wallet_data, returned an exit code " + result.getExit_code());

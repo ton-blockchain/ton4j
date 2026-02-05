@@ -62,7 +62,7 @@ public class TestWalletV1R1 extends CommonTest {
   public void testNewWalletV1R1Tonlib() throws Exception {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    WalletV1R1 contract = WalletV1R1.builder().tonlib(tonlib).wc(0).keyPair(keyPair).build();
+    WalletV1R1 contract = WalletV1R1.builder().tonProvider(tonlib).wc(0).keyPair(keyPair).build();
 
     log.info("Wallet version {}", contract.getName());
     log.info("Wallet pub-key {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
@@ -109,7 +109,7 @@ public class TestWalletV1R1 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] publicKey = keyPair.getPublicKey();
 
-    WalletV1R1 contract = WalletV1R1.builder().tonlib(tonlib).publicKey(publicKey).build();
+    WalletV1R1 contract = WalletV1R1.builder().tonProvider(tonlib).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =

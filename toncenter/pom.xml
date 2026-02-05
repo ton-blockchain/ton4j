@@ -70,6 +70,10 @@
         <!-- TON4J dependencies -->
         <dependency>
             <groupId>org.ton.ton4j</groupId>
+            <artifactId>provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ton.ton4j</groupId>
             <artifactId>address</artifactId>
         </dependency>
         <dependency>

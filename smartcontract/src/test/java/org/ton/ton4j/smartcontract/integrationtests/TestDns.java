@@ -41,7 +41,7 @@ public class TestDns extends CommonTest {
 
   @Test
   public void testDnsResolveTestnet() {
-    Dns dns = Dns.builder().tonlib(tonlib).build();
+    Dns dns = Dns.builder().tonProvider(tonlib).build();
     log.info(
         "root DNS address = {}",
         dns.getRootDnsAddress()); // Ef_v5x0Thgr6pq6ur2NvkWhIf4DxAxsL-Nk5rknT6n99oPKX
@@ -84,7 +84,7 @@ public class TestDns extends CommonTest {
 
   @Test
   public void testDnsResolveMainnet() {
-    Dns dns = Dns.builder().tonlib(tonlib).build();
+    Dns dns = Dns.builder().tonProvider(tonlib).build();
     Address rootAddress = dns.getRootDnsAddress();
     log.info("root DNS address = {}", rootAddress.toString(true, true, true));
 
@@ -518,7 +518,7 @@ public class TestDns extends CommonTest {
 
     getDnsItemInfo(tonlib, dnsItem1Address);
 
-    Dns dns = Dns.builder().tonlib(tonlib).build();
+    Dns dns = Dns.builder().tonProvider(tonlib).build();
     Address dnsRootAddress = dns.getRootDnsAddress();
     log.info("root DNS address = {}", dnsRootAddress.toString(true, true, true));
 

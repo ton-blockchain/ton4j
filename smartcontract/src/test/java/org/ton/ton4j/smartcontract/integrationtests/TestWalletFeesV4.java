@@ -38,7 +38,7 @@ public class TestWalletFeesV4 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairA = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 walletA = WalletV4R2.builder().tonlib(tonlib).keyPair(keyPairA).walletId(42).build();
+    WalletV4R2 walletA = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPairA).walletId(42).build();
 
     String nonBounceableAddrWalletA = walletA.getAddress().toNonBounceable();
     String rawAddrWalletA = walletA.getAddress().toRaw();
@@ -49,7 +49,7 @@ public class TestWalletFeesV4 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairB = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 walletB = WalletV4R2.builder().tonlib(tonlib).keyPair(keyPairB).walletId(98).build();
+    WalletV4R2 walletB = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPairB).walletId(98).build();
 
     String nonBounceableAddrWalletB = walletB.getAddress().toNonBounceable();
     String rawAddrWalletB = walletB.getAddress().toRaw();

@@ -28,7 +28,7 @@ public class TestWalletV3R1Short extends CommonTest {
    */
   @Test
   public void testWalletV3R1() throws InterruptedException {
-    WalletV3R1 contract = WalletV3R1.builder().tonlib(tonlib).walletId(42).build();
+    WalletV3R1 contract = WalletV3R1.builder().tonProvider(tonlib).walletId(42).build();
     log.info("pub key: {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
     log.info("prv key: {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
 
@@ -63,7 +63,7 @@ public class TestWalletV3R1Short extends CommonTest {
     byte[] publicKey = keyPair.getPublicKey();
 
     WalletV3R1 contract =
-        WalletV3R1.builder().tonlib(tonlib).publicKey(publicKey).walletId(42).build();
+        WalletV3R1.builder().tonProvider(tonlib).publicKey(publicKey).walletId(42).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =

@@ -39,7 +39,7 @@ public class TestExampleContract extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     ExampleContract exampleContract =
-        ExampleContract.builder().tonlib(tonlib).keyPair(keyPair).build();
+        ExampleContract.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
     log.info("pubkey {}", Utils.bytesToHex(exampleContract.getKeyPair().getPublicKey()));
 

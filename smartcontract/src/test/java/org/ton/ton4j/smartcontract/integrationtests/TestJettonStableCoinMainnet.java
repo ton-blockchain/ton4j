@@ -61,7 +61,7 @@ public class TestJettonStableCoinMainnet {
         WalletV3R2.builder().keyPair(Utils.generateSignatureKeyPair()).walletId(42).build();
 
     // use your wallet
-    WalletV3R2 myWallet = WalletV3R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV3R2 myWallet = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = myWallet.getAddress().toNonBounceable();
     String bounceableAddress = myWallet.getAddress().toBounceable();
@@ -84,7 +84,7 @@ public class TestJettonStableCoinMainnet {
 
     // get usdt jetton master (minter) address
     JettonMinterStableCoin usdtMasterWallet =
-        JettonMinterStableCoin.builder().tonlib(tonlib).customAddress(usdtMasterAddress).build();
+        JettonMinterStableCoin.builder().tonProvider(tonlib).customAddress(usdtMasterAddress).build();
 
     log.info(
         "usdt total supply: {}", Utils.formatJettonValue(usdtMasterWallet.getTotalSupply(), 6, 2));
@@ -161,7 +161,7 @@ public class TestJettonStableCoinMainnet {
         WalletV4R2.builder().keyPair(Utils.generateSignatureKeyPair()).walletId(42).build();
 
     // use your wallet
-    WalletV4R2 myWallet = WalletV4R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 myWallet = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = myWallet.getAddress().toNonBounceable();
     String bounceableAddress = myWallet.getAddress().toBounceable();
@@ -184,7 +184,7 @@ public class TestJettonStableCoinMainnet {
 
     // get usdt jetton master (minter) address
     JettonMinterStableCoin usdtMasterWallet =
-        JettonMinterStableCoin.builder().tonlib(tonlib).customAddress(usdtMasterAddress).build();
+        JettonMinterStableCoin.builder().tonProvider(tonlib).customAddress(usdtMasterAddress).build();
 
     log.info(
         "usdt total supply: {}", Utils.formatJettonValue(usdtMasterWallet.getTotalSupply(), 6, 2));

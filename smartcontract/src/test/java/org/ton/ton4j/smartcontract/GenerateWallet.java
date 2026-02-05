@@ -22,7 +22,7 @@ public class GenerateWallet {
       throws InterruptedException {
     log.info("generating WalletV3R1 wallet...");
 
-    WalletV3R1 wallet = WalletV3R1.builder().tonlib(tonlib).wc(0).walletId(42).build();
+    WalletV3R1 wallet = WalletV3R1.builder().tonProvider(tonlib).wc(0).walletId(42).build();
 
     Address address = wallet.getAddress();
 
@@ -52,7 +52,7 @@ public class GenerateWallet {
       throws InterruptedException {
 
     log.info("generating HighloadWalletV3 wallet...");
-    HighloadWalletV3 wallet = HighloadWalletV3.builder().tonlib(tonlib).walletId(42).build();
+    HighloadWalletV3 wallet = HighloadWalletV3.builder().tonProvider(tonlib).walletId(42).build();
 
     String nonBounceableAddress = wallet.getAddress().toNonBounceable();
     String bounceableAddress = wallet.getAddress().toBounceable();

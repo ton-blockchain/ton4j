@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.WalletV1R3Config;
 import org.ton.ton4j.smartcontract.wallet.v1.WalletV1R3;
@@ -27,6 +28,35 @@ public class TestnetFaucet {
   public static String BOUNCEABLE = "kQC1Kha6NzVQHfGZl1UOftTEF1TuUB3tioQQiM5CeLZt5A_F";
 
   public static BigInteger topUpContract(
+      TonProvider tonProvider, Address destinationAddress, BigInteger amount) throws Exception {
+    return topUpContract(tonProvider, destinationAddress, amount, false);
+  }
+
+  public static BigInteger topUpContract(
+      TonProvider tonProvider,
+      Address destinationAddress,
+      BigInteger amount,
+      boolean avoidRateLimit)
+      throws Exception {
+    if (tonProvider instanceof TonCenter) {
+      return topUpContract((TonCenter) tonProvider, destinationAddress, amount, avoidRateLimit);
+    }
+    if (tonProvider instanceof AdnlLiteClient) {
+      return topUpContract((AdnlLiteClient) tonProvider, destinationAddress, amount);
+    }
+    if (tonProvider instanceof Tonlib) {
+      return topUpContract((Tonlib) tonProvider, destinationAddress, amount);
+    }
+    throw new Error(
+        "Unsupported TonProvider implementation: "
+            + (tonProvider == null ? "null" : tonProvider.getClass()));
+  }
+
+  /**
+   * @deprecated Use {@link #topUpContract(TonProvider, Address, BigInteger)}.
+   */
+  @Deprecated
+  public static BigInteger topUpContract(
       Tonlib tonlib, Address destinationAddress, BigInteger amount) throws InterruptedException {
 
 //    if (amount.compareTo(Utils.toNano(20)) > 0) {
@@ -37,7 +67,7 @@ public class TestnetFaucet {
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(SECRET_KEY));
 
-    WalletV1R3 faucet = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPair).build();
+    WalletV1R3 faucet = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
     BigInteger faucetBalance = null;
     int i = 0;
@@ -85,6 +115,10 @@ public class TestnetFaucet {
     return tonlib.getAccountBalance(destinationAddress);
   }
 
+  /**
+   * @deprecated Use {@link #topUpContract(TonProvider, Address, BigInteger)}.
+   */
+  @Deprecated
   public static BigInteger topUpContract(
       AdnlLiteClient adnlLiteClient, Address destinationAddress, BigInteger amount)
       throws Exception {
@@ -145,6 +179,10 @@ public class TestnetFaucet {
     return adnlLiteClient.getBalance(destinationAddress);
   }
 
+  /**
+   * @deprecated Use {@link #topUpContract(TonProvider, Address, BigInteger)}.
+   */
+  @Deprecated
   public static BigInteger topUpContract(
           TonCenter tonCenterClient,
           Address destinationAddress,
@@ -153,6 +191,10 @@ public class TestnetFaucet {
     return topUpContract(tonCenterClient, destinationAddress, amount, false);
   }
 
+  /**
+   * @deprecated Use {@link #topUpContract(TonProvider, Address, BigInteger, boolean)}.
+   */
+  @Deprecated
   public static BigInteger topUpContract(
       TonCenter tonCenterClient,
       Address destinationAddress,

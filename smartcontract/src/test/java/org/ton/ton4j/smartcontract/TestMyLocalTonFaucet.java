@@ -70,7 +70,7 @@ public class TestMyLocalTonFaucet {
             .verbosityLevel(VerbosityLevel.DEBUG)
             .build();
 
-    WalletV1R3 contract = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPair).build();
+    WalletV1R3 contract = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
     log.info("Private key {}", Utils.bytesToHex(keyPair.getSecretKey()));
     log.info("Public key {}", Utils.bytesToHex(keyPair.getPublicKey()));

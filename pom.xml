@@ -12,6 +12,7 @@
     <modules>
         <module>bitstring</module>
         <module>utils</module>
+        <module>provider</module>
         <module>address</module>
         <module>cell</module>
         <module>smartcontract</module>
@@ -100,6 +101,12 @@
             <dependency>
                 <groupId>org.ton.ton4j</groupId>
                 <artifactId>utils</artifactId>
+                <version>${project.parent.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ton.ton4j</groupId>
+                <artifactId>provider</artifactId>
                 <version>${project.parent.version}</version>
                 <scope>compile</scope>
             </dependency>

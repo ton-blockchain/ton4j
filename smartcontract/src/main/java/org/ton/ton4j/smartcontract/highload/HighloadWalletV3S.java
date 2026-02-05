@@ -8,11 +8,13 @@ import java.time.Instant;
 import java.util.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.apache.commons.lang3.StringUtils;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.*;
@@ -65,14 +67,27 @@ public class HighloadWalletV3S implements Contract {
           super.keyPair = Utils.generateSecp256k1SignatureKeyPair();
         }
       }
-      return super.build();
+      HighloadWalletV3S instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -125,52 +140,65 @@ public class HighloadWalletV3S implements Contract {
   }
 
   public String getPublicKey() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
-        return tonCenterClient.getPublicKey(getAddress().toBounceable()).toString(16);
+        return ((TonCenter) provider).getPublicKey(getAddress().toBounceable()).toString(16);
       } catch (Exception e) {
         throw new Error(e);
       }
     }
-    if (nonNull(adnlLiteClient)) {
-      return Utils.bytesToHex(Utils.to32ByteArray(adnlLiteClient.getPublicKey(getAddress())));
+    if (provider instanceof AdnlLiteClient) {
+      return Utils.bytesToHex(
+          Utils.to32ByteArray(((AdnlLiteClient) provider).getPublicKey(getAddress())));
     }
-    return Utils.bytesToHex(Utils.to32ByteArray(tonlib.getPublicKey(getAddress())));
+    if (provider instanceof Tonlib) {
+      return Utils.bytesToHex(
+          Utils.to32ByteArray(((Tonlib) provider).getPublicKey(getAddress())));
+    }
+    throw new Error("Provider not set");
   }
 
   /** Calls get_subwallet_id method of a contract. */
   public long getSubWalletId() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
-        return tonCenterClient.getSubWalletId(getAddress().toBounceable());
+        return ((TonCenter) provider).getSubWalletId(getAddress().toBounceable());
       } catch (Exception e) {
         throw new Error(e);
       }
     }
-    if (nonNull(adnlLiteClient)) {
-      return adnlLiteClient.getSubWalletId(getAddress());
+    if (provider instanceof AdnlLiteClient) {
+      return ((AdnlLiteClient) provider).getSubWalletId(getAddress());
     }
-    return tonlib.getSubWalletId(getAddress());
+    if (provider instanceof Tonlib) {
+      return ((Tonlib) provider).getSubWalletId(getAddress());
+    }
+    throw new Error("Provider not set");
   }
 
   /** Calls get_last_clean_time method of a contract. */
   public long getLastCleanTime() {
     Address myAddress = this.getAddress();
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       List<List<Object>> stack = new ArrayList<>();
 
       TonResponse<RunGetMethodResponse> runMethodResult =
-          tonCenterClient.runGetMethod(myAddress.toBounceable(), "get_last_clean_time", stack);
+          ((TonCenter) provider)
+              .runGetMethod(myAddress.toBounceable(), "get_last_clean_time", stack);
       if (runMethodResult.isSuccess()) {
         return Long.decode(runMethodResult.getResult().getStack().get(0).get(1).toString());
       } else {
         throw new Error("failed to execute get_last_clean_time, " + runMethodResult.getError());
       }
-    } else if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(myAddress, "get_last_clean_time");
+    } else if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(myAddress, "get_last_clean_time");
       return runMethodResult.getIntByIndex(0).longValue();
-    } else if (nonNull(tonlib)) {
-      RunResult result = tonlib.runMethod(myAddress, "get_last_clean_time");
+    } else if (provider instanceof Tonlib) {
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "get_last_clean_time");
       if (result.getExit_code() != 0) {
         throw new Error(
             "method get_last_clean_time returned an exit code " + result.getExit_code());
@@ -186,19 +214,22 @@ public class HighloadWalletV3S implements Contract {
   /** Calls get_timeout method of a contract. */
   public long getTimeout() {
     Address myAddress = this.getAddress();
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       TonResponse<RunGetMethodResponse> runMethodResult =
-          tonCenterClient.runGetMethod(myAddress.toBounceable(), "get_timeout", new ArrayList<>());
+          ((TonCenter) provider)
+              .runGetMethod(myAddress.toBounceable(), "get_timeout", new ArrayList<>());
       if (runMethodResult.isSuccess()) {
         return Long.decode(runMethodResult.getResult().getStack().get(0).get(1).toString());
       } else {
         throw new Error("failed to execute get_timeout, " + runMethodResult.getError());
       }
-    } else if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(myAddress, "get_timeout");
+    } else if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(myAddress, "get_timeout");
       return runMethodResult.getIntByIndex(0).longValue();
-    } else if (nonNull(tonlib)) {
-      RunResult result = tonlib.runMethod(myAddress, "get_timeout");
+    } else if (provider instanceof Tonlib) {
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "get_timeout");
       if (result.getExit_code() != 0) {
         throw new Error("method get_timeout returned an exit code " + result.getExit_code());
       }
@@ -213,33 +244,35 @@ public class HighloadWalletV3S implements Contract {
   public boolean isProcessed(long queryId, boolean needClean) {
     Address myAddress = this.getAddress();
 
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       List<List<Object>> stack = new ArrayList<>();
       stack.add(Arrays.asList("num", queryId));
       stack.add(Arrays.asList("num", needClean ? -1 : 0));
 
       TonResponse<RunGetMethodResponse> runMethodResult =
-          tonCenterClient.runGetMethod(myAddress.toBounceable(), "processed?", stack);
+          ((TonCenter) provider).runGetMethod(myAddress.toBounceable(), "processed?", stack);
       if (runMethodResult.isSuccess()) {
         return Long.decode(runMethodResult.getResult().getStack().get(0).get(1).toString()) != 0;
       } else {
         throw new Error("failed to execute processed?, " + runMethodResult.getError());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               myAddress,
               "processed?",
               VmStackValueInt.builder().value(BigInteger.valueOf(queryId)).build(),
               VmStackValueInt.builder().value(BigInteger.valueOf(needClean ? -1 : 0)).build());
 
       return runMethodResult.getIntByIndex(0).intValue() != 0;
-    } else if (nonNull(tonlib)) {
+    } else if (provider instanceof Tonlib) {
       Deque<String> stack = new ArrayDeque<>();
       int needCleanInt = needClean ? -1 : 0;
       stack.offer("[num, " + queryId + "]");
       stack.offer("[num, " + needCleanInt + "]");
-      RunResult result = tonlib.runMethod(myAddress, "processed?", stack);
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "processed?", stack);
       if (result.getExit_code() != 0) {
         throw new Error("method processed? returned an exit code " + result.getExit_code());
       }
@@ -356,27 +389,34 @@ public class HighloadWalletV3S implements Contract {
     SignatureWithRecovery signature =
         Utils.signDataSecp256k1(body.hash(), keyPair.getPrivateKey(), keyPair.getPublicKey());
 
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
-        tonCenterClient.sendBoc(
-            prepareExternalMsg(body, signature.getV()[0], signature.getSignature())
-                .toCell()
-                .toBase64());
+        ((TonCenter) provider)
+            .sendBoc(
+                prepareExternalMsg(body, signature.getV()[0], signature.getSignature())
+                    .toCell()
+                    .toBase64());
         return null;
       } catch (Exception e) {
         throw new Error(e);
       }
     }
-    if (nonNull(adnlLiteClient)) {
-      adnlLiteClient.sendRawMessageWithConfirmation(
-          prepareExternalMsg(body, signature.getV()[0], signature.getSignature()), getAddress());
+    if (provider instanceof AdnlLiteClient) {
+      ((AdnlLiteClient) provider)
+          .sendRawMessageWithConfirmation(
+              prepareExternalMsg(body, signature.getV()[0], signature.getSignature()),
+              getAddress());
       return null;
+    } else if (provider instanceof Tonlib) {
+      return ((Tonlib) provider)
+          .sendRawMessageWithConfirmation(
+              prepareExternalMsg(body, signature.getV()[0], signature.getSignature())
+                  .toCell()
+                  .toBase64(),
+              getAddress());
     } else {
-      return tonlib.sendRawMessageWithConfirmation(
-          prepareExternalMsg(body, signature.getV()[0], signature.getSignature())
-              .toCell()
-              .toBase64(),
-          getAddress());
+      throw new Error("Provider not set");
     }
   }
 

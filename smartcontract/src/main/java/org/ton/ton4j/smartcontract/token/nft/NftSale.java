@@ -8,11 +8,13 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.types.NftSaleData;
 import org.ton.ton4j.smartcontract.wallet.Contract;
 import org.ton.ton4j.toncenter.TonCenter;
@@ -59,13 +61,26 @@ public class NftSale implements Contract {
   private static class CustomNftSaleBuilder extends NftSaleBuilder {
     @Override
     public NftSale build() {
-      return super.build();
+      NftSale instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -149,12 +164,13 @@ public class NftSale implements Contract {
   public NftSaleData getData() {
     Address myAddress = this.getAddress();
 
-    if (Objects.nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get sale data
         List<List<Object>> stack = new ArrayList<>();
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(myAddress.toBounceable(), "get_sale_data", stack)
                 .getResult();
 
@@ -223,14 +239,14 @@ public class NftSale implements Contract {
       } catch (Exception e) {
         throw new Error("Error getting NFT sale data: " + e.getMessage());
       }
-    } else if (Objects.nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       // Implementation for AdnlLiteClient
       // Not implemented yet
       throw new Error("AdnlLiteClient implementation for getData not yet available");
 
-    } else if (Objects.nonNull(tonlib)) {
+    } else if (provider instanceof Tonlib) {
       // Fallback to Tonlib
-      RunResult result = tonlib.runMethod(myAddress, "get_sale_data");
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "get_sale_data");
 
       if (result.getExit_code() != 0) {
         throw new Error("method get_sale_data, returned an exit code " + result.getExit_code());

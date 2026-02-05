@@ -33,7 +33,7 @@ public class TestWalletV3R1 extends CommonTest {
   public void testWalletV3R1() throws InterruptedException {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV3R1 contract = WalletV3R1.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV3R1 contract = WalletV3R1.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     log.info("pub-key {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
     log.info("prv-key {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
@@ -101,7 +101,7 @@ public class TestWalletV3R1 extends CommonTest {
   public void testWalletV3R1SendRawMessageWithConfirmation() throws InterruptedException {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV3R1 contract = WalletV3R1.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV3R1 contract = WalletV3R1.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Message msg =
         MsgUtils.createExternalMessageWithSignedBody(

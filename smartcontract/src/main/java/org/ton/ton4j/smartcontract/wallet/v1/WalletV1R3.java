@@ -7,10 +7,12 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.WalletCodes;
 import org.ton.ton4j.smartcontract.types.WalletV1R3Config;
@@ -44,13 +46,26 @@ public class WalletV1R3 implements Contract {
           super.keyPair = Utils.generateSignatureKeyPair();
         }
       }
-      return super.build();
+      WalletV1R3 instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -104,27 +119,32 @@ public class WalletV1R3 implements Contract {
   }
 
   public String getPublicKey() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         return Utils.bytesToHex(
-            Utils.to32ByteArray(tonCenterClient.getPublicKey(getAddress().toBounceable())));
+            Utils.to32ByteArray(
+                ((TonCenter) provider).getPublicKey(getAddress().toBounceable())));
       } catch (Exception e) {
         throw new Error(e);
       }
     }
-    if (nonNull(adnlLiteClient)) {
-      return Utils.bytesToHex(Utils.to32ByteArray(adnlLiteClient.getPublicKey(getAddress())));
+    if (provider instanceof AdnlLiteClient) {
+      return Utils.bytesToHex(
+          Utils.to32ByteArray(((AdnlLiteClient) provider).getPublicKey(getAddress())));
     }
+    if (provider instanceof Tonlib) {
+      Address myAddress = getAddress();
+      RunResult result = ((Tonlib) provider).runMethod(myAddress, "get_public_key");
 
-    Address myAddress = getAddress();
-    RunResult result = tonlib.runMethod(myAddress, "get_public_key");
+      if (result.getExit_code() != 0) {
+        throw new Error("method get_public_key, returned an exit code " + result.getExit_code());
+      }
 
-    if (result.getExit_code() != 0) {
-      throw new Error("method get_public_key, returned an exit code " + result.getExit_code());
+      TvmStackEntryNumber publicKeyNumber = (TvmStackEntryNumber) result.getStack().get(0);
+      return publicKeyNumber.getNumber().toString(16);
     }
-
-    TvmStackEntryNumber publicKeyNumber = (TvmStackEntryNumber) result.getStack().get(0);
-    return publicKeyNumber.getNumber().toString(16);
+    throw new Error("Provider not set");
   }
 
   @Override
@@ -197,15 +217,20 @@ public class WalletV1R3 implements Contract {
    * account's transactions
    */
   public RawTransaction sendWithConfirmation(WalletV1R3Config config) throws Exception {
-    if (nonNull(tonCenterClient)) {
-      tonCenterClient.sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
+      ((TonCenter) provider)
+          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
       return null;
-    } else if (nonNull(adnlLiteClient)) {
-      adnlLiteClient.sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
+    } else if (provider instanceof AdnlLiteClient) {
+      ((AdnlLiteClient) provider)
+          .sendRawMessageWithConfirmation(prepareExternalMsg(config), getAddress());
       return null;
+    } else if (provider instanceof Tonlib) {
+      return ((Tonlib) provider)
+          .sendRawMessageWithConfirmation(prepareExternalMsg(config).toCell().toBase64(), getAddress());
     } else {
-      return tonlib.sendRawMessageWithConfirmation(
-          prepareExternalMsg(config).toCell().toBase64(), getAddress());
+      throw new Error("Provider not set");
     }
   }
 

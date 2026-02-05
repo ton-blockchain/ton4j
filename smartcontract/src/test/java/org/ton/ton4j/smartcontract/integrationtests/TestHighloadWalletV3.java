@@ -44,7 +44,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -188,7 +188,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -298,7 +298,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -348,7 +348,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -418,7 +418,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -471,7 +471,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -526,7 +526,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -657,7 +657,7 @@ public class TestHighloadWalletV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 myHighLoadWalletV3 =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = myHighLoadWalletV3.getAddress().toNonBounceable();
     String bounceableAddress = myHighLoadWalletV3.getAddress().toBounceable();

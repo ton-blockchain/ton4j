@@ -23,6 +23,7 @@ import org.ton.ton4j.adnl.globalconfig.TonGlobalConfig;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.tl.liteserver.queries.*;
 import org.ton.ton4j.tl.liteserver.responses.*;
 import org.ton.ton4j.tl.liteserver.responses.AccountState;
@@ -44,7 +45,7 @@ import org.ton.ton4j.utils.Utils;
  * lite-servers
  */
 @Slf4j
-public class AdnlLiteClient {
+public class AdnlLiteClient implements TonProvider {
 
   public static final Address ELECTION_ADDRESS =
       Address.of("-1:3333333333333333333333333333333333333333333333333333333333333333");

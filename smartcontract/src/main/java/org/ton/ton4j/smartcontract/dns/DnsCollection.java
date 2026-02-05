@@ -9,11 +9,13 @@ import java.util.*;
 import com.google.gson.internal.LinkedTreeMap;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;
 import org.ton.ton4j.smartcontract.types.CollectionData;
 import org.ton.ton4j.smartcontract.types.ItemData;
@@ -40,10 +42,19 @@ public class DnsCollection implements Contract {
   Cell collectionContent;
   Cell code;
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -108,7 +119,11 @@ public class DnsCollection implements Contract {
       if (isNull(super.dnsItemCodeHex)) {
         throw new Error("Required dnsItemCodeHex field");
       }
-      return super.build();
+      DnsCollection instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
@@ -138,12 +153,13 @@ public class DnsCollection implements Contract {
    * @return CollectionData
    */
   public CollectionData getCollectionData() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get collection data
         List<List<Object>> stack = new java.util.ArrayList<>();
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(getAddress().toBounceable(), "get_collection_data", stack)
                 .getResult();
 
@@ -167,32 +183,35 @@ public class DnsCollection implements Contract {
       } catch (Exception e) {
         throw new Error("Error getting DNS collection data: " + e.getMessage());
       }
+    } else if (provider instanceof Tonlib) {
+      // Fallback to Tonlib
+      RunResult result = ((Tonlib) provider).runMethod(getAddress(), "get_collection_data");
+
+      if (result.getExit_code() != 0) {
+        throw new Error(
+            "method get_collection_data, returned an exit code " + result.getExit_code());
+      }
+
+      TvmStackEntryNumber nextItemIndexResult = (TvmStackEntryNumber) result.getStack().get(0);
+      long nextItemIndex = nextItemIndexResult.getNumber().longValue();
+
+      TvmStackEntryCell collectionContentResult =
+          (TvmStackEntryCell) result.getStack().get(1); // cell or slice
+      Cell collectionContent =
+          CellBuilder.beginCell()
+              .fromBoc(Utils.base64ToBytes(collectionContentResult.getCell().getBytes()))
+              .endCell();
+      String collectionContentUri = NftUtils.parseOffChainUriCell(collectionContent);
+
+      return CollectionData.builder()
+          .collectionContentUri(collectionContentUri)
+          .collectionContentCell(collectionContent)
+          .ownerAddress(null)
+          .nextItemIndex(nextItemIndex) // always -1
+          .build();
+    } else {
+      throw new Error("Provider not set");
     }
-
-    // Fallback to Tonlib
-    RunResult result = tonlib.runMethod(getAddress(), "get_collection_data");
-
-    if (result.getExit_code() != 0) {
-      throw new Error("method get_collection_data, returned an exit code " + result.getExit_code());
-    }
-
-    TvmStackEntryNumber nextItemIndexResult = (TvmStackEntryNumber) result.getStack().get(0);
-    long nextItemIndex = nextItemIndexResult.getNumber().longValue();
-
-    TvmStackEntryCell collectionContentResult =
-        (TvmStackEntryCell) result.getStack().get(1); // cell or slice
-    Cell collectionContent =
-        CellBuilder.beginCell()
-            .fromBoc(Utils.base64ToBytes(collectionContentResult.getCell().getBytes()))
-            .endCell();
-    String collectionContentUri = NftUtils.parseOffChainUriCell(collectionContent);
-
-    return CollectionData.builder()
-        .collectionContentUri(collectionContentUri)
-        .collectionContentCell(collectionContent)
-        .ownerAddress(null)
-        .nextItemIndex(nextItemIndex) // always -1
-        .build();
   }
 
   /**
@@ -272,11 +291,13 @@ public class DnsCollection implements Contract {
    * @return Address
    */
   public Address getNftItemAddressByIndex(BigInteger index) {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       List<List<Object>> stack = new ArrayList<>();
       stack.add(Arrays.asList("num", index.toString(10)));
       TonResponse<RunGetMethodResponse> result =
-          tonCenterClient.runGetMethod(
+          ((TonCenter) provider)
+              .runGetMethod(
               getAddress().toBounceable(), "get_nft_address_by_index", stack);
 
       if (!result.isSuccess()) {
@@ -289,16 +310,17 @@ public class DnsCollection implements Contract {
       return NftUtils.parseAddress(
           CellBuilder.beginCell().fromBoc(Utils.base64ToBytes(l.get("bytes"))).endCell());
 
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       // Implementation for AdnlLiteClient
       throw new Error(
           "AdnlLiteClient implementation for getNftItemAddressByIndex not yet available");
-    } else if (nonNull(tonlib)) {
+    } else if (provider instanceof Tonlib) {
 
       // Fallback to Tonlib
       Deque<String> stack = new ArrayDeque<>();
       stack.offer("[num, " + index.toString() + "]");
-      RunResult result = tonlib.runMethod(getAddress(), "get_nft_address_by_index", stack);
+      RunResult result =
+          ((Tonlib) provider).runMethod(getAddress(), "get_nft_address_by_index", stack);
 
       if (result.getExit_code() != 0) {
         throw new Error(

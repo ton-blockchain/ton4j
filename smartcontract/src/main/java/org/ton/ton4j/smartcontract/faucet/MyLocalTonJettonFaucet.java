@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
 import org.ton.ton4j.smartcontract.token.ft.JettonWallet;
@@ -33,13 +34,42 @@ public class MyLocalTonJettonFaucet {
   public static String FAUCET_MASTER_ADDRESS = "0:502e0f88ac0c2e0e56bfd51e2b828ebe20e32d8d80d4b8f7e7bd72bfeb9d59b9";
 
   public static BigInteger topUpContractWithNeoj(
+      TonProvider tonProvider, Address destinationAddress, BigInteger jettonsAmount) {
+    return topUpContractWithNeoj(tonProvider, destinationAddress, jettonsAmount, false);
+  }
+
+  public static BigInteger topUpContractWithNeoj(
+      TonProvider tonProvider,
+      Address destinationAddress,
+      BigInteger jettonsAmount,
+      boolean avoidRateLimit) {
+    if (tonProvider instanceof TonCenter) {
+      return topUpContractWithNeoj(
+          (TonCenter) tonProvider, destinationAddress, jettonsAmount, avoidRateLimit);
+    }
+    if (tonProvider instanceof AdnlLiteClient) {
+      return topUpContractWithNeoj((AdnlLiteClient) tonProvider, destinationAddress, jettonsAmount);
+    }
+    if (tonProvider instanceof Tonlib) {
+      return topUpContractWithNeoj((Tonlib) tonProvider, destinationAddress, jettonsAmount);
+    }
+    throw new Error(
+        "Unsupported TonProvider implementation: "
+            + (tonProvider == null ? "null" : tonProvider.getClass()));
+  }
+
+  /**
+   * @deprecated Use {@link #topUpContractWithNeoj(TonProvider, Address, BigInteger)}.
+   */
+  @Deprecated
+  public static BigInteger topUpContractWithNeoj(
       Tonlib tonlib, Address destinationAddress, BigInteger jettonsAmount) {
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().tonlib(tonlib).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(tonlib).walletId(42).keyPair(keyPair).build();
 
     JettonMinter jettonMinterWallet =
             JettonMinter.builder()
@@ -82,6 +112,10 @@ public class MyLocalTonJettonFaucet {
         tonlib, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
 
+  /**
+   * @deprecated Use {@link #topUpContractWithNeoj(TonProvider, Address, BigInteger)}.
+   */
+  @Deprecated
   public static BigInteger topUpContractWithNeoj(
       AdnlLiteClient adnlLiteClient, Address destinationAddress, BigInteger jettonsAmount) {
 
@@ -134,6 +168,10 @@ public class MyLocalTonJettonFaucet {
         adnlLiteClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
 
+  /**
+   * @deprecated Use {@link #topUpContractWithNeoj(TonProvider, Address, BigInteger, boolean)}.
+   */
+  @Deprecated
   public static BigInteger topUpContractWithNeoj(
       TonCenter tonCenterClient,
       Address destinationAddress,
@@ -210,13 +248,13 @@ public class MyLocalTonJettonFaucet {
         tonCenterClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
 
-  public static WalletV3R2 deployJettonWalletAdminContract(AdnlLiteClient adnlLiteClient)
+  public static WalletV3R2 deployJettonWalletAdminContract(TonProvider tonProvider)
       throws Exception {
     byte[] secretKey = Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY);
     TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().adnlLiteClient(adnlLiteClient).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(tonProvider).walletId(42).keyPair(keyPair).build();
 
     if (!adminWallet.isDeployed()) {
       log.info("admin wallet private key {}", Utils.bytesToHex(keyPair.getSecretKey()));
@@ -227,7 +265,7 @@ public class MyLocalTonJettonFaucet {
       log.info("Raw address: {}", adminWallet.getAddress().toRaw());
 
       MyLocalTonFaucet.topUpContract(
-          adnlLiteClient, Address.of(adminWallet.getAddress().toNonBounceable()), Utils.toNano(10));
+          tonProvider, Address.of(adminWallet.getAddress().toNonBounceable()), Utils.toNano(10));
 
       adminWallet.deploy();
       adminWallet.waitForDeployment();
@@ -236,13 +274,22 @@ public class MyLocalTonJettonFaucet {
     return adminWallet;
   }
 
+  /**
+   * @deprecated Use {@link #deployJettonWalletAdminContract(TonProvider)}.
+   */
+  @Deprecated
+  public static WalletV3R2 deployJettonWalletAdminContract(AdnlLiteClient adnlLiteClient)
+      throws Exception {
+    return deployJettonWalletAdminContract((TonProvider) adnlLiteClient);
+  }
+
   public static JettonMinter deployJettonFaucetMinter(
-      AdnlLiteClient adnlLiteClient, WalletV3R2 adminWallet) {
+      TonProvider tonProvider, WalletV3R2 adminWallet) {
     log.info("adminWallet {}", adminWallet.getAddress().toRaw());
 
     JettonMinter minter =
         JettonMinter.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(tonProvider)
             .adminAddress(adminWallet.getAddress())
             .content(
                 NftUtils.createOffChainUriCell(
@@ -266,6 +313,15 @@ public class MyLocalTonJettonFaucet {
     log.info(
         "jetton minter deployed, balance {} toncoins", Utils.formatNanoValue(minter.getBalance()));
     return minter;
+  }
+
+  /**
+   * @deprecated Use {@link #deployJettonFaucetMinter(TonProvider, WalletV3R2)}.
+   */
+  @Deprecated
+  public static JettonMinter deployJettonFaucetMinter(
+      AdnlLiteClient adnlLiteClient, WalletV3R2 adminWallet) {
+    return deployJettonFaucetMinter((TonProvider) adnlLiteClient, adminWallet);
   }
 
   public static void mintJettons(WalletV3R2 adminWallet) {
@@ -293,38 +349,73 @@ public class MyLocalTonJettonFaucet {
     log.info("minted 1000000000000000000 jettons");
   }
 
-  public static BigInteger getUserJettonBalance(
-      AdnlLiteClient adnlLiteClient, Address userAddress) {
-    return ContractUtils.getJettonBalance(
-        adnlLiteClient, Address.of(FAUCET_MASTER_ADDRESS), Address.of(userAddress));
+  public static BigInteger getUserJettonBalance(TonProvider tonProvider, Address userAddress) {
+    if (tonProvider instanceof TonCenter) {
+      return ContractUtils.getJettonBalance(
+          (TonCenter) tonProvider, Address.of(FAUCET_MASTER_ADDRESS), Address.of(userAddress));
+    }
+    if (tonProvider instanceof AdnlLiteClient) {
+      return ContractUtils.getJettonBalance(
+          (AdnlLiteClient) tonProvider, Address.of(FAUCET_MASTER_ADDRESS), Address.of(userAddress));
+    }
+    if (tonProvider instanceof Tonlib) {
+      return ContractUtils.getJettonBalance(
+          (Tonlib) tonProvider, Address.of(FAUCET_MASTER_ADDRESS), Address.of(userAddress));
+    }
+    throw new Error(
+        "Unsupported TonProvider implementation: "
+            + (tonProvider == null ? "null" : tonProvider.getClass()));
   }
 
-  public static BigInteger getTotalSupply( AdnlLiteClient adnlLiteClient)  {
-    TweetNaclFast.Signature.KeyPair keyPair =
-            TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
+  /**
+   * @deprecated Use {@link #getUserJettonBalance(TonProvider, Address)}.
+   */
+  @Deprecated
+  public static BigInteger getUserJettonBalance(
+      AdnlLiteClient adnlLiteClient, Address userAddress) {
+    return getUserJettonBalance((TonProvider) adnlLiteClient, userAddress);
+  }
 
-    WalletV3R2 adminWallet =
-            WalletV3R2.builder().walletId(42).keyPair(keyPair).build();
+  public static BigInteger getTotalSupply(TonProvider tonProvider) {
+    TweetNaclFast.Signature.KeyPair keyPair =
+        TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
+
+    WalletV3R2 adminWallet = WalletV3R2.builder().walletId(42).keyPair(keyPair).build();
     JettonMinter minter =
-            JettonMinter.builder()
-                    .adnlLiteClient(adnlLiteClient)
-                    .adminAddress(adminWallet.getAddress())
-                    .content(
-                            NftUtils.createOffChainUriCell(
-                                    "https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/neo-jetton.json"))
-                    .build();
+        JettonMinter.builder()
+            .tonProvider(tonProvider)
+            .adminAddress(adminWallet.getAddress())
+            .content(
+                NftUtils.createOffChainUriCell(
+                    "https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/neo-jetton.json"))
+            .build();
     return minter.getTotalSupply();
   }
 
-  public static void deploy(AdnlLiteClient adnlLiteClient) throws Exception {
-    WalletV3R2 adminWallet = deployJettonWalletAdminContract(adnlLiteClient);
+  /**
+   * @deprecated Use {@link #getTotalSupply(TonProvider)}.
+   */
+  @Deprecated
+  public static BigInteger getTotalSupply(AdnlLiteClient adnlLiteClient) {
+    return getTotalSupply((TonProvider) adnlLiteClient);
+  }
+
+  public static void deploy(TonProvider tonProvider) throws Exception {
+    WalletV3R2 adminWallet = deployJettonWalletAdminContract(tonProvider);
     // deployJettonFaucetMinter
-    JettonMinter jettonMinter =
-            deployJettonFaucetMinter(adnlLiteClient, adminWallet);
+    JettonMinter jettonMinter = deployJettonFaucetMinter(tonProvider, adminWallet);
     log.info("minter address {}", jettonMinter.getAddress().toRaw());
 
     // mint NEOJ tokens
     mintJettons(adminWallet);
-    log.info("totalSupply {}", getTotalSupply(adnlLiteClient));
+    log.info("totalSupply {}", getTotalSupply(tonProvider));
+  }
+
+  /**
+   * @deprecated Use {@link #deploy(TonProvider)}.
+   */
+  @Deprecated
+  public static void deploy(AdnlLiteClient adnlLiteClient) throws Exception {
+    deploy((TonProvider) adnlLiteClient);
   }
 }

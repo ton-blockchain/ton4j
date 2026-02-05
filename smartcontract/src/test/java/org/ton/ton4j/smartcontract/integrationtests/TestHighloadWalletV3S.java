@@ -42,7 +42,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -236,7 +236,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -287,7 +287,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -338,7 +338,7 @@ public class TestHighloadWalletV3S extends CommonTest {
             "dc49ff027f024955f3d2a4cd7d1e0ff9cfbc2fff57a2a3f69c2144478756e6d3");
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -397,7 +397,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -461,7 +461,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -514,7 +514,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -634,7 +634,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S contract =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -763,7 +763,7 @@ public class TestHighloadWalletV3S extends CommonTest {
     Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 
     HighloadWalletV3S myHighLoadWalletV3 =
-        HighloadWalletV3S.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3S.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = myHighLoadWalletV3.getAddress().toNonBounceable();
     String bounceableAddress = myHighLoadWalletV3.getAddress().toBounceable();

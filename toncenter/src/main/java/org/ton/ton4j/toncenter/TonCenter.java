@@ -25,6 +25,7 @@ import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.tlb.Message;
 import org.ton.ton4j.tlb.Transaction;
 import org.ton.ton4j.tlb.print.MessagePrintInfo;
@@ -37,7 +38,7 @@ import org.ton.ton4j.utils.Utils;
  * Provides synchronous methods for all TonCenter API endpoints.
  */
 @Slf4j
-public class TonCenter {
+public class TonCenter implements TonProvider {
 
   private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 

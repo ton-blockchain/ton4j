@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.cell.Cell;
@@ -40,7 +41,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 contract = WalletV4R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 contract = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 
@@ -63,7 +64,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 contract = WalletV4R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 contract = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 
@@ -264,7 +265,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 contract = WalletV4R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 contract = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 
@@ -311,7 +312,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] pubKey = keyPair.getPublicKey();
     WalletV4R2 contract =
-        WalletV4R2.builder().tonlib(tonlib).publicKey(pubKey).walletId(42).build();
+        WalletV4R2.builder().tonProvider(tonlib).publicKey(pubKey).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 
@@ -372,7 +373,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
             .build();
 
     WalletV4R2 contract =
-        WalletV4R2.builder().adnlLiteClient(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+        WalletV4R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 

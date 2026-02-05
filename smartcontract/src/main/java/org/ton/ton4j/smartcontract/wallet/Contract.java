@@ -12,6 +12,7 @@ import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.WalletConfig;
 import org.ton.ton4j.smartcontract.wallet.v1.WalletV1R1;
@@ -31,10 +32,22 @@ import org.ton.ton4j.utils.Utils;
 /** Interface for all smart contract objects in ton4j. */
 public interface Contract {
 
+  /**
+   * @deprecated Use {@link #getTonProvider()}.
+   */
+  @Deprecated
   Tonlib getTonlib();
 
+  /**
+   * @deprecated Use {@link #getTonProvider()}.
+   */
+  @Deprecated
   AdnlLiteClient getAdnlLiteClient();
 
+  /**
+   * @deprecated Use {@link #getTonProvider()}.
+   */
+  @Deprecated
   TonCenter getTonCenterClient();
 
   /**
@@ -42,11 +55,63 @@ public interface Contract {
    *
    * @param pTonlib Tonlib instance
    */
+  /**
+   * @deprecated Use {@link #setTonProvider(TonProvider)}.
+   */
+  @Deprecated
   void setTonlib(Tonlib pTonlib);
 
+  /**
+   * @deprecated Use {@link #setTonProvider(TonProvider)}.
+   */
+  @Deprecated
   void setAdnlLiteClient(AdnlLiteClient pAdnlClient);
 
+  /**
+   * @deprecated Use {@link #setTonProvider(TonProvider)}.
+   */
+  @Deprecated
   void setTonCenterClient(TonCenter pTonCenterClient);
+
+  /**
+   * @return active provider instance (Tonlib, AdnlLiteClient, or TonCenter)
+   */
+  default TonProvider getTonProvider() {
+    if (nonNull(getTonCenterClient())) {
+      return getTonCenterClient();
+    }
+    if (nonNull(getAdnlLiteClient())) {
+      return getAdnlLiteClient();
+    }
+    return getTonlib();
+  }
+
+  /**
+   * Used for late provider assignment.
+   *
+   * @param pTonProvider provider instance
+   */
+  default void setTonProvider(TonProvider pTonProvider) {
+    if (pTonProvider instanceof TonCenter) {
+      setTonCenterClient((TonCenter) pTonProvider);
+      setAdnlLiteClient(null);
+      setTonlib(null);
+    } else if (pTonProvider instanceof AdnlLiteClient) {
+      setAdnlLiteClient((AdnlLiteClient) pTonProvider);
+      setTonCenterClient(null);
+      setTonlib(null);
+    } else if (pTonProvider instanceof Tonlib) {
+      setTonlib((Tonlib) pTonProvider);
+      setTonCenterClient(null);
+      setAdnlLiteClient(null);
+    } else if (pTonProvider == null) {
+      setTonCenterClient(null);
+      setAdnlLiteClient(null);
+      setTonlib(null);
+    } else {
+      throw new Error("Unsupported TonProvider implementation: " + pTonProvider.getClass());
+    }
+  }
 
   long getWorkchain();
 
@@ -118,42 +183,50 @@ public interface Contract {
     if (this instanceof WalletV1R1) {
       throw new Error("Wallet V1R1 does not have seqno method");
     }
-    if (nonNull(getTonCenterClient())) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
-        return getTonCenterClient().getSeqno(getAddress().toBounceable());
+        return ((TonCenter) provider).getSeqno(getAddress().toBounceable());
       } catch (Throwable e) {
         throw new Error(e);
       }
     }
-    if (nonNull(getAdnlLiteClient())) {
+    if (provider instanceof AdnlLiteClient) {
       try {
-        return getAdnlLiteClient().getSeqno(getAddress());
+        return ((AdnlLiteClient) provider).getSeqno(getAddress());
       } catch (Exception e) {
         throw new Error(e);
       }
     }
-
-    return getTonlib().getSeqno(getAddress());
+    if (provider instanceof Tonlib) {
+      return ((Tonlib) provider).getSeqno(getAddress());
+    }
+    throw new Error("Provider not set");
   }
 
   default boolean isDeployed() {
-    if (nonNull(getTonCenterClient())) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
-        String state = getTonCenterClient().getState(getAddress().toBounceable());
+        String state = ((TonCenter) provider).getState(getAddress().toBounceable());
         return "active".equals(state);
       } catch (Exception e) {
         return false;
       }
-    } else if (nonNull(getAdnlLiteClient())) {
+    } else if (provider instanceof AdnlLiteClient) {
       try {
-        return (getAdnlLiteClient().getAccount(getAddress()).getAccountStorage().getAccountState()
+        return (((AdnlLiteClient) provider)
+                .getAccount(getAddress())
+                .getAccountStorage()
+                .getAccountState()
             instanceof AccountStateActive);
       } catch (Exception e) {
         return false;
       }
-    } else if (nonNull(getTonlib())) {
+    } else if (provider instanceof Tonlib) {
       try {
-        return StringUtils.isNotEmpty(getTonlib().getRawAccountState(getAddress()).getCode());
+        return StringUtils.isNotEmpty(
+            ((Tonlib) provider).getRawAccountState(getAddress()).getCode());
       } catch (Exception e) {
         return false;
       }
@@ -163,10 +236,11 @@ public interface Contract {
   }
 
   default SendResponse send(Message externalMessage) {
-    if (nonNull(getTonCenterClient())) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         TonResponse<SendBocResponse> response =
-            getTonCenterClient().sendBoc(externalMessage.toCell().toBase64());
+            ((TonCenter) provider).sendBoc(externalMessage.toCell().toBase64());
         if (response.isSuccess()) {
           return SendResponse.builder().code(0).build();
         } else {
@@ -178,9 +252,9 @@ public interface Contract {
       } catch (Exception e) {
         return SendResponse.builder().code(1).message(e.getMessage()).build();
       }
-    } else if (nonNull(getAdnlLiteClient())) {
+    } else if (provider instanceof AdnlLiteClient) {
       SendMsgStatus sendMsgStatus =
-          getAdnlLiteClient()
+          ((AdnlLiteClient) provider)
               .sendMessage(
                   externalMessage); // raw boc // prepareExternalMsg(config).toCell().toBoc()
       if (StringUtils.isEmpty(sendMsgStatus.getResponseMessage())) {
@@ -191,9 +265,9 @@ public interface Contract {
             .message(sendMsgStatus.getResponseMessage())
             .build();
       }
-    } else if (nonNull(getTonlib())) {
+    } else if (provider instanceof Tonlib) {
       ExtMessageInfo extMessageInfo =
-          getTonlib().sendRawMessage(externalMessage.toCell().toBase64());
+          ((Tonlib) provider).sendRawMessage(externalMessage.toCell().toBase64());
       return SendResponse.builder()
           .code(extMessageInfo.getError().getCode())
           .message(extMessageInfo.getError().getMessage())
@@ -204,12 +278,14 @@ public interface Contract {
   }
 
   default void sendWithConfirmation(Message externalMessage) throws Exception {
-    if (nonNull(getAdnlLiteClient())) {
-      getAdnlLiteClient().sendRawMessageWithConfirmation(externalMessage, getAddress());
-    } else if (nonNull(getTonCenterClient())) {
-      getTonCenterClient().sendRawMessageWithConfirmation(externalMessage, getAddress());
-    } else if (nonNull(getTonlib())) {
-      getTonlib().sendRawMessageWithConfirmation(externalMessage.toCell().toBase64(), getAddress());
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
+      ((TonCenter) provider).sendRawMessageWithConfirmation(externalMessage, getAddress());
+    } else if (provider instanceof AdnlLiteClient) {
+      ((AdnlLiteClient) provider).sendRawMessageWithConfirmation(externalMessage, getAddress());
+    } else if (provider instanceof Tonlib) {
+      ((Tonlib) provider)
+          .sendRawMessageWithConfirmation(externalMessage.toCell().toBase64(), getAddress());
     } else {
       throw new Error("Provider not set");
     }
@@ -291,21 +367,23 @@ public interface Contract {
   }
 
   default BigInteger getBalance() {
-    if (nonNull(getTonCenterClient())) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
-        return getTonCenterClient().getBalance(getAddress().toBounceable());
+        return ((TonCenter) provider).getBalance(getAddress().toBounceable());
       } catch (Throwable e) {
         throw new Error(e);
       }
-    } else if (nonNull(getAdnlLiteClient())) {
+    } else if (provider instanceof AdnlLiteClient) {
       try {
-        return getAdnlLiteClient().getBalance(getAddress());
+        return ((AdnlLiteClient) provider).getBalance(getAddress());
       } catch (Exception e) {
         throw new Error(e);
       }
-    } else if (nonNull(getTonlib())) {
+    } else if (provider instanceof Tonlib) {
       try {
-        return new BigInteger(getTonlib().getRawAccountState(getAddress()).getBalance());
+        return new BigInteger(
+            ((Tonlib) provider).getRawAccountState(getAddress()).getBalance());
       } catch (Exception e) {
         throw new Error(e);
       }
@@ -362,17 +440,18 @@ public interface Contract {
   }
 
   default List<Transaction> getTransactionsTlb(int lt, byte[] hash, int historyLimit) {
-    if (nonNull(getAdnlLiteClient())) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
       try {
-        return getAdnlLiteClient()
+        return ((AdnlLiteClient) provider)
             .getTransactions(getAddress(), lt, hash, historyLimit)
             .getTransactionsParsed();
       } catch (Exception e) {
         throw new Error(e);
       }
-    } else if (nonNull(getTonCenterClient())) {
+    } else if (provider instanceof TonCenter) {
       List<TransactionResponse> response =
-          getTonCenterClient()
+          ((TonCenter) provider)
               .getTransactions(getAddress().toBounceable(), historyLimit)
               .getResult();
       List<Transaction> result = new ArrayList<>();
@@ -382,9 +461,9 @@ public interface Contract {
                 CellSlice.beginParse(Cell.fromBocBase64(transactionResponse.getData()))));
       }
       return result;
-    } else if (nonNull(getTonlib())) {
+    } else if (provider instanceof Tonlib) {
       List<RawTransaction> response =
-          getTonlib()
+          ((Tonlib) provider)
               .getRawTransactionsV2(getAddress().toBounceable(), null, null, historyLimit, false)
               .getTransactions();
       List<Transaction> result = new ArrayList<>();

@@ -78,7 +78,7 @@ public class TestTvmEmulator {
     tonlib =
         Tonlib.builder().testnet(true).pathToTonlibSharedLib(tonlibPath).ignoreCache(false).build();
 
-    walletV4R2 = WalletV4R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    walletV4R2 = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = walletV4R2.getAddress();
 

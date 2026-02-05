@@ -10,9 +10,11 @@ import com.google.gson.internal.LinkedTreeMap;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.*;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.wallet.Contract;
@@ -43,14 +45,27 @@ public class MultiSigWalletV2 implements Contract {
     @Override
     public MultiSigWalletV2 build() {
 
-      return super.build();
+      MultiSigWalletV2 instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -239,11 +254,13 @@ public class MultiSigWalletV2 implements Contract {
 
   public Address getOrderAddress(BigInteger orderSeqno) {
     Cell orderAddrCell;
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       List<List<Object>> stack = new ArrayList<>();
       stack.add(Arrays.asList("num", orderSeqno));
       TonResponse<RunGetMethodResponse> runMethodResult =
-          tonCenterClient.runGetMethod(getAddress().toBounceable(), "get_order_address", stack);
+          ((TonCenter) provider)
+              .runGetMethod(getAddress().toBounceable(), "get_order_address", stack);
       if (runMethodResult.isSuccess()) {
         List<Object> elements = new ArrayList<>(runMethodResult.getResult().getStack().get(0));
         LinkedTreeMap<String, String> l = (LinkedTreeMap<String, String>) elements.get(1);
@@ -252,18 +269,20 @@ public class MultiSigWalletV2 implements Contract {
       } else {
         throw new Error("Cannot execute getOrderAddress " + runMethodResult.getError());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(),
               "get_order_address",
               VmStackValueInt.builder().value(orderSeqno).build());
       VmCellSlice slice = runMethodResult.getSliceByIndex(0);
       return CellSlice.beginParse(slice.getCell()).skipBits(slice.getStBits()).loadAddress();
-    } else if (nonNull(tonlib)) {
+    } else if (provider instanceof Tonlib) {
       Deque<String> stackData = new ArrayDeque<>();
       stackData.offer("[num, " + orderSeqno + "]");
-      RunResult runResult = tonlib.runMethod(getAddress(), "get_order_address", stackData);
+      RunResult runResult =
+          ((Tonlib) provider).runMethod(getAddress(), "get_order_address", stackData);
       TvmStackEntrySlice orderAddrCellT = (TvmStackEntrySlice) runResult.getStack().get(0);
       orderAddrCell = Cell.fromBocBase64(orderAddrCellT.getSlice().getBytes());
       return MsgAddressInt.deserialize(CellSlice.beginParse(orderAddrCell)).toAddress();
@@ -284,10 +303,11 @@ public class MultiSigWalletV2 implements Contract {
     BigInteger expirationDate;
     Cell order;
 
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       TonResponse<RunGetMethodResponse> runMethodResult =
-          tonCenterClient.runGetMethod(
-              orderAddress.toBounceable(), "get_order_data", new ArrayList<>());
+          ((TonCenter) provider)
+              .runGetMethod(orderAddress.toBounceable(), "get_order_data", new ArrayList<>());
       if (runMethodResult.isSuccess()) {
         List<Object> elements = new ArrayList<>(runMethodResult.getResult().getStack().get(0));
         System.out.println(elements);
@@ -322,8 +342,9 @@ public class MultiSigWalletV2 implements Contract {
       } else {
         throw new Error("Error executing getOrderData " + runMethodResult.getError());
       }
-    } else if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(orderAddress, "get_order_data");
+    } else if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(orderAddress, "get_order_data");
       if (runMethodResult.getExitCode() == 0) {
         VmCellSlice slice = runMethodResult.getSliceByIndex(0);
         multiSigAddressCell =
@@ -346,9 +367,8 @@ public class MultiSigWalletV2 implements Contract {
       } else {
         throw new Error("Error retrieving order data. Exit code: " + runMethodResult.getExitCode());
       }
-    } else if (nonNull(tonlib)) {
-
-      RunResult runResult = tonlib.runMethod(orderAddress, "get_order_data");
+    } else if (provider instanceof Tonlib) {
+      RunResult runResult = ((Tonlib) provider).runMethod(orderAddress, "get_order_data");
       TvmSlice multiSigAddressSlice = ((TvmStackEntrySlice) runResult.getStack().get(0)).getSlice();
       multiSigAddressCell =
           MsgAddressInt.deserialize(
@@ -386,31 +406,35 @@ public class MultiSigWalletV2 implements Contract {
   }
 
   public BigInteger getOrderEstimate(Cell order, long expirationDate) {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       List<List<Object>> stack = new ArrayList<>();
       stack.add(Arrays.asList("cell", order.toBase64()));
       stack.add(Arrays.asList("num", expirationDate));
       TonResponse<RunGetMethodResponse> runMethodResult =
-          tonCenterClient.runGetMethod(getAddress().toBounceable(), "get_order_estimate", stack);
+          ((TonCenter) provider)
+              .runGetMethod(getAddress().toBounceable(), "get_order_estimate", stack);
       if (runMethodResult.isSuccess()) {
         List<Object> elements = new ArrayList<>(runMethodResult.getResult().getStack().get(0));
         return BigInteger.valueOf(Long.decode(elements.get(1).toString()));
       } else {
         throw new Error("Error getting order estimate " + runMethodResult.getError());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult =
-          adnlLiteClient.runMethod(
+          ((AdnlLiteClient) provider)
+              .runMethod(
               getAddress(),
               "get_order_estimate",
               VmStackValueCell.builder().cell(Cell.fromBoc(order.toHex())).build(),
               VmStackValueInt.builder().value(BigInteger.valueOf(expirationDate)).build());
       return runMethodResult.getIntByIndex(0);
-    } else if (nonNull(tonlib)) {
+    } else if (provider instanceof Tonlib) {
       Deque<String> stackData = new ArrayDeque<>();
       stackData.offer("[cell, " + order.toHex() + "]");
       stackData.offer("[num, " + expirationDate + "]");
-      RunResult runResult = tonlib.runMethod(getAddress(), "get_order_estimate", stackData);
+      RunResult runResult =
+          ((Tonlib) provider).runMethod(getAddress(), "get_order_estimate", stackData);
       TvmStackEntryNumber estimatedGas = (TvmStackEntryNumber) runResult.getStack().get(0);
       return estimatedGas.getNumber();
     } else {
@@ -424,10 +448,11 @@ public class MultiSigWalletV2 implements Contract {
     TonHashMap signers;
     TonHashMap proposers;
 
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       TonResponse<RunGetMethodResponse> runMethodResult =
-          tonCenterClient.runGetMethod(
-              getAddress().toBounceable(), "get_multisig_data", new ArrayList<>());
+          ((TonCenter) provider)
+              .runGetMethod(getAddress().toBounceable(), "get_multisig_data", new ArrayList<>());
       if (runMethodResult.isSuccess()) {
         List<Object> elements = new ArrayList<>(runMethodResult.getResult().getStack().get(0));
         nextOrderSeqno = BigInteger.valueOf(Long.decode(elements.get(1).toString()));
@@ -454,8 +479,9 @@ public class MultiSigWalletV2 implements Contract {
       } else {
         throw new Error("Cannot getMultiSigData " + runMethodResult.getError());
       }
-    } else if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(getAddress(), "get_multisig_data");
+    } else if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(getAddress(), "get_multisig_data");
       nextOrderSeqno = runMethodResult.getIntByIndex(0);
       threshold = runMethodResult.getIntByIndex(1);
       Cell cellSignersDict = runMethodResult.getCellByIndex(2);
@@ -472,8 +498,8 @@ public class MultiSigWalletV2 implements Contract {
                   8,
                   k -> k.readUint(8),
                   v -> MsgAddressIntStd.deserialize(CellSlice.beginParse(v)));
-    } else if (nonNull(tonlib)) {
-      RunResult runResult = tonlib.runMethod(getAddress(), "get_multisig_data");
+    } else if (provider instanceof Tonlib) {
+      RunResult runResult = ((Tonlib) provider).runMethod(getAddress(), "get_multisig_data");
       nextOrderSeqno = ((TvmStackEntryNumber) runResult.getStack().get(0)).getNumber();
 
       threshold = ((TvmStackEntryNumber) runResult.getStack().get(1)).getNumber();

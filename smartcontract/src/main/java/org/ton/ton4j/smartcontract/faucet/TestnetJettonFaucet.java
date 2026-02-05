@@ -4,6 +4,7 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendResponse;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
 import org.ton.ton4j.smartcontract.token.ft.JettonWallet;
@@ -30,6 +31,35 @@ public class TestnetJettonFaucet {
   public static String FAUCET_MASTER_ADDRESS = "kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y";
 
   public static BigInteger topUpContractWithNeoj(
+      TonProvider tonProvider, Address destinationAddress, BigInteger jettonsAmount) {
+    return topUpContractWithNeoj(tonProvider, destinationAddress, jettonsAmount, false);
+  }
+
+  public static BigInteger topUpContractWithNeoj(
+      TonProvider tonProvider,
+      Address destinationAddress,
+      BigInteger jettonsAmount,
+      boolean avoidRateLimit) {
+    if (tonProvider instanceof TonCenter) {
+      return topUpContractWithNeoj(
+          (TonCenter) tonProvider, destinationAddress, jettonsAmount, avoidRateLimit);
+    }
+    if (tonProvider instanceof AdnlLiteClient) {
+      return topUpContractWithNeoj((AdnlLiteClient) tonProvider, destinationAddress, jettonsAmount);
+    }
+    if (tonProvider instanceof Tonlib) {
+      return topUpContractWithNeoj((Tonlib) tonProvider, destinationAddress, jettonsAmount);
+    }
+    throw new Error(
+        "Unsupported TonProvider implementation: "
+            + (tonProvider == null ? "null" : tonProvider.getClass()));
+  }
+
+  /**
+   * @deprecated Use {@link #topUpContractWithNeoj(TonProvider, Address, BigInteger)}.
+   */
+  @Deprecated
+  public static BigInteger topUpContractWithNeoj(
       Tonlib tonlib, Address destinationAddress, BigInteger jettonsAmount) {
 
 //    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
@@ -41,7 +71,7 @@ public class TestnetJettonFaucet {
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().tonlib(tonlib).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(tonlib).walletId(42).keyPair(keyPair).build();
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
@@ -82,6 +112,10 @@ public class TestnetJettonFaucet {
         tonlib, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
 
+  /**
+   * @deprecated Use {@link #topUpContractWithNeoj(TonProvider, Address, BigInteger)}.
+   */
+  @Deprecated
   public static BigInteger topUpContractWithNeoj(
       AdnlLiteClient adnlLiteClient, Address destinationAddress, BigInteger jettonsAmount) {
 
@@ -135,6 +169,10 @@ public class TestnetJettonFaucet {
         adnlLiteClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
 
+  /**
+   * @deprecated Use {@link #topUpContractWithNeoj(TonProvider, Address, BigInteger, boolean)}.
+   */
+  @Deprecated
   public static BigInteger topUpContractWithNeoj(
       TonCenter tonCenterClient,
       Address destinationAddress,

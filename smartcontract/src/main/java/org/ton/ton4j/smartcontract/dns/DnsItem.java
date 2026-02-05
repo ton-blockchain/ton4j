@@ -10,12 +10,14 @@ import java.util.Map;
 import com.google.gson.internal.LinkedTreeMap;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;
 import org.ton.ton4j.smartcontract.types.AuctionInfo;
 import org.ton.ton4j.smartcontract.types.ItemData;
@@ -39,9 +41,18 @@ public class DnsItem implements Contract {
   BigInteger index;
   Address collectionAddress;
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -98,7 +109,11 @@ public class DnsItem implements Contract {
   private static class CustomDnsItemBuilder extends DnsItemBuilder {
     @Override
     public DnsItem build() {
-      return super.build();
+      DnsItem instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
@@ -128,12 +143,13 @@ public class DnsItem implements Contract {
    * @return ItemData
    */
   public ItemData getData() {
-    if (java.util.Objects.nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get NFT data
         List<List<Object>> stack = new ArrayList<>();
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(getAddress().toBounceable(), "get_nft_data", stack)
                 .getResult();
 
@@ -175,9 +191,14 @@ public class DnsItem implements Contract {
         throw new Error("Error getting NFT data: " + e.getMessage());
       }
     }
-
-    // Fallback to Tonlib
-    return getData(tonlib);
+    if (provider instanceof AdnlLiteClient) {
+      throw new Error("AdnlLiteClient implementation for getData not yet available");
+    }
+    if (provider instanceof Tonlib) {
+      // Fallback to Tonlib
+      return getData((Tonlib) provider);
+    }
+    throw new Error("provider not set");
   }
 
   /**
@@ -327,11 +348,12 @@ public class DnsItem implements Contract {
    * @return String
    */
   public String getDomain() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         // Use TonCenter API to get domain
         RunGetMethodResponse response =
-            tonCenterClient
+            ((TonCenter) provider)
                 .runGetMethod(getAddress().toBounceable(), "get_domain", new ArrayList<>())
                 .getResult();
 
@@ -348,8 +370,14 @@ public class DnsItem implements Contract {
       }
     }
 
-    // Fallback to Tonlib
-    return getDomain(tonlib, getAddress());
+    if (provider instanceof AdnlLiteClient) {
+      throw new Error("AdnlLiteClient implementation for getDomain not yet available");
+    }
+    if (provider instanceof Tonlib) {
+      // Fallback to Tonlib
+      return getDomain((Tonlib) provider, getAddress());
+    }
+    throw new Error("provider not set");
   }
 
   /**

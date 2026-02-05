@@ -47,7 +47,7 @@ public class TestExtraCurrency {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV3R2 contract = WalletV3R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV3R2 contract = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress1 = contract.getAddress().toNonBounceable();
     String rawAddress = contract.getAddress().toRaw();
@@ -180,7 +180,7 @@ public class TestExtraCurrency {
     log.info("deploying new wallet...");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV3R2 wallet = WalletV3R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV3R2 wallet = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String rawAddress = wallet.getAddress().toRaw();
 
@@ -216,7 +216,7 @@ public class TestExtraCurrency {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     HighloadWalletV3 contract =
-        HighloadWalletV3.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress1 = contract.getAddress().toNonBounceable();
     String rawAddress = contract.getAddress().toRaw();

@@ -37,7 +37,7 @@ public class TestWalletV1R3 extends CommonTest {
   public void testWalletV1R3() throws InterruptedException {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV1R3 contract = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPair).build();
+    WalletV1R3 contract = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
     Cell deployMessage = CellBuilder.beginCell().storeUint(BigInteger.ZERO, 32).endCell();
     Message msg =
@@ -109,7 +109,7 @@ public class TestWalletV1R3 extends CommonTest {
     log.info("pubkey {}", Utils.bytesToHex(keyPairSig.getPublicKey()));
     log.info("seckey {}", Utils.bytesToHex(keyPairSig.getSecretKey()));
 
-    WalletV1R3 contract = WalletV1R3.builder().tonlib(tonlib).keyPair(keyPairSig).build();
+    WalletV1R3 contract = WalletV1R3.builder().tonProvider(tonlib).keyPair(keyPairSig).build();
 
     Message msg =
         MsgUtils.createExternalMessageWithSignedBody(
@@ -211,7 +211,7 @@ public class TestWalletV1R3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] publicKey = keyPair.getPublicKey();
 
-    WalletV1R3 contract = WalletV1R3.builder().tonlib(tonlib).publicKey(publicKey).build();
+    WalletV1R3 contract = WalletV1R3.builder().tonProvider(tonlib).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =

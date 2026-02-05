@@ -9,10 +9,12 @@ import java.math.BigInteger;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.AccessLevel;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.mnemonic.Ed25519;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;
 import org.ton.ton4j.smartcontract.types.ChannelConfig;
@@ -88,13 +90,26 @@ public class PaymentChannel implements Contract {
     public PaymentChannel build() {
       super.publicKeyA = super.isA ? super.myKeyPair.getPublicKey() : super.hisPublicKey;
       super.publicKeyB = !super.isA ? super.myKeyPair.getPublicKey() : super.hisPublicKey;
-      return super.build();
+      PaymentChannel instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -353,11 +368,13 @@ public class PaymentChannel implements Contract {
   }
 
   public BigInteger getChannelState() {
-    if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(getAddress(), "get_channel_state");
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(getAddress(), "get_channel_state");
       return runMethodResult.getIntByIndex(0);
-    } else {
-      RunResult result = tonlib.runMethod(getAddress(), "get_channel_state");
+    } else if (provider instanceof Tonlib) {
+      RunResult result = ((Tonlib) provider).runMethod(getAddress(), "get_channel_state");
 
       if (result.getExit_code() != 0) {
         throw new Error("method get_channel_state, returned an exit code " + result.getExit_code());
@@ -365,12 +382,16 @@ public class PaymentChannel implements Contract {
 
       TvmStackEntryNumber addr = (TvmStackEntryNumber) result.getStack().get(0);
       return addr.getNumber();
+    } else {
+      throw new Error("Provider not set");
     }
   }
 
   public ChannelData getData() {
-    if (nonNull(adnlLiteClient)) {
-      RunMethodResult runMethodResult = adnlLiteClient.runMethod(getAddress(), "get_channel_data");
+    TonProvider provider = getTonProvider();
+    if (provider instanceof AdnlLiteClient) {
+      RunMethodResult runMethodResult =
+          ((AdnlLiteClient) provider).runMethod(getAddress(), "get_channel_data");
 
       BigInteger stateNumber = runMethodResult.getIntByIndex(0);
 
@@ -424,8 +445,8 @@ public class PaymentChannel implements Contract {
           .addressA(addressA)
           .addressB(addressB)
           .build();
-    } else {
-      RunResult result = tonlib.runMethod(getAddress(), "get_channel_data");
+    } else if (provider instanceof Tonlib) {
+      RunResult result = ((Tonlib) provider).runMethod(getAddress(), "get_channel_data");
 
       if (result.getExit_code() != 0) {
         throw new Error("method get_channel_data, returned an exit code " + result.getExit_code());
@@ -507,6 +528,8 @@ public class PaymentChannel implements Contract {
           .addressA(addressA)
           .addressB(addressB)
           .build();
+    } else {
+      throw new Error("Provider not set");
     }
   }
 }

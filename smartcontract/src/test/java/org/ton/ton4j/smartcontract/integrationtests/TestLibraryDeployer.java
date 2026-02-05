@@ -41,7 +41,7 @@ public class TestLibraryDeployer extends CommonTest {
     Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
 
     LibraryDeployer libraryDeployer =
-        LibraryDeployer.builder().tonlib(tonlib).libraryCode(walletV5Code).build();
+        LibraryDeployer.builder().tonProvider(tonlib).libraryCode(walletV5Code).build();
 
     log.info("boc {}", walletV5Code.toHex());
 

@@ -718,7 +718,7 @@ public class TestNft extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
     WalletV3R1 adminWallet =
-        WalletV3R1.builder().tonlib(tonlib).keyPair(keyPair).wc(0).walletId(42).build();
+        WalletV3R1.builder().tonProvider(tonlib).keyPair(keyPair).wc(0).walletId(42).build();
     Address adminAddress = adminWallet.getAddress();
     log.info("adminAddress {}", adminAddress.toRaw());
     Address nftItem1Address = Address.of("EQBOR8LlQGD38A-VvTSLmXDulBx2bVzGPIX0I9G9un_v3a3B");

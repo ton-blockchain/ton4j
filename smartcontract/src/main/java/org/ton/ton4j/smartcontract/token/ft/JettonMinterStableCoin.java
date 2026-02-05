@@ -9,12 +9,14 @@ import java.util.Deque;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
 import org.apache.commons.lang3.StringUtils;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;
 import org.ton.ton4j.smartcontract.types.JettonMinterData;
 import org.ton.ton4j.smartcontract.types.WalletCodes;
@@ -54,14 +56,27 @@ public class JettonMinterStableCoin implements Contract {
   private static class CustomJettonMinterStableCoinBuilder extends JettonMinterStableCoinBuilder {
     @Override
     public JettonMinterStableCoin build() {
-      return super.build();
+      JettonMinterStableCoin instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
 
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**
@@ -248,13 +263,14 @@ public class JettonMinterStableCoin implements Contract {
    * @return JettonData
    */
   public JettonMinterData getJettonData() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         org.ton.ton4j.toncenter.model.JettonMinterData data;
         if (nonNull(customAddress)) {
-          data = tonCenterClient.getJettonData(customAddress.toBounceable());
+          data = ((TonCenter) provider).getJettonData(customAddress.toBounceable());
         } else {
-          data = tonCenterClient.getJettonData(getAddress().toBounceable());
+          data = ((TonCenter) provider).getJettonData(getAddress().toBounceable());
         }
         return JettonMinterData.builder()
             .adminAddress(data.getAdminAddress())
@@ -267,12 +283,13 @@ public class JettonMinterStableCoin implements Contract {
       } catch (Exception e) {
         throw new Error("Error getting jetton data: " + e.getMessage());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult;
       if (nonNull(customAddress)) {
-        runMethodResult = adnlLiteClient.runMethod(customAddress, "get_jetton_data");
+        runMethodResult =
+            ((AdnlLiteClient) provider).runMethod(customAddress, "get_jetton_data");
       } else {
-        runMethodResult = adnlLiteClient.runMethod(getAddress(), "get_jetton_data");
+        runMethodResult = ((AdnlLiteClient) provider).runMethod(getAddress(), "get_jetton_data");
       }
 
       BigInteger totalSupply = runMethodResult.getIntByIndex(0);
@@ -294,13 +311,13 @@ public class JettonMinterStableCoin implements Contract {
           .jettonContentUri(jettonContentUri)
           .jettonWalletCode(jettonWalletCode)
           .build();
-    }
-    RunResult result;
-    if (nonNull(customAddress)) {
-      result = tonlib.runMethod(customAddress, "get_jetton_data");
-    } else {
-      result = tonlib.runMethod(getAddress(), "get_jetton_data");
-    }
+    } else if (provider instanceof Tonlib) {
+      RunResult result;
+      if (nonNull(customAddress)) {
+        result = ((Tonlib) provider).runMethod(customAddress, "get_jetton_data");
+      } else {
+        result = ((Tonlib) provider).runMethod(getAddress(), "get_jetton_data");
+      }
 
     if (result.getExit_code() != 0) {
       throw new Error("method get_jetton_data, returned an exit code " + result.getExit_code());
@@ -334,7 +351,7 @@ public class JettonMinterStableCoin implements Contract {
             .fromBoc(Utils.base64ToBytes(contentC.getCell().getBytes()))
             .endCell();
 
-    return JettonMinterData.builder()
+      return JettonMinterData.builder()
         .totalSupply(totalSupply)
         .isMutable(isMutable)
         .adminAddress(adminAddress)
@@ -342,73 +359,88 @@ public class JettonMinterStableCoin implements Contract {
         .jettonContentUri(jettonContentUri)
         .jettonWalletCode(jettonWalletCode)
         .build();
+    } else {
+      throw new Error("Provider not set");
+    }
   }
 
   public BigInteger getTotalSupply() {
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         if (nonNull(customAddress)) {
-          return tonCenterClient.getJettonData(customAddress.toBounceable()).getTotalSupply();
+          return ((TonCenter) provider)
+              .getJettonData(customAddress.toBounceable())
+              .getTotalSupply();
         } else {
-          return tonCenterClient.getJettonData(getAddress().toBounceable()).getTotalSupply();
+          return ((TonCenter) provider).getJettonData(getAddress().toBounceable()).getTotalSupply();
         }
       } catch (Exception e) {
         throw new Error("Error getting total supply: " + e.getMessage());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult;
       if (nonNull(customAddress)) {
-        runMethodResult = adnlLiteClient.runMethod(customAddress, "get_jetton_data");
+        runMethodResult =
+            ((AdnlLiteClient) provider).runMethod(customAddress, "get_jetton_data");
       } else {
-        runMethodResult = adnlLiteClient.runMethod(getAddress(), "get_jetton_data");
+        runMethodResult = ((AdnlLiteClient) provider).runMethod(getAddress(), "get_jetton_data");
       }
       return runMethodResult.getIntByIndex(0);
     }
 
-    RunResult result;
-    if (nonNull(customAddress)) {
-      result = tonlib.runMethod(customAddress, "get_jetton_data"); // minter
-    } else {
-      result = tonlib.runMethod(getAddress(), "get_jetton_data"); // minter
-    }
+    if (provider instanceof Tonlib) {
+      RunResult result;
+      if (nonNull(customAddress)) {
+        result = ((Tonlib) provider).runMethod(customAddress, "get_jetton_data"); // minter
+      } else {
+        result = ((Tonlib) provider).runMethod(getAddress(), "get_jetton_data"); // minter
+      }
 
-    TvmStackEntryNumber totalSupplyNumber = (TvmStackEntryNumber) result.getStack().get(0);
-    return totalSupplyNumber.getNumber();
+      TvmStackEntryNumber totalSupplyNumber = (TvmStackEntryNumber) result.getStack().get(0);
+      return totalSupplyNumber.getNumber();
+    }
+    throw new Error("Provider not set");
   }
 
   public JettonWalletStableCoin getJettonWallet(Address ownerAddress) {
     Cell cellAddr = CellBuilder.beginCell().storeAddress(ownerAddress).endCell();
-    if (nonNull(tonCenterClient)) {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
       try {
         Address jettonWalletAddress;
         if (nonNull(customAddress)) {
           jettonWalletAddress =
-              tonCenterClient.getJettonWalletAddress(
+              ((TonCenter) provider)
+                  .getJettonWalletAddress(
                   customAddress.toBounceable(), ownerAddress.toBounceable());
         } else {
           jettonWalletAddress =
-              tonCenterClient.getJettonWalletAddress(
+              ((TonCenter) provider)
+                  .getJettonWalletAddress(
                   getAddress().toBounceable(), ownerAddress.toBounceable());
         }
 
         return JettonWalletStableCoin.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonCenterClient((TonCenter) provider)
             .address(jettonWalletAddress)
             .build();
       } catch (Exception e) {
         throw new Error("Error getting jetton wallet address: " + e.getMessage());
       }
-    } else if (nonNull(adnlLiteClient)) {
+    } else if (provider instanceof AdnlLiteClient) {
       RunMethodResult runMethodResult;
       if (nonNull(customAddress)) {
         runMethodResult =
-            adnlLiteClient.runMethod(
+            ((AdnlLiteClient) provider)
+                .runMethod(
                 customAddress,
                 "get_wallet_address",
                 VmStackValueCell.builder().cell(cellAddr).build());
       } else {
         runMethodResult =
-            adnlLiteClient.runMethod(
+            ((AdnlLiteClient) provider)
+                .runMethod(
                 getAddress(),
                 "get_wallet_address",
                 VmStackValueCell.builder().cell(cellAddr).build());
@@ -418,32 +450,39 @@ public class JettonMinterStableCoin implements Contract {
           CellSlice.beginParse(slice.getCell()).skipBits(slice.getStBits()).loadAddress();
 
       return JettonWalletStableCoin.builder()
-          .adnlLiteClient(adnlLiteClient)
+          .adnlLiteClient((AdnlLiteClient) provider)
           .address(jettonWalletAddress)
           .build();
     }
 
-    Deque<String> stack = new ArrayDeque<>();
+    if (provider instanceof Tonlib) {
+      Deque<String> stack = new ArrayDeque<>();
 
-    stack.offer("[slice, " + cellAddr.toHex(true) + "]");
+      stack.offer("[slice, " + cellAddr.toHex(true) + "]");
 
-    RunResult result;
-    if (nonNull(customAddress)) {
-      result = tonlib.runMethod(customAddress, "get_wallet_address", stack);
-    } else {
-      result = tonlib.runMethod(getAddress(), "get_wallet_address", stack);
+      RunResult result;
+      if (nonNull(customAddress)) {
+        result = ((Tonlib) provider).runMethod(customAddress, "get_wallet_address", stack);
+      } else {
+        result = ((Tonlib) provider).runMethod(getAddress(), "get_wallet_address", stack);
+      }
+      if (result.getExit_code() != 0) {
+        throw new Error(
+            "method get_wallet_address, returned an exit code " + result.getExit_code());
+      }
+
+      TvmStackEntrySlice addr = (TvmStackEntrySlice) result.getStack().get(0);
+      Address jettonWalletAddress =
+          NftUtils.parseAddress(
+              CellBuilder.beginCell()
+                  .fromBoc(Utils.base64ToBytes(addr.getSlice().getBytes()))
+                  .endCell());
+
+      return JettonWalletStableCoin.builder()
+          .tonlib((Tonlib) provider)
+          .address(jettonWalletAddress)
+          .build();
     }
-    if (result.getExit_code() != 0) {
-      throw new Error("method get_wallet_address, returned an exit code " + result.getExit_code());
-    }
-
-    TvmStackEntrySlice addr = (TvmStackEntrySlice) result.getStack().get(0);
-    Address jettonWalletAddress =
-        NftUtils.parseAddress(
-            CellBuilder.beginCell()
-                .fromBoc(Utils.base64ToBytes(addr.getSlice().getBytes()))
-                .endCell());
-
-    return JettonWalletStableCoin.builder().tonlib(tonlib).address(jettonWalletAddress).build();
+    throw new Error("Provider not set");
   }
 }

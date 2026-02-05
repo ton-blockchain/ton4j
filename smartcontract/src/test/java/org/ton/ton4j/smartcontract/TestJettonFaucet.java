@@ -48,7 +48,7 @@ public class TestJettonFaucet {
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().tonlib(tonlib).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(tonlib).walletId(42).keyPair(keyPair).build();
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
@@ -93,7 +93,7 @@ public class TestJettonFaucet {
         Tonlib.builder().testnet(true).pathToTonlibSharedLib(tonlibPath).ignoreCache(false).build();
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().tonlib(tonlib).walletId(42).keyPair(keyPair).build();
+        WalletV3R2.builder().tonProvider(tonlib).walletId(42).keyPair(keyPair).build();
 
     log.info("Private key {}", Utils.bytesToHex(keyPair.getSecretKey()));
     log.info("Public key {}", Utils.bytesToHex(keyPair.getPublicKey()));
@@ -120,7 +120,7 @@ public class TestJettonFaucet {
     TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
     log.info("adminWallet {}", adminWallet.getAddress().toBounceable());
 
     JettonMinter minter =
@@ -157,7 +157,7 @@ public class TestJettonFaucet {
     TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
     WalletV3R2 adminWallet =
-        WalletV3R2.builder().tonlib(tonlib).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     WalletV3Config walletV3Config =
         WalletV3Config.builder()
