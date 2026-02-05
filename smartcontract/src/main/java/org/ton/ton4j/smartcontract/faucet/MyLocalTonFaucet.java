@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.provider.TonProvider;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;
 import org.ton.ton4j.smartcontract.types.WalletV3Config;

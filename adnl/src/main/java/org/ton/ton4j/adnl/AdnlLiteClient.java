@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import org.ton.ton4j.adnl.globalconfig.TonGlobalConfig;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.tl.liteserver.queries.*;
 import org.ton.ton4j.tl.liteserver.responses.*;
@@ -67,7 +69,7 @@ public class AdnlLiteClient implements TonProvider {
   private final boolean useServerRotation;
   private final int maxRetries;
   private final int queryTimeout;
-  private String persistedGlobalConfigPath;
+  @Getter private String persistedGlobalConfigPath;
   private final AtomicInteger currentServerIndex = new AtomicInteger(0);
 
   private AdnlLiteClient(Builder builder) {
@@ -686,7 +688,8 @@ public class AdnlLiteClient implements TonProvider {
 
   private Cell getConfigParamCell(int val) throws Exception {
     ConfigInfo configInfo = getConfigAll(getMasterchainInfo().getLast(), 0);
-    return (Cell) configInfo.getConfigParams().getConfig().getElements().get(BigInteger.valueOf(val));
+    return (Cell)
+        configInfo.getConfigParams().getConfig().getElements().get(BigInteger.valueOf(val));
   }
 
   /** ValidatorSignedTempKey */
@@ -1010,7 +1013,7 @@ public class AdnlLiteClient implements TonProvider {
         });
   }
 
-  public long getSeqno(Address accountAddress) throws Exception {
+  public long getSeqno(Address accountAddress) {
     try {
       RunMethodResult runMethodResult =
           runMethod(
@@ -1926,7 +1929,9 @@ public class AdnlLiteClient implements TonProvider {
         throw new Error("Can't deploy contract within specified timeout.");
       }
       Utils.sleep(1);
-      log.info("Waiting for state init to be deployed, balance {}", Utils.formatNanoValue(getBalance(address)));
+      log.info(
+          "Waiting for state init to be deployed, balance {}",
+          Utils.formatNanoValue(getBalance(address)));
     } while (!isDeployed(address));
   }
 
@@ -1968,11 +1973,13 @@ public class AdnlLiteClient implements TonProvider {
   /**
    * Sends Message with deliver confirmation. After the message has been sent to the network this
    * method looks up specified account transactions and returns true if message was found among
-   * them. Timeout 60 seconds.
+   * them. Timeout 60 seconds. @Depricated - use sendExternalMessageWithConfirmation(Message
+   * externalMessage)
    *
    * @param externalMessage - Message
-   * @throws TimeoutException if message not found within a timeout
+   * @param account - desitnation Address
    */
+  @Deprecated
   public void sendRawMessageWithConfirmation(Message externalMessage, Address account) {
     try {
       SendMsgStatus sendMsgStatus = sendMessage(externalMessage);
@@ -1990,6 +1997,45 @@ public class AdnlLiteClient implements TonProvider {
                   tx.getInOut().getIn().getNormalizedHash(), externalMessage.getNormalizedHash())) {
             log.info("Message has been delivered.");
             return;
+          }
+        }
+        Utils.sleep(5);
+      }
+      log.error("Timeout waiting for message hash");
+      throw new Error("Cannot find hash of the sent message");
+    } catch (Exception e) {
+      log.error("Timeout waiting for message hash");
+      throw new Error("Cannot find hash of the sent message");
+    }
+  }
+
+  /**
+   * Sends Message with deliver confirmation. After the message has been sent to the network this
+   * method looks up specified account transactions and returns true if message was found among
+   * them. Timeout 60 seconds.
+   *
+   * @param externalMessage - Message
+   * @return found transaction - Transaction
+   */
+  public Transaction sendExternalMessageWithConfirmation(Message externalMessage) {
+    try {
+      SendMsgStatus sendMsgStatus = sendMessage(externalMessage);
+      log.info(
+          "Message has been successfully sent. Waiting for delivery of message with hash {} ({})",
+          Utils.bytesToHex(externalMessage.getNormalizedHash()),
+          Utils.bytesToBase64(externalMessage.getNormalizedHash()));
+
+      TransactionList rawTransactions;
+      for (int i = 0; i < 12; i++) {
+        rawTransactions =
+            getTransactions(
+                Address.of(externalMessage.getInfo().getDestinationAddress()), 0, null, 2);
+        for (Transaction tx : rawTransactions.getTransactionsParsed()) {
+          if (nonNull(tx.getInOut().getIn())
+              && Arrays.equals(
+                  tx.getInOut().getIn().getNormalizedHash(), externalMessage.getNormalizedHash())) {
+            log.info("Message has been delivered.");
+            return tx;
           }
         }
         Utils.sleep(5);
@@ -2035,12 +2081,12 @@ public class AdnlLiteClient implements TonProvider {
     }
   }
 
-  /** prints messages of account's last 20 transactions */
+  /** prints messages of an account's last 20 transactions */
   public void printAccountMessages(Address account) {
     printAccountMessages(account, 20);
   }
 
-  /** prints messages of account's last historyLimit transactions */
+  /** prints messages of an account's last historyLimit transactions */
   public void printAccountMessages(Address account, int historyLimit) {
     try {
       boolean first = true;
@@ -2057,6 +2103,26 @@ public class AdnlLiteClient implements TonProvider {
     }
   }
 
+  public SendResponse sendExternalMessage(Message externalMessage) {
+    try {
+      SendMsgStatus sendMsgStatus = sendMessage(externalMessage);
+      if (sendMsgStatus == null) {
+        return SendResponse.builder().code(1).message("Empty response").build();
+      }
+      if (StringUtils.isEmpty(sendMsgStatus.getResponseMessage())) {
+        return SendResponse.builder().code(0).build();
+      }
+      return SendResponse.builder()
+          .code(sendMsgStatus.getResponseCode() == 0 ? 1 : sendMsgStatus.getResponseCode())
+          .message(sendMsgStatus.getResponseMessage())
+          .build();
+    } catch (Exception e) {
+      return SendResponse.builder().code(1).message(e.getMessage()).build();
+    }
+  }
+
+  /** use SendResponse sendExternalMessage(Message externalMessage) */
+  @Deprecated(forRemoval = true)
   public SendMsgStatus sendMessage(Message externalMessage) {
     try {
       return executeWithRetry(
@@ -2074,9 +2140,9 @@ public class AdnlLiteClient implements TonProvider {
             try {
               if (response instanceof LiteServerError) {
                 return SendMsgStatus.builder()
-                        .responseCode(((LiteServerError) response).getCode())
-                        .responseMessage(((LiteServerError) response).getMessage())
-                        .build();
+                    .responseCode(((LiteServerError) response).getCode())
+                    .responseMessage(((LiteServerError) response).getMessage())
+                    .build();
               }
               return (SendMsgStatus) response;
 
@@ -2235,9 +2301,5 @@ public class AdnlLiteClient implements TonProvider {
     persistedGlobalConfigPath = System.getProperty("user.dir") + "/global.config.json";
     FileUtils.writeStringToFile(
         new File(persistedGlobalConfigPath), gs.toJson(globalConfig), Charset.defaultCharset());
-  }
-
-  public String getPersistedGlobalConfigPath() {
-    return persistedGlobalConfigPath;
   }
 }

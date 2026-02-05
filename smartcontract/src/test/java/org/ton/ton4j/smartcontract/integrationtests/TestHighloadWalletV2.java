@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.smartcontract.SendMode;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.highload.HighloadWallet;
 import org.ton.ton4j.smartcontract.types.Destination;

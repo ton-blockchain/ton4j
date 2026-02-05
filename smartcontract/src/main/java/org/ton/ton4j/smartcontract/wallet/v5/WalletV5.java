@@ -18,7 +18,7 @@ import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.*;
 import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendMode;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.types.Destination;
 import org.ton.ton4j.smartcontract.wallet.Contract;
@@ -206,7 +206,7 @@ public class WalletV5 implements Contract {
   }
 
   /**
-   * Sends amount of nano toncoins to destination address and waits till message found among
+   * Sends amount of nano toncoins to the destination address and waits till a message found among
    * account's transactions
    */
   public RawTransaction sendWithConfirmation(WalletV5Config config) throws Exception {

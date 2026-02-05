@@ -92,7 +92,7 @@ public class TestWalletsV3 {
 
     msg = contract.prepareExternalMsg(config);
     log.info("msg {}", msg);
-    // tonlib.sendRawMessage(msg.toCell().toBase64());
+    // tonlib.sendExternalMessage(msg.toCell().toBase64());
   }
 
   /** >fift -s new-wallet-v3.fif -1 42 */

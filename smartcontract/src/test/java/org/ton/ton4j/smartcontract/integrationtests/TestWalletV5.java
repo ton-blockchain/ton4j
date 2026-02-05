@@ -16,7 +16,7 @@ import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMap;
 import org.ton.ton4j.cell.TonHashMapE;
 import org.ton.ton4j.smartcontract.SendMode;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.faucet.TestnetJettonFaucet;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;

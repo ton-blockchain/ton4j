@@ -13,7 +13,7 @@ import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.smartcontract.GenerateWallet;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.token.nft.NftCollection;
 import org.ton.ton4j.smartcontract.token.nft.NftItem;
 import org.ton.ton4j.smartcontract.token.nft.NftMarketplace;

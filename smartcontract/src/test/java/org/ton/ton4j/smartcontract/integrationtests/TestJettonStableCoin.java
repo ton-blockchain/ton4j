@@ -11,7 +11,7 @@ import org.junit.runners.JUnit4;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.smartcontract.GenerateWallet;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinterStableCoin;
 import org.ton.ton4j.smartcontract.token.ft.JettonWalletStableCoin;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;

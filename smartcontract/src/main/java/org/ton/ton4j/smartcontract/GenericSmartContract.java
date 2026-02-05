@@ -1,5 +1,7 @@
 package org.ton.ton4j.smartcontract;
 
+import org.ton.ton4j.provider.SendResponse;
+
 import static java.util.Objects.isNull;
 
 import com.iwebpp.crypto.TweetNaclFast;

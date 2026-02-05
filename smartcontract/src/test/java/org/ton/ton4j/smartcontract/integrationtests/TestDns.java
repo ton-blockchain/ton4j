@@ -17,7 +17,7 @@ import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.smartcontract.GenerateWallet;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.dns.Dns;
 import org.ton.ton4j.smartcontract.dns.DnsCollection;
 import org.ton.ton4j.smartcontract.dns.DnsItem;

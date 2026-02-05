@@ -1,5 +1,7 @@
 package org.ton.ton4j.smartcontract;
 
+import org.ton.ton4j.provider.SendResponse;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.math.BigInteger;

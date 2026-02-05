@@ -17,7 +17,7 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.TonPfxHashMapE;
 import org.ton.ton4j.provider.TonProvider;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.types.LockupConfig;
 import org.ton.ton4j.smartcontract.types.LockupWalletV1Config;
 import org.ton.ton4j.smartcontract.types.WalletCodes;

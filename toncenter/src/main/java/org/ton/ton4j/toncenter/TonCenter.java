@@ -18,13 +18,13 @@ import java.time.Duration;
 import java.util.*;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.tlb.Message;
 import org.ton.ton4j.tlb.Transaction;
@@ -386,6 +386,10 @@ public class TonCenter implements TonProvider {
     }
   }
 
+  public BigInteger getBalance(Address address) {
+    return getBalance(address.toBounceable());
+  }
+
   /** Get state of a given address. State can be either unitialized, active or frozen */
   public TonResponse<String> getAddressState(String address) {
     Map<String, String> params = new HashMap<>();
@@ -572,7 +576,9 @@ public class TonCenter implements TonProvider {
     return executeGet("/getOutMsgQueueSize", null, responseType);
   }
 
-  /** @deprecated Use getOutMsgQueueSize() instead. This method name was changed in API v2.1.1 */
+  /**
+   * @deprecated Use getOutMsgQueueSize() instead. This method name was changed in API v2.1.1
+   */
   @Deprecated
   public TonResponse<OutMsgQueueSizesResponse> getOutMsgQueueSizes() {
     return getOutMsgQueueSize();
@@ -700,6 +706,10 @@ public class TonCenter implements TonProvider {
     }
   }
 
+  public long getSeqno(Address address) {
+    return getSeqno(address.toBounceable());
+  }
+
   public BigInteger getPublicKey(String address) {
     RunGetMethodResponse r = runGetMethod(address, "get_public_key", new ArrayList<>()).getResult();
     if ((nonNull(r)) && (r.getExitCode() == 0)) {
@@ -712,6 +722,10 @@ public class TonCenter implements TonProvider {
     } else {
       throw new Error("get_public_key failed, exitCode: " + r.getExitCode());
     }
+  }
+
+  public BigInteger getPublicKey(Address address) {
+    return getPublicKey(address.toBounceable());
   }
 
   public BigInteger getPublicKey(String address, Long atSeqno) {
@@ -734,6 +748,10 @@ public class TonCenter implements TonProvider {
     } else {
       throw new Error("get_subwallet_id failed, exitCode: " + r.getExitCode());
     }
+  }
+
+  public long getSubWalletId(Address address) {
+    return getSubWalletId(address.toBounceable());
   }
 
   public long getSubWalletId(String address, long atSeqno) {
@@ -840,11 +858,13 @@ public class TonCenter implements TonProvider {
   /**
    * Sends Message with deliver confirmation. After the message has been sent to the network this
    * method looks up specified account transactions and returns true if message was found among
-   * them. Timeout 60 seconds.
+   * them. Timeout 60 seconds. @Deprecated - use sendExternalMessageWithConfirmation(Message
+   * externalMessage)
    *
    * @param externalMessage - Message
-   * @throws TimeoutException if message not found within a timeout
+   * @param account - destination Address
    */
+  @Deprecated
   public void sendRawMessageWithConfirmation(Message externalMessage, Address account) {
     try {
       TonResponse<SendBocResponse> result = sendBocReturnHash(externalMessage.toCell().toBase64());
@@ -879,16 +899,67 @@ public class TonCenter implements TonProvider {
     }
   }
 
-  /** 
-   * @deprecated This endpoint has been removed in API v2.1.1. Use estimateFee() instead for fee estimation,
-   * or sendBoc()/sendBocReturnHash() for sending messages.
+  public Transaction sendExternalMessageWithConfirmation(Message externalMessage) {
+    try {
+      TonResponse<SendBocResponse> result = sendBocReturnHash(externalMessage.toCell().toBase64());
+      if (result.isSuccess()) {
+        String hash = result.getResult().getHash();
+        String hashHex = Utils.base64ToHexString(result.getResult().getHash());
+        log.info(
+            "Message has been successfully sent. Waiting for delivery of message with hash {}",
+            hash);
+
+        for (int i = 0; i < 12; i++) {
+          TonResponse<List<TransactionResponse>> txs =
+              getTransactions(
+                  Address.of(externalMessage.getInfo().getDestinationAddress()).toBounceable());
+          for (TransactionResponse tx : txs.getResult()) {
+            if (nonNull(tx.getInMsg())) {
+              if (hashHex.equals(Utils.base64ToHexString(tx.getInMsg().getHash()))) {
+                log.info("Message has been delivered.");
+                return tx.getTransactionAsTlb();
+              }
+            }
+          }
+          Utils.sleep(5);
+        }
+      } else {
+        log.error("Error sending BoC");
+        throw new Error("Error sending BoC");
+      }
+      log.error("Timeout waiting for message hash");
+      throw new Error("Cannot find hash of the sent message");
+    } catch (Exception e) {
+      log.error("Error sending BoC", e);
+      throw new Error("Cannot find hash of the sent message, Error: " + e.getMessage());
+    }
+  }
+
+  public SendResponse sendExternalMessage(Message externalMessage) {
+    try {
+      TonResponse<SendBocResponse> result = sendBoc(externalMessage.toCell().toBase64());
+      if (nonNull(result) && result.isSuccess()) {
+        return SendResponse.builder().code(0).build();
+      }
+      return SendResponse.builder()
+          .code(result == null ? 1 : result.getCode())
+          .message(result == null ? "Empty response" : result.getError())
+          .build();
+    } catch (Exception e) {
+      return SendResponse.builder().code(1).message(e.getMessage()).build();
+    }
+  }
+
+  /**
+   * @deprecated This endpoint has been removed in API v2.1.1. Use estimateFee() instead for fee
+   *     estimation, or sendBoc()/sendBocReturnHash() for sending messages.
    */
   @Deprecated
   public TonResponse<SendQueryResponse> sendQuery(
       String address, String body, String initCode, String initData) {
     throw new UnsupportedOperationException(
-        "sendQuery endpoint has been removed in API v2.1.1. " +
-        "Use estimateFee() for fee estimation or sendBoc()/sendBocReturnHash() for sending messages.");
+        "sendQuery endpoint has been removed in API v2.1.1. "
+            + "Use estimateFee() for fee estimation or sendBoc()/sendBocReturnHash() for sending messages.");
   }
 
   /** Estimate fees required for query processing */
@@ -1058,17 +1129,17 @@ public class TonCenter implements TonProvider {
     } while (initialBalance.equals(currentBalance));
   }
 
-  /** prints messages of account's last 20 transactions */
+  /** prints messages of an account's last 20 transactions */
   public void printAccountTransactions(Address account) {
     printAccountTransactions(account, 20, false);
   }
 
-  /** prints messages of account's last historyLimit transactions */
+  /** prints messages of an account's last historyLimit transactions */
   public void printAccountTransactions(Address account, int historyLimit) {
     printAccountTransactions(account, historyLimit, false);
   }
 
-  /** prints messages of account's last historyLimit transactions with messages optionally */
+  /** prints messages of the account's last historyLimit transactions with messages optionally */
   public void printAccountTransactions(Address account, int historyLimit, boolean withMessages) {
     try {
       boolean first = true;
@@ -1096,7 +1167,7 @@ public class TonCenter implements TonProvider {
     }
   }
 
-  /** prints messages of account's last 20 transactions */
+  /** prints messages of an account's last 20 transactions */
   public void printAccountMessages(Address account) {
     printAccountMessages(account, 20);
   }

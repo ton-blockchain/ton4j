@@ -41,7 +41,7 @@ public class RawTransaction implements Serializable {
   }
 
   /**
-   * @return first extra-currency amount from the list of extra-currencies. Returns null if list is
+   * @return the first extra-currency amount from the list of extra-currencies. Returns null if list is
    *     empty;
    */
   public BigInteger getFirstExtraCurrencyValue() {

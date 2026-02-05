@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.provider.TonProvider;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
 import org.ton.ton4j.smartcontract.token.ft.JettonWallet;
 import org.ton.ton4j.smartcontract.types.WalletV3Config;

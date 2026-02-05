@@ -2,6 +2,10 @@ package org.ton.ton4j.toncenter.model;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
+import org.ton.ton4j.cell.Cell;
+import org.ton.ton4j.cell.CellSlice;
+import org.ton.ton4j.tlb.Transaction;
+
 import java.util.List;
 
 /** Response model for transaction data */
@@ -108,5 +112,9 @@ public class TransactionResponse {
 
     @SerializedName("init_state")
     private String initState;
+  }
+
+  public Transaction getTransactionAsTlb() {
+    return Transaction.deserialize(CellSlice.beginParse(Cell.fromBocBase64(getData())));
   }
 }

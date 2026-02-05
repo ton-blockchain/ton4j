@@ -28,6 +28,7 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.tlb.*;
 import org.ton.ton4j.tlb.print.MessagePrintInfo;
@@ -78,8 +79,7 @@ public class Tonlib implements TonProvider {
   private Boolean ignoreCache;
 
   /** Ignored if pathToGlobalConfig is not null. */
-  @Getter
-  private boolean testnet;
+  @Getter private boolean testnet;
 
   private boolean keystoreInMemory;
 
@@ -867,7 +867,7 @@ public class Tonlib implements TonProvider {
     printAccountMessages(account, 20);
   }
 
-  /** prints messages of account's last historyLimit transactions */
+  /** prints messages of an account's last historyLimit transactions */
   public void printAccountMessages(Address account, int historyLimit) {
     try {
       boolean first = true;
@@ -1106,6 +1106,16 @@ public class Tonlib implements TonProvider {
     } else {
       return "active";
     }
+  }
+
+  /**
+   * Returns account status by address.
+   *
+   * @param address Address
+   * @return BigInteger returned balance
+   */
+  public BigInteger getBalance(Address address) {
+    return getAccountBalance(address);
   }
 
   /**
@@ -1711,6 +1721,21 @@ public class Tonlib implements TonProvider {
     return seqno.getNumber().longValue();
   }
 
+  public SendResponse sendExternalMessage(Message externalMessage) {
+    try {
+      ExtMessageInfo result = sendRawMessage(externalMessage.toCell().toBase64());
+      if (isNull(result) || isNull(result.getError())) {
+        return SendResponse.builder().code(1).message("Empty response").build();
+      }
+      return SendResponse.builder()
+          .code(result.getError().getCode())
+          .message(result.getError().getMessage())
+          .build();
+    } catch (Exception e) {
+      return SendResponse.builder().code(1).message(e.getMessage()).build();
+    }
+  }
+
   /**
    * Sends raw message, bag of cells encoded in base64
    *
@@ -1735,7 +1760,7 @@ public class Tonlib implements TonProvider {
   }
 
   /**
-   * Sends raw message (bag of cells encoded in base64) without waiting for response
+   * Sends a raw message (bag of cells encoded in base64) without waiting for response
    *
    * @param serializedBoc - base64 encoded BoC
    */
@@ -1783,9 +1808,49 @@ public class Tonlib implements TonProvider {
         rawTransactions = getRawTransactions(account.toRaw(), null, null);
         for (RawTransaction tx : rawTransactions.getTransactions()) {
           if (nonNull(tx.getIn_msg())
-              && tx.getIn_msg().getHash().equals(extMessageInfo.getHash())) {
+              && tx.getIn_msg().getHash().equals(extMessageInfo.getHash_norm())) {
             log.info("Message has been delivered.");
             return tx;
+          }
+        }
+        Utils.sleep(5);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Sends Message with deliver confirmation. After the message has been sent to the network this
+   * method looks up specified account transactions and returns true if message was found among
+   * them. Timeout 60 seconds.
+   *
+   * @param externalMessage - Message
+   */
+  public Transaction sendExternalMessageWithConfirmation(Message externalMessage) {
+    SendRawMessageQuery sendMessageQuery =
+        SendRawMessageQuery.builder().body(externalMessage.toCell().toBase64()).build();
+
+    String result = syncAndRead(gson.toJson(sendMessageQuery));
+
+    if ((isNull(result)) || (result.contains("@type") && result.contains("error"))) {
+      TonlibError error = gson.fromJson(result, TonlibError.class);
+      throw new Error("Cannot send message. Error " + error.toString());
+    } else {
+      ExtMessageInfo extMessageInfo = gson.fromJson(result, ExtMessageInfo.class);
+      extMessageInfo.setError(TonlibError.builder().code(0).build());
+      log.info(
+          "Message has been successfully sent. Waiting for delivery of message with hash {}",
+          extMessageInfo.getHash());
+      RawTransactions rawTransactions = null;
+      for (int i = 0; i < 12; i++) {
+        rawTransactions =
+            getRawTransactions(
+                Address.of(externalMessage.getInfo().getDestinationAddress()).toRaw(), null, null);
+        for (RawTransaction tx : rawTransactions.getTransactions()) {
+          if (nonNull(tx.getIn_msg())
+              && tx.getIn_msg().getHash().equals(extMessageInfo.getHash_norm())) {
+            log.info("Message has been delivered.");
+            return tx.getTransactionAsTlb();
           }
         }
         Utils.sleep(5);

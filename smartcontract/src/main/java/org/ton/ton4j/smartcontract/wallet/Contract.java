@@ -13,16 +13,13 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
 import org.ton.ton4j.provider.TonProvider;
-import org.ton.ton4j.smartcontract.SendResponse;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.types.WalletConfig;
 import org.ton.ton4j.smartcontract.wallet.v1.WalletV1R1;
-import org.ton.ton4j.tl.liteserver.responses.SendMsgStatus;
 import org.ton.ton4j.tlb.*;
 import org.ton.ton4j.tlb.print.MessagePrintInfo;
 import org.ton.ton4j.tlb.print.TransactionPrintInfo;
 import org.ton.ton4j.toncenter.TonCenter;
-import org.ton.ton4j.toncenter.TonResponse;
-import org.ton.ton4j.toncenter.model.SendBocResponse;
 import org.ton.ton4j.toncenter.model.TransactionResponse;
 import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.tonlib.types.*;
@@ -237,44 +234,10 @@ public interface Contract {
 
   default SendResponse send(Message externalMessage) {
     TonProvider provider = getTonProvider();
-    if (provider instanceof TonCenter) {
-      try {
-        TonResponse<SendBocResponse> response =
-            ((TonCenter) provider).sendBoc(externalMessage.toCell().toBase64());
-        if (response.isSuccess()) {
-          return SendResponse.builder().code(0).build();
-        } else {
-          return SendResponse.builder()
-              .code(response.getCode())
-              .message(response.getError())
-              .build();
-        }
-      } catch (Exception e) {
-        return SendResponse.builder().code(1).message(e.getMessage()).build();
-      }
-    } else if (provider instanceof AdnlLiteClient) {
-      SendMsgStatus sendMsgStatus =
-          ((AdnlLiteClient) provider)
-              .sendMessage(
-                  externalMessage); // raw boc // prepareExternalMsg(config).toCell().toBoc()
-      if (StringUtils.isEmpty(sendMsgStatus.getResponseMessage())) {
-        return SendResponse.builder().code(0).build();
-      } else {
-        return SendResponse.builder()
-            .code(sendMsgStatus.getResponseCode() == 0 ? 1 : sendMsgStatus.getResponseCode())
-            .message(sendMsgStatus.getResponseMessage())
-            .build();
-      }
-    } else if (provider instanceof Tonlib) {
-      ExtMessageInfo extMessageInfo =
-          ((Tonlib) provider).sendRawMessage(externalMessage.toCell().toBase64());
-      return SendResponse.builder()
-          .code(extMessageInfo.getError().getCode())
-          .message(extMessageInfo.getError().getMessage())
-          .build();
-    } else {
+    if (provider == null) {
       throw new Error("Provider not set");
     }
+    return provider.sendExternalMessage(externalMessage);
   }
 
   default void sendWithConfirmation(Message externalMessage) throws Exception {
@@ -291,7 +254,7 @@ public interface Contract {
     }
   }
 
-  /** Checks every 2 seconds for 60 seconds if account state was deployed at address */
+  /** Checks every 2 seconds for 60 seconds if account state was deployed at the address */
   default void waitForDeployment() {
     waitForDeployment(60);
   }
