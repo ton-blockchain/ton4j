@@ -404,7 +404,7 @@ public class JettonMinterV2 implements Contract {
         }
 
         return JettonWalletV2.builder()
-            .tonCenterClient((TonCenter) provider)
+            .tonProvider((TonCenter) provider)
             .address(jettonWalletAddress)
             .build();
       } catch (Exception e) {
@@ -444,7 +444,7 @@ public class JettonMinterV2 implements Contract {
           CellSlice.beginParse(slice.getCell()).skipBits(slice.getStBits()).loadAddress();
 
       return JettonWalletV2.builder()
-          .adnlLiteClient((AdnlLiteClient) provider)
+          .tonProvider(provider)
           .address(jettonWalletAddress)
           .build();
     }
@@ -473,7 +473,7 @@ public class JettonMinterV2 implements Contract {
           NftUtils.parseAddress(CellBuilder.beginCell().fromBoc(sliceBytes).endCell());
 
       return JettonWalletV2.builder()
-          .tonlib((Tonlib) provider)
+          .tonProvider(provider)
           .address(jettonWalletAddress)
           .build();
     }

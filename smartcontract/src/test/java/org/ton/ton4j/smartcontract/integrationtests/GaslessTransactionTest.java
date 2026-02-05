@@ -77,7 +77,7 @@ public class GaslessTransactionTest {
     // connect to a source wallet
     WalletV5 srcWallet =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .isSigAuthAllowed(true)
             .walletId(walletId)
             .keyPair(keyPairSigSrc)

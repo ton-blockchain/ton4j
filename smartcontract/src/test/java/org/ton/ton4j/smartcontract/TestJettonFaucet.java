@@ -54,7 +54,7 @@ public class TestJettonFaucet {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .customAddress(Address.of(FAUCET_MASTER_ADDRESS))
             .build();
 
@@ -127,7 +127,7 @@ public class TestJettonFaucet {
 
     JettonMinter minter =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .adminAddress(adminWallet.getAddress())
             .content(
                 NftUtils.createOffChainUriCell(

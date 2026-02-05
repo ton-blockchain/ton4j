@@ -52,7 +52,7 @@ public class TestWalletV5 extends CommonTest {
     // TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -94,7 +94,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -160,7 +160,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -202,7 +202,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -246,7 +246,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .isSigAuthAllowed(true)
             .walletId(42)
             .keyPair(keyPair)
@@ -304,7 +304,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -384,7 +384,7 @@ public class TestWalletV5 extends CommonTest {
 
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .isSigAuthAllowed(true)
             .keyPair(keyPair)
@@ -430,7 +430,7 @@ public class TestWalletV5 extends CommonTest {
 
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .isSigAuthAllowed(true)
             .keyPair(keyPair)
@@ -476,7 +476,7 @@ public class TestWalletV5 extends CommonTest {
 
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .isSigAuthAllowed(true)
             .keyPair(keyPair)
@@ -556,7 +556,7 @@ public class TestWalletV5 extends CommonTest {
 
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .isSigAuthAllowed(true)
             .keyPair(keyPair)
@@ -633,7 +633,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .isSigAuthAllowed(true)
             .walletId(42)
             .keyPair(keyPair)
@@ -734,7 +734,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairV5 = Utils.generateSignatureKeyPair();
     WalletV5 contractV5 =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPairV5)
             .isSigAuthAllowed(true)
@@ -834,7 +834,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairV5 = Utils.generateSignatureKeyPair();
     WalletV5 contractV5 =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPairV5)
             .isSigAuthAllowed(true)
@@ -929,7 +929,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairV5 = Utils.generateSignatureKeyPair();
     WalletV5 contractV5 =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPairV5)
             .isSigAuthAllowed(true)
@@ -994,7 +994,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -1027,7 +1027,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -1063,7 +1063,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -1116,7 +1116,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 walletV5 =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -1157,7 +1157,7 @@ public class TestWalletV5 extends CommonTest {
     String neojMasterJettonContractAddress = "kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y";
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .customAddress(Address.of(neojMasterJettonContractAddress))
             .build();
 
@@ -1222,7 +1222,7 @@ public class TestWalletV5 extends CommonTest {
     byte[] pubKey = keyPair.getPublicKey();
     WalletV5 contract =
         WalletV5.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -1334,7 +1334,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairV5 = Utils.generateSignatureKeyPair();
     WalletV5 contractV5 =
         WalletV5.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .walletId(42)
             .keyPair(keyPairV5)
             .isSigAuthAllowed(true)
@@ -1404,7 +1404,7 @@ public class TestWalletV5 extends CommonTest {
             .build();
     WalletV5 contract =
         WalletV5.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)
@@ -1468,7 +1468,7 @@ public class TestWalletV5 extends CommonTest {
   @Test
   public void testWalletV5InternalTransferTonCenterClient() throws Exception {
 
-    // create user wallet that sends an internal message to wallet v5
+    // create a user wallet that sends an internal message to wallet v5
     TonCenter tonCenterClient = TonCenter.builder().testnet().build();
     WalletV3R1 contractV3 =
         WalletV3R1.builder().tonProvider(tonCenterClient).walletId(43).build();
@@ -1499,7 +1499,7 @@ public class TestWalletV5 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairV5 = Utils.generateSignatureKeyPair();
     WalletV5 contractV5 =
         WalletV5.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .walletId(42)
             .keyPair(keyPairV5)
             .isSigAuthAllowed(true)
@@ -1567,7 +1567,7 @@ public class TestWalletV5 extends CommonTest {
 
     WalletV5 contract =
         WalletV5.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .walletId(42)
             .keyPair(keyPair)
             .isSigAuthAllowed(true)

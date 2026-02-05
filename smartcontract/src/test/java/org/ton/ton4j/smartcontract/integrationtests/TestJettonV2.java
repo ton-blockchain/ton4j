@@ -55,7 +55,7 @@ public class TestJettonV2 {
 
     JettonMinterV2 minter =
         JettonMinterV2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(nextAdminWallet.getAddress())
             .content(
@@ -223,7 +223,7 @@ public class TestJettonV2 {
 
     JettonMinterV2 minter =
         JettonMinterV2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(nextAdminWallet.getAddress())
             .content(
@@ -334,7 +334,7 @@ public class TestJettonV2 {
 
     JettonMinterV2 minter =
         JettonMinterV2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(nextAdminWallet.getAddress())
             .content(
@@ -509,7 +509,7 @@ public class TestJettonV2 {
 
     JettonMinterV2 minter =
         JettonMinterV2.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(nextAdminWallet.getAddress())
             .content(
@@ -683,7 +683,7 @@ public class TestJettonV2 {
 
     JettonMinterV2 minter =
         JettonMinterV2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(nextAdminWallet.getAddress())
             .content(

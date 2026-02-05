@@ -127,7 +127,7 @@ public class MyLocalTonJettonFaucet {
 
     JettonMinter minter =
             JettonMinter.builder()
-                    .adnlLiteClient(adnlLiteClient)
+                    .tonProvider(adnlLiteClient)
                     .adminAddress(adminWallet.getAddress())
                     .content(
                             NftUtils.createOffChainUriCell(
@@ -191,7 +191,7 @@ public class MyLocalTonJettonFaucet {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .customAddress(Address.of(FAUCET_MASTER_ADDRESS))
             .build();
 

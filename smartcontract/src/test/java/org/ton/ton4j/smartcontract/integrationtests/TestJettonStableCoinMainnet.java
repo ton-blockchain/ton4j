@@ -283,7 +283,7 @@ public class TestJettonStableCoinMainnet {
     // get usdt jetton master (minter) address
     JettonMinterStableCoin usdtMasterWallet =
         JettonMinterStableCoin.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .customAddress(usdtMasterAddress)
             .build();
 

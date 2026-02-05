@@ -43,7 +43,7 @@ public class TestJettonStableCoin {
 
     JettonMinterStableCoin minter =
         JettonMinterStableCoin.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(Address.of(NEW_ADMIN2))
             .content(
@@ -236,7 +236,7 @@ public class TestJettonStableCoin {
 
     JettonMinterStableCoin minter =
         JettonMinterStableCoin.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(Address.of(NEW_ADMIN2))
             .content(
@@ -431,7 +431,7 @@ public class TestJettonStableCoin {
 
     JettonMinterStableCoin minter =
         JettonMinterStableCoin.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .adminAddress(adminWallet.getAddress())
             .nextAdminAddress(Address.of(NEW_ADMIN2))
             .content(

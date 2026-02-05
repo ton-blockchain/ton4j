@@ -114,7 +114,7 @@ public class TestDocuSamples {
     log.info("deploying wallet (V3R2) using ADNL client");
     WalletV3R2 wallet =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPairSig)
             .walletId(42)
             .build();
@@ -161,7 +161,7 @@ public class TestDocuSamples {
     log.info("deploying wallet (V3R2) using ADNL client");
     WalletV3R2 wallet =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPairSig)
             .walletId(42)
             .build();
@@ -201,7 +201,7 @@ public class TestDocuSamples {
     log.info("deploying walletA (V3R2) using ADNL client");
     WalletV3R2 wallet =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .publicKey(keyPairSig.getPublicKey()) // using pubkey only
             .walletId(42)
             .build();
@@ -245,7 +245,7 @@ public class TestDocuSamples {
 
     HighloadWalletV3S wallet =
         HighloadWalletV3S.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .publicKey(keyPairSecp256k1.getPublicKey()) // no private key is used
             .walletId(42)
             .build();

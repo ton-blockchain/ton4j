@@ -31,7 +31,7 @@ public class TestLockupWallet extends CommonTest {
 
     LockupWalletV1 contract =
         LockupWalletV1.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(keyPair)
             .walletId(42)
             .lockupConfig(
@@ -198,7 +198,7 @@ public class TestLockupWallet extends CommonTest {
 
     LockupWalletV1 contract =
         LockupWalletV1.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(sigKeyPair)
             .walletId(42)
             .lockupConfig(
@@ -244,7 +244,7 @@ public class TestLockupWallet extends CommonTest {
 
     LockupWalletV1 contract =
         LockupWalletV1.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPair)
             .walletId(42)
             .lockupConfig(
@@ -401,7 +401,7 @@ public class TestLockupWallet extends CommonTest {
 
     LockupWalletV1 contract =
         LockupWalletV1.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .keyPair(keyPair)
             .walletId(42)
             .lockupConfig(

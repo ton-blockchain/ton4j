@@ -3,12 +3,14 @@ package org.ton.ton4j.smartcontract.integrationtests;
 import static java.util.Objects.isNull;
 
 import com.iwebpp.crypto.TweetNaclFast;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.wallet.Contract;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
@@ -33,17 +35,38 @@ public class DnsRoot implements Contract {
   Address address2; // address of ".t.me" dns resolver smart contract in basechain
   Address address3; // address of "www.ton" dns resolver smart contract in basechain
 
-  public static class DnsRootBuilder {
-    DnsRootBuilder() {
-      if (isNull(keyPair)) {
-        keyPair = Utils.generateSignatureKeyPair();
+  public static class DnsRootBuilder {}
+
+  public static DnsRootBuilder builder() {
+    return new CustomDnsRootBuilder();
+  }
+
+  private static class CustomDnsRootBuilder extends DnsRootBuilder {
+    @Override
+    public DnsRoot build() {
+      if (isNull(super.keyPair)) {
+        super.keyPair = Utils.generateSignatureKeyPair();
       }
+      DnsRoot instance = super.build();
+      if (super.tonProvider != null) {
+        instance.setTonProvider(super.tonProvider);
+      }
+      return instance;
     }
   }
 
+  @Getter(AccessLevel.NONE)
+  private TonProvider tonProvider;
+
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private Tonlib tonlib;
   private long wc;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private AdnlLiteClient adnlLiteClient;
+  /** @deprecated Use tonProvider instead. */
+  @Deprecated
   private TonCenter tonCenterClient;
 
   /**

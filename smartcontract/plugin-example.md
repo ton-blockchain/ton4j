@@ -1,6 +1,6 @@
 # SmartContract module
 
-## Example of usage of WalletV4ContractR2 (subscription, plugin) class
+## Usage example of WalletV4ContractR2 (subscription, plugin) class
 
 ### Deploy Wallet V4R2
 
@@ -8,7 +8,7 @@
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
 WalletV4R2 contract = WalletV4R2.builder()
-        .tonlib(tonlib)
+        .provider(tonlib)
         .keyPair(keyPair)
         .walletId(42)
         .build();

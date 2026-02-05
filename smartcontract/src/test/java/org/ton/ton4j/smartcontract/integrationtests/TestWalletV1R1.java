@@ -26,7 +26,7 @@ public class TestWalletV1R1 extends CommonTest {
   @Test
   public void testNewWalletV1R1AutoKeyPair() throws InterruptedException {
 
-    WalletV1R1 contract = WalletV1R1.builder().wc(0).tonlib(tonlib).build();
+    WalletV1R1 contract = WalletV1R1.builder().wc(0).tonProvider(tonlib).build();
 
     Address walletAddress = contract.getAddress();
 

@@ -9,7 +9,7 @@ Tonlib tonlib = Tonlib.builder()
         .build();
 
 WalletV1R2 contract = WalletV1R2.builder()
-        .tonlib(tonlib)
+        .provider(tonlib)
         .initialSeqno(2)
         .build();
 

@@ -180,7 +180,7 @@ public class TestWalletV2R1Short extends CommonTest {
         TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
 
     WalletV2R1 contract =
-        WalletV2R1.builder().publicKey(publicKey).tonCenterClient(tonCenterClient).build();
+        WalletV2R1.builder().publicKey(publicKey).tonProvider(tonCenterClient).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
 
     BigInteger balance =

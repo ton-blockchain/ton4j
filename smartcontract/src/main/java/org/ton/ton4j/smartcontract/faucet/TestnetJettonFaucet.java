@@ -75,7 +75,7 @@ public class TestnetJettonFaucet {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .customAddress(Address.of(FAUCET_MASTER_ADDRESS))
             .build();
 
@@ -132,7 +132,7 @@ public class TestnetJettonFaucet {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .customAddress(Address.of(FAUCET_MASTER_ADDRESS))
             .build();
 
@@ -192,7 +192,7 @@ public class TestnetJettonFaucet {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .customAddress(Address.of(FAUCET_MASTER_ADDRESS))
             .build();
 

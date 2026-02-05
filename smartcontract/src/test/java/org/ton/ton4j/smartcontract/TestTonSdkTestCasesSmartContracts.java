@@ -996,7 +996,7 @@ public class TestTonSdkTestCasesSmartContracts {
 
     HighloadWalletV3 highloadWalletV3 =
         HighloadWalletV3.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -1058,7 +1058,7 @@ public class TestTonSdkTestCasesSmartContracts {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .customAddress(Address.of(neojMasterContractAddress))
             .build();
 
@@ -1118,7 +1118,7 @@ public class TestTonSdkTestCasesSmartContracts {
 
     HighloadWalletV3 highloadWalletV3 =
         HighloadWalletV3.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -1173,7 +1173,7 @@ public class TestTonSdkTestCasesSmartContracts {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .customAddress(Address.of(neojMasterContractAddress))
             .build();
 

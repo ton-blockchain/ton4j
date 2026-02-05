@@ -56,7 +56,7 @@ public class TestSmartContractCompiler extends CommonTest {
     log.info("dataBoc {}", dataCellHex);
 
     GenericSmartContract genericSmartContract =
-        GenericSmartContract.builder().code(codeBoc).data(dataCellHex).tonlib(tonlib).build();
+        GenericSmartContract.builder().code(codeBoc).data(dataCellHex).tonProvider(tonlib).build();
 
     Address address = genericSmartContract.getAddress();
     BigInteger balance = TestnetFaucet.topUpContract(tonlib, address, Utils.toNano(0.1));
@@ -110,7 +110,7 @@ public class TestSmartContractCompiler extends CommonTest {
 
     log.info("capa: {}",tonlib.getConfigParam8());
     GenericSmartContract genericSmartContract =
-        GenericSmartContract.builder().code(codeBoc).data(dataCellHex).tonlib(tonlib).build();
+        GenericSmartContract.builder().code(codeBoc).data(dataCellHex).tonProvider(tonlib).build();
 
     Address address = genericSmartContract.getAddress();
     BigInteger balance = MyLocalTonFaucet.topUpContract(tonlib, address, Utils.toNano(0.1));

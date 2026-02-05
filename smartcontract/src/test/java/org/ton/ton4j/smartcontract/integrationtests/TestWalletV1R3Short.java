@@ -147,7 +147,7 @@ public class TestWalletV1R3Short extends CommonTest {
             .build();
 
     WalletV1R3 contract =
-        WalletV1R3.builder().keyPair(keyPair).tonCenterClient(tonCenterClient).build();
+        WalletV1R3.builder().keyPair(keyPair).tonProvider(tonCenterClient).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();

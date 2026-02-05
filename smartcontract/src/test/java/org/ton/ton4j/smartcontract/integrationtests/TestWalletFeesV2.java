@@ -129,7 +129,7 @@ public class TestWalletFeesV2 extends CommonTest {
                 "49c61704e3e229e71c03b6729185e16ff1d5c23f521fcb9c61f49f4a9d02a5aaba54bea10e0125b24747ab5d849f0bff99b32c4e59fb7b176dc7556fdb52b0c3"));
     TweetNaclFast.Signature.KeyPair keyPairSignatureA =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxA.getSecretKey());
-    WalletV2R2 walletA = WalletV2R2.builder().keyPair(keyPairSignatureA).tonlib(tonlib).build();
+    WalletV2R2 walletA = WalletV2R2.builder().keyPair(keyPairSignatureA).tonProvider(tonlib).build();
     log.info("rawAddressA {}", walletA.getAddress().toRaw());
     log.info("bounceableA {}", walletA.getAddress().toBounceable());
 
@@ -139,7 +139,7 @@ public class TestWalletFeesV2 extends CommonTest {
                 "3c11edde736a9bbc576bab50650b1193439c35d2c206c5b1457828a22a8403a578fb62e179be94779082747bcc18044aa264329e6f53d4562e057f9a8856dfbc"));
     TweetNaclFast.Signature.KeyPair keyPairSignatureB =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxB.getSecretKey());
-    WalletV2R2 walletB = WalletV2R2.builder().keyPair(keyPairSignatureB).tonlib(tonlib).build();
+    WalletV2R2 walletB = WalletV2R2.builder().keyPair(keyPairSignatureB).tonProvider(tonlib).build();
     log.info("rawAddressB {}", walletB.getAddress().toRaw());
     log.info("bounceableB {}", walletB.getAddress().toBounceable());
 
@@ -197,7 +197,7 @@ public class TestWalletFeesV2 extends CommonTest {
                 "49c61704e3e229e71c03b6729185e16ff1d5c23f521fcb9c61f49f4a9d02a5aaba54bea10e0125b24747ab5d849f0bff99b32c4e59fb7b176dc7556fdb52b0c3"));
     TweetNaclFast.Signature.KeyPair keyPairSignatureA =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxA.getSecretKey());
-    WalletV2R2 walletA = WalletV2R2.builder().keyPair(keyPairSignatureA).tonlib(tonlib).build();
+    WalletV2R2 walletA = WalletV2R2.builder().keyPair(keyPairSignatureA).tonProvider(tonlib).build();
     log.info("rawAddressA {}", walletA.getAddress().toRaw());
     log.info("bounceableA {}", walletA.getAddress().toBounceable());
 
@@ -207,7 +207,7 @@ public class TestWalletFeesV2 extends CommonTest {
                 "3c11edde736a9bbc576bab50650b1193439c35d2c206c5b1457828a22a8403a578fb62e179be94779082747bcc18044aa264329e6f53d4562e057f9a8856dfbc"));
     TweetNaclFast.Signature.KeyPair keyPairSignatureB =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxB.getSecretKey());
-    WalletV2R2 walletB = WalletV2R2.builder().keyPair(keyPairSignatureB).tonlib(tonlib).build();
+    WalletV2R2 walletB = WalletV2R2.builder().keyPair(keyPairSignatureB).tonProvider(tonlib).build();
 
     WalletV2R2Config configA =
         WalletV2R2Config.builder()

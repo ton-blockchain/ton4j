@@ -335,7 +335,7 @@ Tonlib tonlib = Tonlib.builder()
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
 ExampleContract exampleContract = ExampleContract.builder()
-        .tonlib(tonlib)
+        .provider(tonlib)
         .keyPair(keyPair)
         .build();
 

@@ -152,7 +152,7 @@ public class TestWalletFeesV4 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairSignatureA =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxA.getSecretKey());
     WalletV4R2 walletA =
-        WalletV4R2.builder().keyPair(keyPairSignatureA).tonlib(tonlib).walletId(42).build();
+        WalletV4R2.builder().keyPair(keyPairSignatureA).tonProvider(tonlib).walletId(42).build();
     log.info("rawAddressA {}", walletA.getAddress().toRaw());
     log.info("bounceableA {}", walletA.getAddress().toBounceable());
 
@@ -163,7 +163,7 @@ public class TestWalletFeesV4 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairSignatureB =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxB.getSecretKey());
     WalletV4R2 walletB =
-        WalletV4R2.builder().keyPair(keyPairSignatureB).tonlib(tonlib).walletId(98).build();
+        WalletV4R2.builder().keyPair(keyPairSignatureB).tonProvider(tonlib).walletId(98).build();
     log.info("rawAddressB {}", walletB.getAddress().toRaw());
     log.info("bounceableB {}", walletB.getAddress().toBounceable());
 
@@ -222,7 +222,7 @@ public class TestWalletFeesV4 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairSignatureA =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxA.getSecretKey());
     WalletV4R2 walletA =
-        WalletV4R2.builder().keyPair(keyPairSignatureA).tonlib(tonlib).walletId(42).build();
+        WalletV4R2.builder().keyPair(keyPairSignatureA).tonProvider(tonlib).walletId(42).build();
     log.info("rawAddressA {}", walletA.getAddress().toRaw());
     log.info("bounceableA {}", walletA.getAddress().toBounceable());
 
@@ -233,7 +233,7 @@ public class TestWalletFeesV4 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairSignatureB =
         Utils.generateSignatureKeyPairFromSeed(keyPairBoxB.getSecretKey());
     WalletV4R2 walletB =
-        WalletV4R2.builder().keyPair(keyPairSignatureB).tonlib(tonlib).walletId(98).build();
+        WalletV4R2.builder().keyPair(keyPairSignatureB).tonProvider(tonlib).walletId(98).build();
 
     WalletV4R2Config configA =
         WalletV4R2Config.builder()
@@ -274,7 +274,7 @@ public class TestWalletFeesV4 extends CommonTest {
     WalletV4R2 walletA =
         WalletV4R2.builder()
             .keyPair(keyPairSignatureA)
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .walletId(42)
             .build();
     log.info("rawAddressA {}", walletA.getAddress().toRaw());
@@ -290,7 +290,7 @@ public class TestWalletFeesV4 extends CommonTest {
     WalletV4R2 walletB =
         WalletV4R2.builder()
             .keyPair(keyPairSignatureB)
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .walletId(98)
             .build();
 

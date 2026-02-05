@@ -1,6 +1,6 @@
 # SmartContract module
 
-## Example of usage of JettonMinter and JettonWallet classes
+## Usage example of JettonMinter and JettonWallet classes
 
 ### Deploy Jetton Minter
 
@@ -13,7 +13,7 @@ log.info("admin wallet address {}", adminWallet.getAddress());
 log.info("second wallet address {}", wallet2.getAddress());
 
 JettonMinter minter = JettonMinter.builder()
-        .tonlib(tonlib)
+        .provider(tonlib)
         .adminAddress(adminWallet.getAddress())
         .content(NftUtils.createOffChainUriCell("https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/neo-jetton.json"))
         .jettonWalletCodeHex(WalletCodes.jettonWallet.getValue())

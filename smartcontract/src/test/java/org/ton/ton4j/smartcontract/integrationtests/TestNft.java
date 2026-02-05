@@ -50,7 +50,7 @@ public class TestNft extends CommonTest {
 
     NftCollection nftCollection =
         NftCollection.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .adminAddress(adminWallet.getAddress())
             .royalty(0.13)
             .royaltyAddress(adminWallet.getAddress())
@@ -139,7 +139,7 @@ public class TestNft extends CommonTest {
     // deploy nft sale for item 1
     NftSale nftSale1 =
         NftSale.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .marketplaceAddress(marketplace.getAddress())
             .nftItemAddress(nftItem1Address)
             .fullPrice(Utils.toNano(1.1))
@@ -178,7 +178,7 @@ public class TestNft extends CommonTest {
     // deploy nft sale for item 2 -----------------------------------------------------------
     NftSale nftSale2 =
         NftSale.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .marketplaceAddress(marketplace.getAddress())
             .nftItemAddress(Address.of(nftItem2Address))
             .fullPrice(Utils.toNano(1.2))
@@ -305,7 +305,7 @@ public class TestNft extends CommonTest {
 
     NftCollection nftCollection =
         NftCollection.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .adminAddress(adminWallet.getAddress())
             .royalty(0.13)
             .royaltyAddress(adminWallet.getAddress())
@@ -394,7 +394,7 @@ public class TestNft extends CommonTest {
     // deploy nft sale for item 1
     NftSale nftSale1 =
         NftSale.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .marketplaceAddress(marketplace.getAddress())
             .nftItemAddress(nftItem1Address)
             .fullPrice(Utils.toNano(1.1))
@@ -433,7 +433,7 @@ public class TestNft extends CommonTest {
     // deploy nft sale for item 2 -----------------------------------------------------------
     NftSale nftSale2 =
         NftSale.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .marketplaceAddress(marketplace.getAddress())
             .nftItemAddress(Address.of(nftItem2Address))
             .fullPrice(Utils.toNano(1.2))
@@ -749,7 +749,7 @@ public class TestNft extends CommonTest {
 
     NftCollection nftCollection =
         NftCollection.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .adminAddress(adminWallet.getAddress())
             .royalty(0.13)
             .royaltyAddress(adminWallet.getAddress())
@@ -840,7 +840,7 @@ public class TestNft extends CommonTest {
     // deploy nft sale for item 1
     NftSale nftSale1 =
         NftSale.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .marketplaceAddress(marketplace.getAddress())
             .nftItemAddress(nftItem1Address)
             .fullPrice(Utils.toNano(1.1))
@@ -880,7 +880,7 @@ public class TestNft extends CommonTest {
     // deploy nft sale for item 2 -----------------------------------------------------------
     NftSale nftSale2 =
         NftSale.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .marketplaceAddress(marketplace.getAddress())
             .nftItemAddress(Address.of(nftItem2Address))
             .fullPrice(Utils.toNano(1.2))

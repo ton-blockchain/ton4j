@@ -145,7 +145,7 @@ public class TestWalletV3R1Short extends CommonTest {
         TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
 
     WalletV3R1 contract =
-        WalletV3R1.builder().keyPair(keyPair).tonCenterClient(tonCenterClient).walletId(42).build();
+        WalletV3R1.builder().keyPair(keyPair).tonProvider(tonCenterClient).walletId(42).build();
     log.info("pub key: {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
     log.info("prv key: {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
 

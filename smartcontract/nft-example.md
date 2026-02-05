@@ -1,6 +1,6 @@
 # SmartContract module
 
-## Example of usage of NftItem, NftSale, NftCollection and NftMarketplace classes
+## Usage example of NftItem, NftSale, NftCollection and NftMarketplace classes
 
 ### Deploy NFT collection with offchain metadata
 
@@ -8,7 +8,7 @@ Make sure nft collection metadata file is available online.
 
 ```java
 NftCollection nftCollection = NftCollection.builder()
-        .tonlib(tonlib)
+        .provider(tonlib)
         .adminAddress(adminWallet.getAddress())
         .royalty(0.13)
         .royaltyAddress(adminWallet.getAddress())

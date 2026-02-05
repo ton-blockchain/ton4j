@@ -4,7 +4,7 @@
 
 ```java
 HighloadWalletV3 contract=HighloadWalletV3.builder()
-        .tonlib(tonlib)
+        .provider(tonlib)
         .walletId(42)
         .build();
 

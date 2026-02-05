@@ -133,7 +133,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     HighloadWalletV3S contract =
         HighloadWalletV3S.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .publicKey(pubKey) // no private key is used
             .walletId(42)
             .build();
@@ -575,7 +575,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     HighloadWalletV3S contract =
         HighloadWalletV3S.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPair)
             .walletId(42)
             .build();
@@ -807,7 +807,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .customAddress(Address.of("kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y"))
             .build();
 
@@ -881,7 +881,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     HighloadWalletV3S myHighLoadWalletV3 =
         HighloadWalletV3S.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPair)
             .walletId(42)
             .build();
@@ -929,7 +929,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .customAddress(Address.of("kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y"))
             .build();
 
@@ -983,7 +983,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     HighloadWalletV3S myHighLoadWalletV3 =
         HighloadWalletV3S.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .keyPair(keyPair)
             .walletId(42)
             .build();
@@ -1031,7 +1031,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .customAddress(Address.of("kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y"))
             .build();
 
@@ -1085,7 +1085,7 @@ public class TestHighloadWalletV3S extends CommonTest {
 
     HighloadWalletV3S contract =
         HighloadWalletV3S.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .keyPair(keyPair)
             .walletId(42)
             .build();

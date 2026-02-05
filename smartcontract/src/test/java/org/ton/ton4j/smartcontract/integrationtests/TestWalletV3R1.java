@@ -206,7 +206,7 @@ public class TestWalletV3R1 extends CommonTest {
         TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
 
     WalletV3R1 contract =
-        WalletV3R1.builder().keyPair(keyPair).tonCenterClient(tonCenterClient).walletId(42).build();
+        WalletV3R1.builder().keyPair(keyPair).tonProvider(tonCenterClient).walletId(42).build();
 
     Message msg =
         MsgUtils.createExternalMessageWithSignedBody(

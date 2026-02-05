@@ -118,15 +118,20 @@ You can use each submodule individually. Click the module below to get more deta
 - [Notes](#notes)
 
 ## Connection
-In the TON ecosystem you can interact with a TON blockchain in 4 ways:
+In the TON ecosystem you can interact with a TON blockchain in four ways:
   - tonlib shared library — connect to lite-server via tonlibjson.so/dll/dylib shared library;
   - ADNL lite-client - used to connect to lite-server using native Java ADNL protocol implementation; In the current implementation it does not download proofs on start and thus is much faster than tonlibjson.  
-  - Native lite-client - a java wrapper to compile lite-client executable. Handles and parses responses returned by lite-client. Obsolete way of connecting to TON blockchain and should not be used.
+  - Native lite-client - a java wrapper for compiled lite-client executable. Handles and parses responses returned by lite-client. Obsolete way of connecting to TON blockchain and should not be used.
   - TonCenter API - a java wrapper to interact with a [TonCenter HTTP API](https://toncenter.com/) service. For production usage consider obtaining API key.  
+
+`TonProvider` interface is used to unite three most commonly used clients `Tonlib`, `AdnlLiteClient` and `TonCenter`.
+It is preferable to use it in all smart contract builders. See below.
 
 ### Tonlib
 
 Connect to the TON Mainnet with the latest tonlibjson downloaded from the TON github release
+
+Connect to the TON Mainnet
 
 ```java
 Tonlib tonlib =
@@ -286,6 +291,51 @@ try {
 }
 ```
 More TonCenter V3 examples in [tests](toncenter-indexer-v3/src/test/java/org/ton/ton4j/toncenterv3/TonCenterV3Test.java).
+
+### TonProvider
+All ton4j wallet and smart contract classes accept `TonProvider` interface, e.g.:
+
+TonCenter as a TON client provider
+```java
+TonCenter tonCenterClient = TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
+WalletV3R1 contract = WalletV3R1.builder().keyPair(keyPair).tonProvider(tonCenterClient).walletId(42).build();
+```
+
+AdnlLiteClient as a TON client provider
+```java
+AdnlLiteClient adnlLiteClient =  AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+WalletV3R1 contract = WalletV3R1.builder().keyPair(keyPair).tonProvider(adnlLiteClient).walletId(42).build();
+```
+
+Tonlib as a TON client provider
+```java
+Tonlib tonlib =
+        Tonlib.builder()
+            .testnet(true)
+            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
+        .ignoreCache(false)
+            .build();
+WalletV3R1 contract = WalletV3R1.builder().tonProvider(tonlib).walletId(42).build();
+```
+
+#### Interface
+All TON clients in ton4j implement at least the following methods; however, individually each TON client has many more methods.
+```java
+BigInteger getBalance(Address address);
+long getSeqno(Address address);
+BigInteger getPublicKey(Address address);
+long getSubWalletId(Address address);
+boolean isDeployed(Address address);
+void waitForDeployment(Address address, int timeoutSeconds);
+void waitForBalanceChange(Address address, int timeoutSeconds);
+void printAccountMessages(Address account);
+void printAccountMessages(Address account, int historyLimit);
+void printAccountTransactions(Address account);
+void printAccountTransactions(Address account, int historyLimit);
+void printAccountTransactions(Address account, int historyLimit, boolean withMessages);
+Transaction sendExternalMessageWithConfirmation(Message externalMessage);
+SendResponse sendExternalMessage(Message externalMessage);
+```
 
 ## Smart contract address
 In TON smart contract address has various [formats](https://docs.ton.org/foundations/addresses/formats).

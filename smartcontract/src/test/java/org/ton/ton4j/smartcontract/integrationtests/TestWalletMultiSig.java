@@ -68,7 +68,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -201,7 +201,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -391,7 +391,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -461,7 +461,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -577,7 +577,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -687,7 +687,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -812,7 +812,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -968,7 +968,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -1101,7 +1101,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -1238,7 +1238,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(
@@ -1357,7 +1357,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     MultiSigWallet contract =
         MultiSigWallet.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(ownerKeyPair)
             .walletId(walletId)
             .config(

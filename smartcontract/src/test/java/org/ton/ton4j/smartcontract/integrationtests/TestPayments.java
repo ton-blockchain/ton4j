@@ -79,7 +79,7 @@ public class TestPayments extends CommonTest {
     // PaymentChannel channelA = new Wallet(WalletVersion.payments, channelOptionsA).create();
     PaymentChannel channelA =
         PaymentChannel.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .channelConfig(channelConfig)
             .isA(true)
             .myKeyPair(walletA.getKeyPair())
@@ -89,7 +89,7 @@ public class TestPayments extends CommonTest {
 
     PaymentChannel channelB =
         PaymentChannel.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .channelConfig(channelConfig)
             .isA(false)
             .myKeyPair(walletB.getKeyPair())
@@ -372,7 +372,7 @@ public class TestPayments extends CommonTest {
     // PaymentChannel channelA = new Wallet(WalletVersion.payments, channelOptionsA).create();
     PaymentChannel channelA =
         PaymentChannel.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .channelConfig(channelConfig)
             .isA(true)
             .myKeyPair(walletA.getKeyPair())
@@ -382,7 +382,7 @@ public class TestPayments extends CommonTest {
 
     PaymentChannel channelB =
         PaymentChannel.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .channelConfig(channelConfig)
             .isA(false)
             .myKeyPair(walletB.getKeyPair())
@@ -665,7 +665,7 @@ public class TestPayments extends CommonTest {
     // PaymentChannel channelA = new Wallet(WalletVersion.payments, channelOptionsA).create();
     PaymentChannel channelA =
         PaymentChannel.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .channelConfig(channelConfig)
             .isA(true)
             .myKeyPair(walletA.getKeyPair())
@@ -675,7 +675,7 @@ public class TestPayments extends CommonTest {
 
     PaymentChannel channelB =
         PaymentChannel.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .channelConfig(channelConfig)
             .isA(false)
             .myKeyPair(walletB.getKeyPair())

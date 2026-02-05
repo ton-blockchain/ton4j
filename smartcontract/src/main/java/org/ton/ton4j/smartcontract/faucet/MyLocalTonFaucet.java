@@ -136,7 +136,7 @@ public class MyLocalTonFaucet {
 
     WalletV3R2 faucet =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPair)
             .wc(-1)
             .walletId(42)

@@ -159,7 +159,7 @@ public class TestDns extends CommonTest {
 
     DnsRoot dnsRootContract =
         DnsRoot.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .wc(0)
             .keyPair(adminWallet.getKeyPair())
             .address1(Address.of("EQC3dNlesgVD8YbAazcauIrXBPfiVhMMr5YYk2in0Mtsz0Bz"))
@@ -202,7 +202,7 @@ public class TestDns extends CommonTest {
 
     DnsCollection dnsCollection =
         DnsCollection.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .collectionContent(
                 NftUtils.createOffChainUriCell(
                     UUID.randomUUID()
@@ -341,7 +341,7 @@ public class TestDns extends CommonTest {
 
     DnsCollection dnsCollection =
         DnsCollection.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .collectionContent(
                 NftUtils.createOffChainUriCell(
                     UUID.randomUUID()

@@ -312,7 +312,7 @@ public class TestExtraCurrency {
 
     HighloadWalletV3 contract =
         HighloadWalletV3.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPair)
             .walletId(42)
             .build();
@@ -421,7 +421,7 @@ public class TestExtraCurrency {
 
     HighloadWalletV3 contract =
         HighloadWalletV3.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .keyPair(keyPair)
             .walletId(42)
             .build();

@@ -51,7 +51,7 @@ public class TestJetton {
 
     JettonMinter minter =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .adminAddress(adminWallet.getAddress())
             .content(
                 NftUtils.createOffChainUriCell(
@@ -212,7 +212,7 @@ public class TestJetton {
 
     JettonMinter minter =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .adminAddress(adminWallet.getAddress())
             .content(
                 NftUtils.createOffChainUriCell(
@@ -319,7 +319,7 @@ public class TestJetton {
 
     JettonMinter minter =
         JettonMinter.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .adminAddress(adminWallet.getAddress())
             .content(
                 NftUtils.createOffChainUriCell(
@@ -486,7 +486,7 @@ public class TestJetton {
 
     JettonMinter minter =
         JettonMinter.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .adminAddress(adminWallet.getAddress())
             .content(
                 NftUtils.createOffChainUriCell(
@@ -656,7 +656,7 @@ public class TestJetton {
 
     JettonMinter minter =
         JettonMinter.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .adminAddress(adminWallet.getAddress())
             .content(
                 NftUtils.createOffChainUriCell(

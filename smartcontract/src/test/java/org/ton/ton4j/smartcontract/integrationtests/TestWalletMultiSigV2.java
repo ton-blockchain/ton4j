@@ -46,19 +46,19 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -77,7 +77,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)
@@ -178,19 +178,19 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -210,7 +210,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)
@@ -347,26 +347,26 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
 
     WalletV3R2 proposer =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -389,7 +389,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)
@@ -517,39 +517,39 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer4 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
 
     WalletV3R2 proposer1 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
 
     WalletV3R2 proposer2 =
         WalletV3R2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -569,7 +569,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)
@@ -672,39 +672,39 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer4 =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
 
     WalletV3R2 proposer1 =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
 
     WalletV3R2 proposer2 =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -724,7 +724,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)
@@ -826,19 +826,19 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .build();
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -857,7 +857,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)
@@ -958,39 +958,39 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer4 =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
 
     WalletV3R2 proposer1 =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
 
     WalletV3R2 proposer2 =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -1010,7 +1010,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)
@@ -1108,19 +1108,19 @@ public class TestWalletMultiSigV2 extends CommonTest {
     TonCenter tonCenterClient = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().build();
     WalletV3R2 deployer =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer2 =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
     WalletV3R2 signer3 =
         WalletV3R2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .keyPair(Utils.generateSignatureKeyPair())
             .walletId(42)
             .build();
@@ -1139,7 +1139,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
-            .tonCenterClient(tonCenterClient)
+            .tonProvider(tonCenterClient)
             .config(
                 MultiSigV2Config.builder()
                     .allowArbitraryOrderSeqno(false)

@@ -422,7 +422,7 @@ public class JettonMinterStableCoin implements Contract {
         }
 
         return JettonWalletStableCoin.builder()
-            .tonCenterClient((TonCenter) provider)
+            .tonProvider((TonCenter) provider)
             .address(jettonWalletAddress)
             .build();
       } catch (Exception e) {
@@ -450,7 +450,7 @@ public class JettonMinterStableCoin implements Contract {
           CellSlice.beginParse(slice.getCell()).skipBits(slice.getStBits()).loadAddress();
 
       return JettonWalletStableCoin.builder()
-          .adnlLiteClient((AdnlLiteClient) provider)
+          .tonProvider(provider)
           .address(jettonWalletAddress)
           .build();
     }
@@ -479,7 +479,7 @@ public class JettonMinterStableCoin implements Contract {
                   .endCell());
 
       return JettonWalletStableCoin.builder()
-          .tonlib((Tonlib) provider)
+           .tonProvider(provider)
           .address(jettonWalletAddress)
           .build();
     }

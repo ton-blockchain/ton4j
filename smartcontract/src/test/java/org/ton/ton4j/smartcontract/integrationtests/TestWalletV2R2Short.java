@@ -204,7 +204,7 @@ public class TestWalletV2R2Short extends CommonTest {
         TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
 
     WalletV2R2 contract =
-        WalletV2R2.builder().keyPair(keyPair).tonCenterClient(tonCenterClient).build();
+        WalletV2R2.builder().keyPair(keyPair).tonProvider(tonCenterClient).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();

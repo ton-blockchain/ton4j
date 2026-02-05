@@ -34,7 +34,7 @@ public class TestHighloadWalletV2 extends CommonTest {
 
     HighloadWallet contract =
         HighloadWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(keyPair)
             .walletId(42L)
             .queryId(queryId)
@@ -140,7 +140,7 @@ public class TestHighloadWalletV2 extends CommonTest {
 
     HighloadWallet contract =
         HighloadWallet.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .keyPair(keyPair)
             .walletId(42L)
             .queryId(queryId)

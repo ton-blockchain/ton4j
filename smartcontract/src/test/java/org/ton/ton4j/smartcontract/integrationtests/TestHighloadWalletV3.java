@@ -111,7 +111,7 @@ public class TestHighloadWalletV3 extends CommonTest {
 
     HighloadWalletV3 contract =
         HighloadWalletV3.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .publicKey(keyPair.getPublicKey())
             .walletId(42)
             .build();
@@ -243,7 +243,7 @@ public class TestHighloadWalletV3 extends CommonTest {
 
     HighloadWalletV3 contract =
         HighloadWalletV3.builder()
-            .adnlLiteClient(adnlLiteClient)
+            .tonProvider(adnlLiteClient)
             .keyPair(keyPair)
             .walletId(42)
             .build();
@@ -701,7 +701,7 @@ public class TestHighloadWalletV3 extends CommonTest {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonlib(tonlib)
+            .tonProvider(tonlib)
             .customAddress(Address.of("kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y"))
             .build();
 
@@ -814,7 +814,7 @@ public class TestHighloadWalletV3 extends CommonTest {
 
     JettonMinter jettonMinterWallet =
         JettonMinter.builder()
-            .tonCenterClient(tonCenter)
+            .tonProvider(tonCenter)
             .customAddress(Address.of("kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y"))
             .build();
 
