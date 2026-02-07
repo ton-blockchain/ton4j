@@ -202,11 +202,6 @@ public class TestnetFaucet {
       boolean avoidRateLimit)
       throws Exception {
 
-//    if (amount.compareTo(Utils.toNano(20)) > 0) {
-//      throw new Error(
-//          "Too many TONs requested from the TestnetFaucet, maximum amount per request is 20.");
-//    }
-
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(SECRET_KEY));
 
