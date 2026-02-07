@@ -330,7 +330,7 @@ public class WalletV4R2 implements Contract {
     return CellBuilder.beginCell().storeUint(0x64737472, 32).endCell();
   }
 
-  public SendResponse installPlugin(Tonlib tonlib, WalletV4R2Config config) {
+  public SendResponse installPlugin(WalletV4R2Config config) {
 
     Address ownAddress = getAddress();
     config.setOperation(2);

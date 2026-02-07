@@ -40,7 +40,7 @@ Java libraries and wrapper for interacting with TON blockchain. ton4j requires m
     <version>1.3.5</version>
 </dependency>
 ```
-
+## Repository structure
 You can use each submodule individually. Click the module below to get more details.
 
 * [Tonlib](tonlib/README.md) - use external Tonlib shared library to communicate with TON blockchain.
@@ -72,6 +72,7 @@ You can use each submodule individually. Click the module below to get more deta
   - [Native lite-client](#native-lite-client)
   - [TonCenter API V2](#toncenter-api-v2)
   - [TonCenter API V3](#toncenter-api-v3)
+  - [Ton Provider](#ton-provider)
 - [Smart contract address](#smart-contract-address)
 - [Wallets](#Wallets)
   - [Create](#create-wallet)
@@ -98,12 +99,12 @@ You can use each submodule individually. Click the module below to get more deta
   - [Mint](#Mint-jetton)
   - [Transfer](Transfer-jetton)
 - [DNS](#DNS)
-  - [Resolve](#Resolve-DNS)
-  - [Get records](#Get-DNS-records)
-  - [Set records](#Set-DNS-records)
-- [Contracts](#Contracts)
+  - [Resolve](#Resolve-DNS-records)
+  - [Deploy own root DNS](#Deploy-own-root-DNS)
+- [Smart Contracts](#Smart-Contracts)
   - [Retrieve contract's information](#Using-GET-methods)
-  - [Compile](#Compile-smart-contract)
+  - [Develop custom smart contract](#Develop-custom-smart-contract)
+  - [Develop custom smart contract with JavaTonBuilder](#Develop-custom-smart-contract-using-JavaTonBuilder)
 - [BitString](#BitString)
 - [Cells](#Cells)
   - [Create using CellBuilder](#Cell-Builder)
@@ -116,13 +117,14 @@ You can use each submodule individually. Click the module below to get more deta
 - [TON Connect](#ton-connect)
 - [Smart contract disassembler](#Smart-contract-disassembler)
 - [Notes](#notes)
+- [FAQ](#FAQ)
 
 ## Connection
 In the TON ecosystem you can interact with a TON blockchain in four ways:
   - tonlib shared library — connect to lite-server via tonlibjson.so/dll/dylib shared library;
-  - ADNL lite-client - used to connect to lite-server using native Java ADNL protocol implementation; In the current implementation it does not download proofs on start and thus is much faster than tonlibjson.  
-  - Native lite-client - a java wrapper for compiled lite-client executable. Handles and parses responses returned by lite-client. Obsolete way of connecting to TON blockchain and should not be used.
-  - TonCenter API - a java wrapper to interact with a [TonCenter HTTP API](https://toncenter.com/) service. For production usage consider obtaining API key.  
+  - ADNL lite-client — used to connect to lite-server using native Java ADNL protocol implementation; In the current implementation it does not download proofs on start and thus is much faster than tonlibjson.  
+  - Native lite-client — a java wrapper for compiled lite-client executable. Handles and parses responses returned by lite-client. Obsolete way of connecting to TON blockchain and should not be used.
+  - TonCenter API — a java wrapper to interact with a [TonCenter HTTP API](https://toncenter.com/) service. For production usage consider obtaining API key.  
 
 `TonProvider` interface is used to unite three most commonly used clients `Tonlib`, `AdnlLiteClient` and `TonCenter`.
 It is preferable to use it in all smart contract builders. See below.
@@ -177,7 +179,8 @@ LiteClient liteClient =
     .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
   .build();
 liteClient.executeLast();
-liteClient.executeRunMethod( "EQDCJVrezD71y-KPcTIG-YeKNj4naeiR7odpQgVA1uDsZqPC",
+liteClient.executeRunMethod(
+            "EQDCJVrezD71y-KPcTIG-YeKNj4naeiR7odpQgVA1uDsZqPC",
             "(-1,8000000000000000,20301499):070D07EB64D36CCA2D8D20AA644489637059C150E2CD466247C25B4997FB8CD9:D7D7271D466D52D0A98771F9E8DCAA06E43FCE01C977AACD9DE9DAD9A9F9A424",
             "seqno", "");
 ```
@@ -292,7 +295,7 @@ try {
 ```
 More TonCenter V3 examples in [tests](toncenter-indexer-v3/src/test/java/org/ton/ton4j/toncenterv3/TonCenterV3Test.java).
 
-### TonProvider
+### Ton Provider
 All ton4j wallet and smart contract classes accept `TonProvider` interface, e.g.:
 
 TonCenter as a TON client provider
@@ -310,11 +313,11 @@ WalletV3R1 contract = WalletV3R1.builder().keyPair(keyPair).tonProvider(adnlLite
 Tonlib as a TON client provider
 ```java
 Tonlib tonlib =
-        Tonlib.builder()
-            .testnet(true)
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-        .ignoreCache(false)
-            .build();
+  Tonlib.builder()
+    .testnet(true)
+    .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
+    .ignoreCache(false)
+    .build();
 WalletV3R1 contract = WalletV3R1.builder().tonProvider(tonlib).walletId(42).build();
 ```
 
@@ -759,9 +762,81 @@ TweetNaclFast.Signature.KeyPair quickKeyPair = Utils.generateSignatureKeyPair();
 ```
 
 ## NFT
+Get familiar with [NFT](https://docs.ton.org/standard/tokens/nft/overview) in TON. 
+[Here](https://github.com/ton-blockchain/nft-contract) you can also look at reference implementation of NFT (non-fungible token) smart contract for TON.
+
+### Mint NFT collection
+```java
+// use your already created admin wallet
+adminWallet = GenerateWallet.randomV3R1(tonlib, 7);
+log.info("admin wallet address {}", adminWallet.getAddress());
+
+NftCollection nftCollection =
+    NftCollection.builder()
+        .tonProvider(tonlib)
+        .adminAddress(adminWallet.getAddress())
+        .royalty(0.13)
+        .royaltyAddress(adminWallet.getAddress())
+        .collectionContentUri(
+            "https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/nft-collection.json")
+        .collectionContentBaseUri(
+            "https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/")
+        .nftItemCodeHex(WalletCodes.nftItem.getValue())
+        .build();
+
+log.info("NFT collection address {}", nftCollection.getAddress());
+
+// deploy NFT Collection
+WalletV3Config adminWalletConfig =
+    WalletV3Config.builder()
+        .walletId(42)
+        .seqno(adminWallet.getSeqno())
+        .destination(nftCollection.getAddress())
+        .amount(Utils.toNano(1))
+        .stateInit(nftCollection.getStateInit())
+        .build();
+
+SendResponse sendResponse = adminWallet.send(adminWalletConfig);
+assertThat(sendResponse.getCode()).isZero();
+log.info("deploying NFT collection");
+
+nftCollection.waitForDeployment(60);
+```
+
+### Mint NFT item
+
 ### Retrieve NFT information
-### Mint NFT
+
 ### Transfer NFT
+
+### Change NFT collection owner
+```java
+WalletV3Config adminWalletV3Config =
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(wallet.getSeqno())
+    .destination("nftCollectionAddress")
+    .amount(Utils.toNano(0.055))
+    .body(NftCollection.createChangeOwnerBody(0, "newOwnerAddress"))
+    .build();
+adminWallet.send(adminWalletV3Config);
+```
+### Edit NFT collection content
+```java
+WalletV3Config adminWalletV3Config =
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(wallet.getSeqno())
+    .destination("nftCollectionAddress")
+    .amount(Utils.toNano(0.055))
+    .body(NftCollection.createEditContentBody( 0, "ton://my-new-nft/collection.json", "ton://my-new-nft/", newRoyalty, "newRoyaltyAddress"))
+    .build();
+SendResponse sendResponse = adminWallet.send(adminWalletV3Config);
+```
+
+### Sell NFT
+
+### Buy NFT
 
 ## Jettons
 ### Retrieve jetton info
@@ -769,13 +844,284 @@ TweetNaclFast.Signature.KeyPair quickKeyPair = Utils.generateSignatureKeyPair();
 ### Transfer jetton
 
 ## DNS
-### Resolve-DNS
-### Get DNS records
-### Set DNS records
+With the help of ton4j you can resolve DNS name of any site or wallet.
+You can even deploy your own DNS resolution smart contract, also called a root DNS contract.
+In TON blockchain DNS names are NFT items, means you can deploy a collection of names, sell, buy, change and transfer them. 
 
-## Contracts
-### Using GET methods
-### Compile-smart contract
+### Resolve DNS records
+In the mainnet using AdnlLiteClient
+```java
+AdnlLiteClient adnlLiteClient = 
+  AdnlLiteClient.builder()
+    .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
+    .build();
+
+Dns dns = Dns.builder().tonProvider(adnlLiteClient).build();
+Address rootAddress = dns.getRootDnsAddress();
+log.info("root DNS address = {}", rootAddress.toBounceable());
+
+Object result = dns.resolve("apple.ton");
+log.info("apple.ton resolved to {}", ((Address) result).toBounceable());
+
+Address addr = (Address) dns.getWalletAddress("foundation.ton");
+log.info("foundation.ton resolved to {}", addr.toBounceable());
+
+Address addr = (Address) dns.getSiteAddress("foundation.ton");
+log.info("foundation.ton resolved to {}", addr.toBounceable());
+```
+
+### Deploy own root DNS
+Before deploying root DNS smart contract, you have to deploy three NFT collections:
+- address of ".ton" dns resolver smart contract in basechain
+- address of ".t.me" dns resolver smart contract in basechain
+- address of "www.ton" dns resolver smart contract in basechain
+
+```java
+WalletV3R1 adminWallet = GenerateWallet.randomV3R1(tonlib, 1);
+
+DnsRoot dnsRootContract =
+  DnsRoot.builder()
+    .tonProvider(tonlib)
+    .wc(0)
+    .keyPair(adminWallet.getKeyPair())
+    .address1("address-of-nft-collection-for .ton")
+    .address2("address-of-nft-collection-for .t.me")
+    .address3("address-of-nft-collection-for .www.ton")        
+    .build();
+log.info("new root DNS address {}", dnsRootContract.getAddress());
+
+WalletV3Config adminWalletConfig =
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(1)
+    .destination(dnsRootContract.getAddress())
+    .amount(Utils.toNano(0.12))
+    .stateInit(dnsRootContract.getStateInit())
+    .build();
+
+SendResponse sendResponse = adminWallet.send(adminWalletConfig);
+assertThat(sendResponse.getCode()).isZero();
+
+dnsRootContract.waitForDeployment();
+
+assertThat(dnsRootContract.isDeployed()).isTrue();
+```
+
+More DNS examples on how to deploy a DNS collection and manipulate DNS items see [here](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestDns.java).
+
+## Smart Contracts
+You can fetch contract's data either by using directly TonProvider client or by calling ready-to-use getters of various wallet contracts.
+
+### Using GET methods from TON providers
+#### AdnlLiteClient run method usage
+Use AdnlLiteClient's `runMethod` to specify contract's address, method name and parameters
+```java
+// for the latest block
+public RunMethodResult runMethod(Address accountAddress, String methodName, VmStackValue... params);
+// for the particular block in the past
+public RunMethodResult runMethod(BlockIdExt id, int mode, Address accountAddress, long methodId, byte[] methodParams)
+```
+below example shows how to call V4R2 contract's method `is_plugin_installed` with two parameters:
+```java
+RunMethodResult runMethodResult =
+    ((AdnlLiteClient) provider)
+        .runMethod(
+        "your-wallet-v4-address",
+        "is_plugin_installed",
+        VmStackValueInt.builder().value(BigInteger.valueOf(pluginAddress.wc)).build(),
+        VmStackValueInt.builder().value(new BigInteger(hashPart)).build());
+
+return runMethodResult.getIntByIndex(0).intValue() != 0;
+```
+
+Similar run methods are available in Tonlib and TonCenter providers
+#### tonlib run method usage
+```java
+public RunResult runMethod(Address contractAddress, String methodName);
+public RunResult runMethod(Address contractAddress, String methodName, BlockIdExt blockId);
+//example of calling get_public_key
+RunResult result = ((Tonlib) provider).runMethod(getAddress(), "get_public_key");
+```
+#### TonCenter run method usage
+```java
+public TonResponse<RunGetMethodResponse> runGetMethod(String address, Object method, List<List<Object>> stack);
+public TonResponse<RunGetMethodResponse> runGetMethod(String address, Object method, List<List<Object>> stack, Long seqno);
+
+// example of calling wallet_id
+TonResponse<RunGetMethodResponse> r = ((TonCenter) provider).runGetMethod(getAddress().toBounceable(), "wallet_id", new ArrayList<>());
+```
+
+### Using GET methods from wallets
+`ton4j` provides Java classes for standard wallets, like `Multisig`, `Highload`, `V3R2` etc.
+All of them have many ready-to-use helpful methods for standard methods, like `seqno`, `wallet_id`, `get_public_key`.
+Some have specific methods only relevant for that contract, e.g. V4R2 has: `isPluginInstalled`, `getPluginsList`, 
+`getSubscriptionData`, `installPlugin`, `uninstallPlugin`.
+
+### Develop custom smart contract
+You can also develop TON smart contracts with a help of `SmartContractCompiler`. 
+`SmartContractCompiler` supports `tolk` and `func` compilers, and uses `GenericSmartContract` as a smart-contract wrapper with basis methods for deployment.
+
+#### Compile
+If your contract has imports and dependencies on other files, 
+specify the top-level contract and make sure other files are available from the same directory.
+
+Assume you have a custom smart contract written in Tolk
+<details>
+  <summary>Simple contract</summary>
+
+```java
+import "@stdlib/gas-payments"
+tolk 1.1
+
+struct Storage {
+  id: uint32
+  counter: uint32
+}
+
+fun Storage.load() {
+  return Storage.fromCell(contract.getData())
+}
+
+fun Storage.save(self) {
+  contract.setData(self.toCell())
+}
+
+struct (0x7e8764ef) IncreaseCounter {
+  queryId: uint64  // query id, typically included in messages
+  increaseBy: uint32
+}
+
+struct (0x3a752f06) ResetCounter {
+  queryId: uint64
+}
+
+type AllowedMessage = IncreaseCounter | ResetCounter
+
+fun onExternalMessage(extBody: slice) {
+  var storage = lazy Storage.load();
+  val msgId = extBody.loadUint(32);
+  val counter = extBody.loadUint(32);
+  assert (msgId == storage.id) throw 33;
+  acceptExternalMessage();
+  storage.id += 1;
+  storage.counter = counter;
+  storage.save();
+}
+
+fun onInternalMessage(in: InMessage) {
+val msg = lazy AllowedMessage.fromSlice(in.body);
+    match (msg) {
+        IncreaseCounter => {
+            var storage = lazy Storage.load();
+            storage.counter += msg.increaseBy;
+            storage.save();
+        }
+
+        ResetCounter => {
+            var storage = lazy Storage.load();
+            storage.counter = 0;
+            storage.save();
+        }
+
+        else => {
+            assert (in.body.isEmpty()) throw 0xFFFF
+        }
+    }
+}
+
+fun onBouncedMessage(in: InMessageBounced) {
+}
+
+get fun currentCounter(): int {
+  val storage = lazy Storage.load();
+  return storage.counter;
+}
+
+get fun initialId(): int {
+  val storage = lazy Storage.load();
+  return storage.id;
+}
+```
+</details>
+
+Now let's compile it
+```java
+// create Tolk
+TolkRunner tolkRunner =
+  TolkRunner.builder()
+    .tolkExecutablePath(Utils.getTolkGithubUrl())                
+    .build();
+// assign Tolk to SmartContractCompiler
+SmartContractCompiler smartContractCompiler =
+  SmartContractCompiler.builder()
+    .tolkRunner(tolkRunner)
+    .contractPath("/home/user/smart-contract/simple.tolk")
+    .build();
+// compile and get a code cell as a BoC
+String codeBocHex = smartContractCompiler.compile();
+log.info("codeBocHex {}", codeBocHex);
+```
+
+#### Deploy
+Every smart contract in the TON ecosystem consists of its code and data (storage), thus you have to provide both during the deployment.
+If your smart contract does not use storage, you can have an empty data cell.
+
+In the example below let's use [MyLocalTon Docker](https://github.com/neodix42/mylocalton-docker) or 
+[MyLocalTon Desktop](https://github.com/neodix42/mylocalton) app for deployment, instead of deploying to testnet or mainnet.
+Both Docker and Desktop versions of MyLocalTon on start expose a global config that can be used by Ton providers. 
+The URL for the config is always the same:  http://127.0.0.1:8000/localhost.global.config.json
+
+Deploy the above compiled smart contract
+```java
+// initialize a TON provider as a Tonlib client connected to MyLocalTon
+Tonlib tonlib =
+  Tonlib.builder()
+    .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
+    .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
+    .ignoreCache(false)
+    .build();
+
+// define smart contract's initial data (storage) values 
+String dataCellHex =
+    CellBuilder.beginCell()
+        .storeUint(4, 32) // id
+        .storeUint(5, 32) // counter
+        .endCell()
+        .toHex();
+
+GenericSmartContract genericSmartContract =
+  GenericSmartContract.builder()
+    .code(codeBocHex)
+    .data(dataCellHex)
+    .tonProvider(tonlib)
+    .build();
+
+Address address = genericSmartContract.getAddress();
+BigInteger balance = TestnetFaucet.topUpContract(tonlib, address, Utils.toNano(0.1));
+log.info("balance genericSmartContract: {}", Utils.formatNanoValue(balance));
+
+//deploy
+SendResponse sendResponse = genericSmartContract.deployWithoutSignature(CellBuilder.beginCell().storeUint(4, 32).endCell());
+log.info("sendResponse {}", sendResponse);
+assertThat(sendResponse.getCode()).isZero();
+tonlib.waitForDeployment(address);
+
+// get currentCounter value
+RunResult runResult = tonlib.runMethod(address, "currentCounter");
+long currentCounter = ((TvmStackEntryNumber) runResult.getStack().get(0)).getNumber().longValue();
+log.info("currentCounter {}", currentCounter);
+```
+
+### Develop custom smart contract using JavaTonBuilder
+[JavaTonBuilder](https://github.com/neodiX42/javatonbuilder) is an experimental framework that facilitates TON smart contract development using TON emulators and Java only (no node.js) approach.
+The future of JavaTonBuilder is vague, since Tolk ecosystem is developing rapidly and may soon include a full set of tools for TON smart conract development.
+
+Currently, [TON Blueprint](https://github.com/ton-org/blueprint) is a more mature project, and it should be considered as a first choice for TON smart contract development.
+
+```java
+// todo
+```
+
 
 ## BitString
 `BitString` used to construct an array of bits, and later read out of it. 
@@ -943,12 +1289,12 @@ Cell c2 = CellBuilder.beginCell().storeUint((long) Math.pow(2, 37), 38).storeRef
 Cell c3 = CellBuilder.beginCell().storeUint((long) Math.pow(2, 41), 42).endCell();
 Cell c4 = CellBuilder.beginCell().storeUint((long) Math.pow(2, 42), 44).endCell();
 Cell c5 =
-    CellBuilder.beginCell()
-        .storeAddress(Address.parseFriendlyAddress("0QAljlSWOKaYCuXTx2OCr9P08y40SC2vw3UeM1hYnI3gDY7I"))
-        .storeString("HELLO")
-        .storeRef(c2)
-        .storeRefs(c3, c4)
-        .endCell();
+  CellBuilder.beginCell()
+    .storeAddress(Address.parseFriendlyAddress("0QAljlSWOKaYCuXTx2OCr9P08y40SC2vw3UeM1hYnI3gDY7I"))
+    .storeString("HELLO")
+    .storeRef(c2)
+    .storeRefs(c3, c4)
+    .endCell();
 
 assertThat(c5.getUsedRefs()).isEqualTo(3);
 byte[] serializedCell5 = c5.toBoc(false);
@@ -988,15 +1334,15 @@ Cell cRef1 = CellBuilder.beginCell().storeUint(2, 3).storeUint(200, 8).endCell()
 Address addr = Address.of("0QAs9VlT6S776tq3unJcP5Ogsj-ELLunLXuOb1EKcOQi4-QO");
 
 Cell c0 =
-    CellBuilder.beginCell()
-        .storeUint(10, 8)
-        .storeUint(20, 8)
-        .storeInt(30, 8)
-        .storeRef(cRef0)
-        .storeRef(cRef1)
-        .storeBitString(bs0)
-        .storeAddress(addr)
-        .endCell();
+  CellBuilder.beginCell()
+    .storeUint(10, 8)
+    .storeUint(20, 8)
+    .storeInt(30, 8)
+    .storeRef(cRef0)
+    .storeRef(cRef1)
+    .storeBitString(bs0)
+    .storeAddress(addr)
+    .endCell();
 ```
 and now let's extract data out of it using `CellSlice` class
 ```java
@@ -1345,6 +1691,9 @@ String disassembledInstructions = Disassembler.fromBoc(accountStateCode);
 - Testnet faucet only works on testnet. On the mainnet, top up the wallet address externally before deploying.
 - Prefer public-key-only flows and external signing when private keys must not be exposed.
 - More wallet and smart-contract examples live in `smartcontract/src/test/java/org/ton/ton4j/smartcontract`.
+
+## FAQ
+- todo
 
 ## Features
 

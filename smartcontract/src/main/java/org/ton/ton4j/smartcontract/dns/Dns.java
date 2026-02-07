@@ -81,6 +81,10 @@ public class Dns {
     return resolve(domain, category, false);
   }
 
+  public Object resolve(String domain) {
+    return resolve(domain, DNS_CATEGORY_NEXT_RESOLVER, true);
+  }
+
   /**
    * @param domain String e.g "sub.alice.ton"
    * @return Address | null

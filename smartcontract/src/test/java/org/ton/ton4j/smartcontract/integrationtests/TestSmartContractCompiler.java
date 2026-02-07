@@ -65,7 +65,7 @@ public class TestSmartContractCompiler extends CommonTest {
     SendResponse sendResponse =
         genericSmartContract.deployWithoutSignature(
             CellBuilder.beginCell().storeUint(4, 32).endCell());
-    log.info("extMessageInfo {}", sendResponse);
+    log.info("sendResponse {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
 
     tonlib.waitForDeployment(address, 60);
@@ -73,7 +73,7 @@ public class TestSmartContractCompiler extends CommonTest {
     long currentCounter =
         ((TvmStackEntryNumber) runResult.getStack().get(0)).getNumber().longValue();
 
-    log.info("walletId {}", currentCounter);
+    log.info("currentCounter {}", currentCounter);
   }
 
   @Test

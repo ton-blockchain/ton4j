@@ -3,8 +3,7 @@ package org.ton.ton4j.smartcontract.integrationtests;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.ton.ton4j.smartcontract.dns.Dns.DNS_CATEGORY_NEXT_RESOLVER;
-import static org.ton.ton4j.smartcontract.dns.Dns.DNS_CATEGORY_WALLET;
+import static org.ton.ton4j.smartcontract.dns.Dns.*;
 
 import java.math.BigInteger;
 import java.util.UUID;
@@ -34,7 +33,6 @@ import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestDns extends CommonTest {
   static WalletV3R1 adminWallet;
   static WalletV3R1 buyerWallet;
@@ -69,7 +67,7 @@ public class TestDns extends CommonTest {
     Dns dns = Dns.builder().tonProvider(adnlLiteClient).build();
     log.info("root DNS address = {}", dns.getRootDnsAddress());
 
-    Object result = dns.resolve("apple.ton", DNS_CATEGORY_NEXT_RESOLVER, true);
+    Object result = dns.resolve("apple.ton", Dns.DNS_CATEGORY_NEXT_RESOLVER, true);
     String resolvedAddress = ((Address) result).toBounceable();
     log.info("apple.ton resolved to {}", resolvedAddress);
     assertThat(resolvedAddress).isNotEmpty();
@@ -78,7 +76,7 @@ public class TestDns extends CommonTest {
     //  owner EQAsEbAKNuRFDkoB6PjYP2dPTdHgt1rX2szkFFHahuDOEkbB
     //  new owner EQBCMRzsJBTMDqF5JW8Mbq9Ap7b88qKxkwktlZEChtLbiFIH
     Address addr =
-        (Address) dns.resolve("alice-alice-alice-9.ton", DNS_CATEGORY_NEXT_RESOLVER, true);
+        (Address) dns.resolve("alice-alice-alice-9.ton", Dns.DNS_CATEGORY_NEXT_RESOLVER, true);
     log.info("alice-alice-alice-9 resolved to {}", addr.toString(true, true, true));
   }
 
@@ -88,7 +86,7 @@ public class TestDns extends CommonTest {
     Address rootAddress = dns.getRootDnsAddress();
     log.info("root DNS address = {}", rootAddress.toString(true, true, true));
 
-    Object result = dns.resolve("apple.ton", DNS_CATEGORY_NEXT_RESOLVER, true);
+    Object result = dns.resolve("apple.ton", Dns.DNS_CATEGORY_NEXT_RESOLVER, true);
     assertThat(result).isNotNull();
     log.info("apple.ton resolved to {}", ((Address) result).toString(true, true, true));
 
@@ -102,17 +100,16 @@ public class TestDns extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
             .build();
     Dns dns = Dns.builder().tonProvider(adnlLiteClient).build();
     Address rootAddress = dns.getRootDnsAddress();
-    log.info("root DNS address = {}", rootAddress.toString(true, true, true));
+    log.info("root DNS address = {}", rootAddress.toBounceable());
 
-    Object result = dns.resolve("apple.ton", DNS_CATEGORY_NEXT_RESOLVER, true);
+    Object result = dns.resolve("apple.ton", Dns.DNS_CATEGORY_NEXT_RESOLVER, true);
     assertThat(result).isNotNull();
-    log.info("apple.ton resolved to {}", ((Address) result).toString(true, true, true));
+    log.info("apple.ton resolved to {}", ((Address) result).toBounceable());
 
-    Address addr = (Address) dns.getWalletAddress("foundation.ton");
+    Address addr = (Address) dns.resolve("foundation.ton", Dns.DNS_CATEGORY_WALLET);
     log.info("foundation.ton resolved to {}", addr.toString(true, true, true));
     assertThat(addr).isNotNull();
   }
@@ -264,7 +261,7 @@ public class TestDns extends CommonTest {
     log.info("dnsItem1 address {}", dnsItem1Address);
 
     tonlib.waitForDeployment(dnsItem1Address, 60);
-    //        ContractUtils.waitForDeployment(tonlib, dnsItem1Address, 60);
+    // ContractUtils.waitForDeployment(tonlib, dnsItem1Address, 60);
 
     getDnsItemInfo(tonlib, dnsItem1Address);
 

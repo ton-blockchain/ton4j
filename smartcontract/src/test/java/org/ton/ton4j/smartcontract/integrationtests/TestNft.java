@@ -279,8 +279,7 @@ public class TestNft extends CommonTest {
         "ton://my-nft/collection.json",
         "ton://my-nft/",
         0.16,
-        Address.of(WALLET2_ADDRESS),
-        adminWallet.getKeyPair());
+        Address.of(WALLET2_ADDRESS));
 
     changeNftCollectionOwner(
         adminWallet, Utils.toNano(0.06), nftCollection.getAddress(), Address.of(WALLET2_ADDRESS));
@@ -533,8 +532,7 @@ public class TestNft extends CommonTest {
         "ton://my-nft/collection.json",
         "ton://my-nft/",
         0.16,
-        Address.of(WALLET2_ADDRESS),
-        adminWallet.getKeyPair());
+        Address.of(WALLET2_ADDRESS));
 
     changeNftCollectionOwner(
         adminWallet, Utils.toNano(0.06), nftCollection.getAddress(), Address.of(WALLET2_ADDRESS));
@@ -597,8 +595,7 @@ public class TestNft extends CommonTest {
       String collectionContentUri,
       String nftItemContentBaseUri,
       double royalty,
-      Address royaltyAddress,
-      TweetNaclFast.Signature.KeyPair keyPair) {
+      Address royaltyAddress) {
 
     WalletV3Config walletV3Config =
         WalletV3Config.builder()
@@ -621,8 +618,7 @@ public class TestNft extends CommonTest {
       String collectionContentUri,
       String nftItemContentBaseUri,
       double royalty,
-      Address royaltyAddress,
-      TweetNaclFast.Signature.KeyPair keyPair) {
+      Address royaltyAddress) {
 
     WalletV3Config walletV3Config =
         WalletV3Config.builder()
@@ -985,8 +981,7 @@ public class TestNft extends CommonTest {
         "ton://my-nft/collection.json",
         "ton://my-nft/",
         0.16,
-        Address.of(WALLET2_ADDRESS),
-        adminWallet.getKeyPair());
+        Address.of(WALLET2_ADDRESS));
 
     changeNftCollectionOwnerTonCenter(
         adminWallet, Utils.toNano(0.06), nftCollection.getAddress(), Address.of(WALLET2_ADDRESS));
