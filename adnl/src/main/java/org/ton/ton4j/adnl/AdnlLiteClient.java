@@ -2122,7 +2122,7 @@ public class AdnlLiteClient implements TonProvider {
   }
 
   /** use SendResponse sendExternalMessage(Message externalMessage) */
-  @Deprecated(forRemoval = true)
+  @Deprecated
   public SendMsgStatus sendMessage(Message externalMessage) {
     try {
       return executeWithRetry(

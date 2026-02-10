@@ -542,7 +542,7 @@ public class TestNft extends CommonTest {
 
   private long getNftCollectionInfo(NftCollection nftCollection) {
     CollectionData data = nftCollection.getCollectionData();
-    log.info("nft collection info {}", data);
+    log.info("nft collection info {}", data.getItemsCount());
     log.info("nft collection nextItemIndex {}", data.getNextItemIndex());
     log.info("nft collection owner {}", data.getOwnerAddress());
 

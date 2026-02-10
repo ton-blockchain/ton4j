@@ -1,6 +1,6 @@
 # Liteclient module
 
-Java Lite-client wrapper uses JNA to access methods in native lite-client binary.
+Java Lite-client wrapper uses JNA to access methods in the native lite-client binary.
 
 ## Maven [![Maven Central][maven-central-svg]][maven-central]
 

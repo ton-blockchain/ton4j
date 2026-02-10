@@ -91,9 +91,17 @@ You can use each submodule individually. Click the module below to get more deta
 - [Get block](#get-blockchain-block)
 - [Mnemonic](#Generate-mnemonic-and-keypair)
 - [NFT](#NFT)
-  - [Get info](#Retrieve-nft-information)
-  - [Mint](#Mint-nft)
-  - [Transfer](#Transfer-nft)
+  - [Mint NFT collection](#Mint-NFT-collection)
+  - [Mint NFT item](#Mint-NFT-item)
+  - [Get NFT information](#Get-NFT-information)
+  - [Transfer NFT](#Transfer-NFT)
+  - [Change NFT collection owner](#Change-NFT-collection-owner)
+  - [Edit NFT collection content](#Edit-NFT-collection-content)
+  - [Create your own NFT marketplace](#Create-your-own-NFT-marketplace)
+  - [Sell NFT](#Sell-NFT)
+  - [Cancel NFT sale](#Cancel-NFT-sale)
+  - [Buy NFT](#Buy-NFT)
+  - [Sell NFT on Getgems](#Sell-NFT-on-Getgems)
 - [Jettons](#Jettons)
   - [Get info](#Retrieve-jetton-info)
   - [Mint](#Mint-jetton)
@@ -766,48 +774,86 @@ Get familiar with [NFT](https://docs.ton.org/standard/tokens/nft/overview) in TO
 [Here](https://github.com/ton-blockchain/nft-contract) you can also look at reference implementation of NFT (non-fungible token) smart contract for TON.
 
 ### Mint NFT collection
+
+For a quick demonstration we use `GenerateWallet.randomV3R1()` method that creates a WalletV3R1 smart contract with a random private key in a testnet and tops it up automatically.
+
+Firstly, you have to create an NFT collection and then mint NFT items.
 ```java
-// use your already created admin wallet
-adminWallet = GenerateWallet.randomV3R1(tonlib, 7);
+WalletV3R1 adminWallet = GenerateWallet.randomV3R1(tonlib, 7);
 log.info("admin wallet address {}", adminWallet.getAddress());
 
+// define NFT collection
 NftCollection nftCollection =
-    NftCollection.builder()
-        .tonProvider(tonlib)
-        .adminAddress(adminWallet.getAddress())
-        .royalty(0.13)
-        .royaltyAddress(adminWallet.getAddress())
-        .collectionContentUri(
-            "https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/nft-collection.json")
-        .collectionContentBaseUri(
-            "https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/")
-        .nftItemCodeHex(WalletCodes.nftItem.getValue())
-        .build();
+  NftCollection.builder()
+    .tonProvider(tonlib)
+    .adminAddress(adminWallet.getAddress())
+    .royalty(0.13)
+    .royaltyAddress(adminWallet.getAddress())
+    .collectionContentUri("https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/nft-collection.json")
+    .collectionContentBaseUri("https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/")
+    .nftItemCodeHex(WalletCodes.nftItem.getValue())
+    .build();
 
 log.info("NFT collection address {}", nftCollection.getAddress());
 
 // deploy NFT Collection
 WalletV3Config adminWalletConfig =
-    WalletV3Config.builder()
-        .walletId(42)
-        .seqno(adminWallet.getSeqno())
-        .destination(nftCollection.getAddress())
-        .amount(Utils.toNano(1))
-        .stateInit(nftCollection.getStateInit())
-        .build();
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(adminWallet.getSeqno())
+    .destination(nftCollection.getAddress())
+    .amount(Utils.toNano(1))
+    .stateInit(nftCollection.getStateInit())
+    .build();
 
-SendResponse sendResponse = adminWallet.send(adminWalletConfig);
-assertThat(sendResponse.getCode()).isZero();
-log.info("deploying NFT collection");
-
-nftCollection.waitForDeployment(60);
+adminWallet.send(adminWalletConfig);
 ```
 
 ### Mint NFT item
+```java
+adminWalletConfig =
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(adminWallet.getSeqno())
+    .destination(nftCollection.getAddress())
+    .amount(Utils.toNano(1))
+    .body(NftCollection.createMintBody(
+            0,  // query id 
+            0,  // NFT index in collection
+            Utils.toNano(0.006), // amount forwarded to cover its initial balance/fees. 
+            adminWallet.getAddress(), // nftItemOwnerAddress
+            "nft-item-1.json")) // nftItemContentUri
+    .build();
 
-### Retrieve NFT information
+// deploying NFT item #1
+sendResponse = adminWallet.send(adminWalletConfig);
+assertThat(sendResponse.getCode()).isZero();
+```
+
+### Get NFT information
+```java
+CollectionData data = nftCollection.getCollectionData();
+log.info("nft collection itemsCount {}", data.getItemsCount());
+log.info("nft collection nextItemIndex {}", data.getNextItemIndex());
+log.info("nft collection owner {}", data.getOwnerAddress());
+nftItemAddress = nftCollection.getNftItemAddressByIndex(BigInteger.ZERO);
+log.info("address at index 0 = {}", nftItemAddress);
+Royalty royalty = nftCollection.getRoyaltyParams();
+log.info("nft collection royalty address {}", royalty.getRoyaltyAddress());
+```
 
 ### Transfer NFT
+```java
+WalletV3Config walletV3Config =
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(wallet.getSeqno())
+    .destination(nftItemAddress)
+    .amount(msgValue)
+    .body(NftItem.createTransferBody(queryId, Address.of("new-owner-address"), forwardAmount, forwardPayload, responseAddress))
+    .build();
+wallet.send(walletV3Config); 
+```
 
 ### Change NFT collection owner
 ```java
@@ -831,20 +877,163 @@ WalletV3Config adminWalletV3Config =
     .amount(Utils.toNano(0.055))
     .body(NftCollection.createEditContentBody( 0, "ton://my-new-nft/collection.json", "ton://my-new-nft/", newRoyalty, "newRoyaltyAddress"))
     .build();
-SendResponse sendResponse = adminWallet.send(adminWalletV3Config);
+adminWallet.send(adminWalletV3Config);
 ```
 
+### Create your own NFT marketplace
+```java
+NftMarketplace marketplace = NftMarketplace.builder().adminAddress(adminWallet.getAddress()).build();
+WalletV3Config adminWalletConfig =
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(adminWallet.getSeqno())
+    .destination(marketplace.getAddress())
+    .amount(Utils.toNano(1))
+    .stateInit(marketplace.getStateInit())
+    .build();
+adminWallet.send(adminWalletConfig);
+```
 ### Sell NFT
+Using the above-created marketplace, you can deploy NFT items to it and sell them for TON.
+```java
+// create NFT Sale smart contract
+NftSale nftSale =
+  NftSale.builder()
+    .tonProvider(adnlLiteClient)
+    .marketplaceAddress(marketplace.getAddress())
+    .nftItemAddress(nftItemAddress) // your NFT item address
+    .fullPrice(Utils.toNano(1.1))
+    .marketplaceFee(Utils.toNano(0.4))
+    .royaltyAddress(nftCollection.getAddress())
+    .royaltyAmount(Utils.toNano(0.3))
+    .build();
+log.info("nft-sale address {}", nftSale.getAddress());
+
+// deploy NFT sale smart contract on a marketplace from the admin wallet
+body = CellBuilder.beginCell()
+  .storeUint(1, 32)
+  .storeCoins(Utils.toNano(0.06))
+  .storeRef(nftSale.getStateInit().toCell())
+  .storeRef(CellBuilder.beginCell().endCell())
+  .endCell();
+
+adminWalletConfig = WalletV3Config.builder()
+  .walletId(42)
+  .seqno(adminWallet.getSeqno())
+  .destination(marketplace.getAddress())
+  .amount(Utils.toNano(0.06))
+  .body(body)
+  .build();
+adminWallet.send(adminWalletConfig);
+
+// now transfer your NFT to NFT sale smart contract
+adminWalletConfig = WalletV3Config.builder()
+    .walletId(42)
+    .seqno(wallet.getSeqno())
+    .destination(nftItemAddress)
+    .amount(msgValue)
+    .body(NftItem.createTransferBody(queryId, nftSale.getAddress(), forwardAmount, forwardPayload, responseAddress))
+    .build();
+wallet.send(adminWalletConfig); 
+```
+
+### Cancel NFT sale
+When a user cancels the sale of his NFT item, the NFT item automatically moves from the NFT Sale smart contract back to adminWallet, 
+and the NFT Sale smart contract becomes uninitialized.
+```java
+adminWalletConfig = WalletV3Config.builder()
+  .walletId(42)
+  .seqno(adminWallet.getSeqno())
+  .destination(nftSale.getAddress())
+  .amount(Utils.toNano(0.055))
+  .body(NftSale.createCancelBody(queryId))
+  .build();
+adminWallet.send(adminWalletConfig);
+```
 
 ### Buy NFT
+Let's buy our NFT item from the marketplace. Below the `NftItemBuyer` is the wallet that buys the NFT item. 
+```java
+WalletV3Config nftItemBuyerWalletV3Config =  WalletV3Config.builder()
+  .walletId(42)
+  .seqno(nftItemBuyer.getSeqno())
+  .destination(nftSale.getAddress())
+  .amount(Utils.toNano(1.2 + 1)) // fullPrice + minimalGasAmount (1ton) todo
+  .build();
+nftItemBuyer.send(nftItemBuyerWalletV3Config);
+```
+
+### Sell NFT on Getgems
+Getgems is a NFT marketplace that allows you to sell and buy NFT items to/from the community.
+
+```java
+Getgems getgems = Getgems.builder().tonProvider(adnlLiteClient).build();
+```
+
+More examples on how to work with NFT in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestNft.java).
 
 ## Jettons
-### Retrieve jetton info
-### Mint jetton
-### Transfer jetton
+Get familiar with [Jetton](https://docs.ton.org/standard/tokens/jettons/overview) in TON.
+[Here](https://github.com/ton-blockchain/jetton-contract) you can also look at the reference implementation of Jetton V2 smart contract for TON.
+
+### Create USDT jetton wallet
+Load your keypair from either mnemonic or hex private key.
+
+```java
+// load your secret phrase
+TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(Mnemonic.toKeyPair("your secret phrase").getSecretKey());
+
+// or specify it hex format
+byte[] secretKey = Utils.hexToSignedBytes("your-hex-secret-key");
+// use when you have 64 bytes private key
+TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSecretKey(secretKey);
+// use when you have 32 bytes private key
+TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
+
+//create your wallet
+WalletV3R2 myWallet = WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+
+JettonMinterStableCoin usdtMasterWallet = 
+  JettonMinterStableCoin.builder()
+    .tonProvider(adnlLiteClient)
+    .customAddress(Address.of("EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs")) // USDT MASTER WALLET IN MAINNET
+    .build();
+
+// get jetton wallet offline
+Address myJettonWalletAddress =
+        JettonWalletV2.calculateUserJettonWalletAddress(
+                0, adminWallet.getAddress(), minter.getAddress(), JettonMinterStableCoin.CODE_CELL);
+
+// get jetton wallet online
+JettonWalletStableCoin myJettonWallet = usdtMasterWallet.getJettonWallet(myWallet.getAddress());
+
+```
+### Transfer USDT
+```java
+WalletV3Config walletV3Config =
+  WalletV3Config.builder()
+    .walletId(42)
+    .seqno(myWallet.getSeqno())
+    .destination(myJettonWallet.getAddress())
+    .amount(Utils.toNano(0.02))
+    .body(
+      JettonWalletStableCoin.createTransferBody(
+        0, // query id
+        Utils.toUsdt(0.02), // 2 cents
+        Address.of("recipient-address"), // recipient
+        null, // response address
+        BigInteger.ONE, // forward amount
+        MsgUtils.createTextMessageBody("gift")) // forward payload
+      )
+    .build();
+SendResponse sendResponse = myWallet.send(walletV3Config);
+assertThat(sendResponse.getCode()).isZero();
+```
+
+More examples on how to mint own Jetton V2, as well as administrate it can be found in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestJettonV2.java).
 
 ## DNS
-With the help of ton4j you can resolve DNS name of any site or wallet.
+With the help of `ton4j` you can resolve DNS name of any site or wallet.
 You can even deploy your own DNS resolution smart contract, also called a root DNS contract.
 In TON blockchain DNS names are NFT items, means you can deploy a collection of names, sell, buy, change and transfer them. 
 

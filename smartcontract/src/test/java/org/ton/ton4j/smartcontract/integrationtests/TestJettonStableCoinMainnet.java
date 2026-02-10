@@ -41,16 +41,14 @@ public class TestJettonStableCoinMainnet {
 
     Address usdtMasterAddress = Address.of(USDT_MASTER_WALLET);
 
-    // 64 bytes private key of your wallet
-    byte[] secretKey = Utils.hexToSignedBytes("add");
+    byte[] secretKey = Utils.hexToSignedBytes("your-hex-secret-key");
 
     // use when you have 64 bytes private key
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSecretKey(secretKey);
 
     // use when you have 32 bytes private key
-    // TweetNaclFast.Signature.KeyPair keyPair =
-    // TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
+    // TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
     // generate private key and get wallet address, that you top up later
     /*
@@ -104,7 +102,7 @@ public class TestJettonStableCoinMainnet {
             .body(
                 JettonWalletStableCoin.createTransferBody(
                     0,
-                    BigInteger.valueOf(20000), // 2 cents
+                    Utils.toUsdt(0.02), // 2 cents
                     randomDestinationWallet.getAddress(), // recipient
                     null, // response address
                     BigInteger.ONE, // forward amount
