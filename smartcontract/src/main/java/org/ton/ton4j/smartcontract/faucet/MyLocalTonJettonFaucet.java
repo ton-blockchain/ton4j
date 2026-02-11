@@ -107,7 +107,7 @@ public class MyLocalTonJettonFaucet {
 
     ContractUtils.waitForJettonBalanceChange(
         tonlib, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress, 60);
-    Utils.sleep(10);
+    Utils.sleep(3);
     return ContractUtils.getJettonBalance(
         tonlib, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
@@ -163,7 +163,7 @@ public class MyLocalTonJettonFaucet {
     ContractUtils.waitForJettonBalanceChange(
         adnlLiteClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress, 60);
 
-    Utils.sleep(10);
+    Utils.sleep(3);
     return ContractUtils.getJettonBalance(
         adnlLiteClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
@@ -234,7 +234,7 @@ public class MyLocalTonJettonFaucet {
         if (++i * 2 >= timeoutSeconds) {
           throw new Error("Jetton balance was not changed within specified timeout.");
         }
-        Utils.sleep(2);
+        Utils.sleepMs(200);
         currentBalance =
             ContractUtils.getJettonBalance(
                 tonCenterClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
@@ -243,7 +243,7 @@ public class MyLocalTonJettonFaucet {
       throw new Error("Error waiting for jetton balance change: " + e.getMessage());
     }
 
-    Utils.sleep(10);
+    Utils.sleep(3);
     return ContractUtils.getJettonBalance(
         tonCenterClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }

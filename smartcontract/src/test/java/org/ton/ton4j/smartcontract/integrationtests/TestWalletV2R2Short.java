@@ -7,8 +7,6 @@ import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
@@ -23,7 +21,6 @@ import org.ton.ton4j.toncenter.model.SendBocResponse;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV2R2Short extends CommonTest {
 
   @Test
@@ -79,7 +76,7 @@ public class TestWalletV2R2Short extends CommonTest {
     assertThat(sendResponse.getCode()).isZero();
 
     log.info("sending to four destinations");
-    Utils.sleep(20);
+    Utils.sleep(2);
 
     balance = contract.getBalance();
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
@@ -133,10 +130,8 @@ public class TestWalletV2R2Short extends CommonTest {
   @Test
   public void testWalletV2R2AdnlLiteClient() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-    WalletV2R2 contract =
-        WalletV2R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+    WalletV2R2 contract = WalletV2R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();

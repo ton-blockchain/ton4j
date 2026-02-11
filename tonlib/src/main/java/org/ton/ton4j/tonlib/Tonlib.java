@@ -1803,17 +1803,17 @@ public class Tonlib implements TonProvider {
       log.info(
           "Message has been successfully sent. Waiting for delivery of message with hash {}",
           extMessageInfo.getHash());
-      RawTransactions rawTransactions = null;
-      for (int i = 0; i < 12; i++) {
+      RawTransactions rawTransactions;
+      for (int i = 0; i < 60; i++) {
         rawTransactions = getRawTransactions(account.toRaw(), null, null);
         for (RawTransaction tx : rawTransactions.getTransactions()) {
           if (nonNull(tx.getIn_msg())
-              && tx.getIn_msg().getHash().equals(extMessageInfo.getHash_norm())) {
+              && tx.getIn_msg().getHash().equals(extMessageInfo.getHash())) {
             log.info("Message has been delivered.");
             return tx;
           }
         }
-        Utils.sleep(5);
+        Utils.sleep(1);
       }
       return null;
     }
@@ -1842,18 +1842,18 @@ public class Tonlib implements TonProvider {
           "Message has been successfully sent. Waiting for delivery of message with hash {}",
           extMessageInfo.getHash());
       RawTransactions rawTransactions = null;
-      for (int i = 0; i < 12; i++) {
+      for (int i = 0; i < 60; i++) {
         rawTransactions =
             getRawTransactions(
                 Address.of(externalMessage.getInfo().getDestinationAddress()).toRaw(), null, null);
         for (RawTransaction tx : rawTransactions.getTransactions()) {
           if (nonNull(tx.getIn_msg())
-              && tx.getIn_msg().getHash().equals(extMessageInfo.getHash_norm())) {
+              && tx.getIn_msg().getHash().equals(extMessageInfo.getHash())) {
             log.info("Message has been delivered.");
             return tx.getTransactionAsTlb();
           }
         }
-        Utils.sleep(5);
+        Utils.sleep(1);
       }
       return null;
     }
@@ -2207,13 +2207,13 @@ public class Tonlib implements TonProvider {
     long diff;
     int i = 0;
     do {
-      if (++i * 2 >= timeoutSeconds) {
+      if (++i >= timeoutSeconds) {
         throw new Error(
             "Balance was not changed by +/- "
                 + Utils.formatNanoValue(tolerateNanoCoins)
                 + " within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleep(1);
       BigInteger currentBalance = getAccountBalance(address);
 
       diff =

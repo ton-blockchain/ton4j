@@ -8,11 +8,10 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.lockup.LockupWalletV1;
 import org.ton.ton4j.smartcontract.types.LockupConfig;
@@ -21,7 +20,6 @@ import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestLockupWallet extends CommonTest {
 
   @Test
@@ -37,7 +35,7 @@ public class TestLockupWallet extends CommonTest {
             .lockupConfig(
                 LockupConfig.builder()
                     .configPublicKey(Utils.bytesToHex(keyPair.getPublicKey()))
-                    // important to specify totalRestrictedValue! otherwise wallet will send to
+                    // important to specify totalRestrictedValue! otherwise wallet will send it to
                     // prohibited addresses
                     // can be more than total balance wallet
                     .totalRestrictedValue(Utils.toNano(5_000_000))
@@ -68,7 +66,7 @@ public class TestLockupWallet extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
 
     log.info("seqno {}", contract.getSeqno());
     log.info("sub-wallet id {}", contract.getWalletId());
@@ -108,7 +106,7 @@ public class TestLockupWallet extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     balance = contract.getBalance();
     log.info("new lockup wallet balance: {}", Utils.formatNanoValue(balance));
@@ -125,7 +123,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(
@@ -146,7 +144,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(
@@ -226,7 +224,7 @@ public class TestLockupWallet extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
 
     log.info("seqno {}", contract.getSeqno());
     address.saveToFile("restricted-validator-wallet-001.addr");
@@ -235,11 +233,7 @@ public class TestLockupWallet extends CommonTest {
   @Test
   public void testNewWalletLockupAdnlLiteClient() throws Exception {
 
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
+    TonProvider adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     LockupWalletV1 contract =
@@ -252,7 +246,7 @@ public class TestLockupWallet extends CommonTest {
                     .configPublicKey(Utils.bytesToHex(keyPair.getPublicKey()))
                     // important to specify totalRestrictedValue! otherwise wallet will send to
                     // prohibited addresses
-                    // can be more than total balance wallet
+                    // can be more than the total balance wallet
                     .totalRestrictedValue(Utils.toNano(5_000_000))
                     .allowedDestinations(
                         Arrays.asList(
@@ -282,7 +276,7 @@ public class TestLockupWallet extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
 
     log.info("seqno {}", contract.getSeqno());
     log.info("sub-wallet id {}", contract.getWalletId());
@@ -307,7 +301,7 @@ public class TestLockupWallet extends CommonTest {
     assertThat(contract.check_destination("EQDZno6LOWYJRHPpRv-MM3qrhFPk6OHOxVOg1HvEEAtJxK3y"))
         .isFalse();
 
-    // try to transfer coins from new lockup wallet to allowed address (back to faucet)
+    // try to transfer coins from the new lockup wallet to the allowed address (back to faucet)
     log.info("sending toncoins to allowed address...");
     LockupWalletV1Config config =
         LockupWalletV1Config.builder()
@@ -321,7 +315,7 @@ public class TestLockupWallet extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     balance = contract.getBalance();
     log.info("new lockup wallet balance: {}", Utils.formatNanoValue(balance));
@@ -338,7 +332,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(
@@ -359,7 +353,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(
@@ -381,7 +375,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(
@@ -479,7 +473,7 @@ public class TestLockupWallet extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     balance = contract.getBalance();
     log.info("new lockup wallet balance: {}", Utils.formatNanoValue(balance));
@@ -496,7 +490,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(
@@ -517,7 +511,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(
@@ -539,7 +533,7 @@ public class TestLockupWallet extends CommonTest {
             .build();
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(50);
+    Utils.sleep(5);
 
     log.info("liquid balance {}", Utils.formatNanoValue(contract.getLiquidBalance()));
     log.info(

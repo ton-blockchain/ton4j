@@ -5,10 +5,10 @@ import static java.util.Objects.isNull;
 import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
-import org.ton.ton4j.provider.TonProvider;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.types.WalletV1R3Config;
 import org.ton.ton4j.smartcontract.wallet.v1.WalletV1R3;
 import org.ton.ton4j.toncenter.TonCenter;
@@ -59,10 +59,11 @@ public class TestnetFaucet {
   public static BigInteger topUpContract(
       Tonlib tonlib, Address destinationAddress, BigInteger amount) throws InterruptedException {
 
-//    if (amount.compareTo(Utils.toNano(20)) > 0) {
-//      throw new Error(
-//          "Too many TONs requested from the TestnetFaucet, maximum amount per request is 20.");
-//    }
+    //    if (amount.compareTo(Utils.toNano(20)) > 0) {
+    //      throw new Error(
+    //          "Too many TONs requested from the TestnetFaucet, maximum amount per request is
+    // 20.");
+    //    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(SECRET_KEY));
@@ -91,7 +92,7 @@ public class TestnetFaucet {
         }
       } catch (Exception e) {
         log.info("Cannot get testnet faucet balance. Restarting...");
-        Utils.sleep(5, "Waiting for testnet faucet balance");
+        Utils.sleepMs(200);
       }
     } while (isNull(faucetBalance));
 
@@ -123,16 +124,16 @@ public class TestnetFaucet {
       AdnlLiteClient adnlLiteClient, Address destinationAddress, BigInteger amount)
       throws Exception {
 
-//    if (amount.compareTo(Utils.toNano(20)) > 0) {
-//      throw new Error(
-//          "Too many TONs requested from the TestnetFaucet, maximum amount per request is 20.");
-//    }
+    //    if (amount.compareTo(Utils.toNano(20)) > 0) {
+    //      throw new Error(
+    //          "Too many TONs requested from the TestnetFaucet, maximum amount per request is
+    // 20.");
+    //    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(SECRET_KEY));
 
-    WalletV1R3 faucet =
-        WalletV1R3.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
+    WalletV1R3 faucet = WalletV1R3.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
 
     BigInteger faucetBalance = null;
     int i = 0;
@@ -156,7 +157,7 @@ public class TestnetFaucet {
         }
       } catch (Exception e) {
         log.info("Cannot get testnet faucet balance. Restarting...");
-        Utils.sleep(5, "Waiting for testnet faucet balance");
+        Utils.sleepMs(200);
       }
     } while (isNull(faucetBalance));
 
@@ -184,10 +185,7 @@ public class TestnetFaucet {
    */
   @Deprecated
   public static BigInteger topUpContract(
-          TonCenter tonCenterClient,
-          Address destinationAddress,
-          BigInteger amount)
-          throws Exception {
+      TonCenter tonCenterClient, Address destinationAddress, BigInteger amount) throws Exception {
     return topUpContract(tonCenterClient, destinationAddress, amount, false);
   }
 
@@ -205,8 +203,7 @@ public class TestnetFaucet {
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(SECRET_KEY));
 
-    WalletV1R3 faucet =
-        WalletV1R3.builder().tonProvider(tonCenterClient).keyPair(keyPair).build();
+    WalletV1R3 faucet = WalletV1R3.builder().tonProvider(tonCenterClient).keyPair(keyPair).build();
 
     BigInteger faucetBalance = null;
     int i = 0;
@@ -254,8 +251,8 @@ public class TestnetFaucet {
 
     if (avoidRateLimit) Utils.sleep(1);
     // Wait for balance change
-    BigInteger initialBalance = tonCenterClient.getBalance(destinationAddress.toBounceable());
-//    log.info("initialBalance balance: {}", Utils.formatNanoValue(initialBalance));
+    //    BigInteger initialBalance = tonCenterClient.getBalance(destinationAddress.toBounceable());
+    //    log.info("initialBalance balance: {}", Utils.formatNanoValue(initialBalance));
     int timeoutSeconds = 60;
     int j = 0;
     BigInteger currentBalance;
@@ -265,8 +262,8 @@ public class TestnetFaucet {
       }
       Utils.sleep(2);
       currentBalance = tonCenterClient.getBalance(destinationAddress.toBounceable());
-//      log.info("currentBalance balance: {}", Utils.formatNanoValue(currentBalance));
-    } while (initialBalance.equals(currentBalance));
+      log.info("currentBalance balance: {}", Utils.formatNanoValue(currentBalance));
+    } while (currentBalance.equals(BigInteger.ZERO));
 
     return currentBalance;
   }

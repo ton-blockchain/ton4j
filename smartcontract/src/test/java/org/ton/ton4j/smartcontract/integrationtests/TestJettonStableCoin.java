@@ -1,17 +1,13 @@
 package org.ton.ton4j.smartcontract.integrationtests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.ton.ton4j.smartcontract.integrationtests.CommonTest.TESTNET_API_KEY;
-
-import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
-import org.ton.ton4j.smartcontract.faucet.GenerateWallet;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.smartcontract.faucet.GenerateWallet;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinterStableCoin;
 import org.ton.ton4j.smartcontract.token.ft.JettonWalletStableCoin;
 import org.ton.ton4j.smartcontract.token.nft.NftUtils;
@@ -24,6 +20,11 @@ import org.ton.ton4j.toncenter.Network;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.utils.Utils;
+
+import java.math.BigInteger;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.ton.ton4j.smartcontract.integrationtests.CommonTest.TESTNET_API_KEY;
 
 @Slf4j
 @RunWith(JUnit4.class)
@@ -79,7 +80,7 @@ public class TestJettonStableCoin {
     SendResponse sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(60, "minting...");
+    Utils.sleep(6, "minting...");
 
     getMinterInfoV2(minter);
 
@@ -112,7 +113,7 @@ public class TestJettonStableCoin {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring 200 jettons from adminWallet to wallet2...");
+    Utils.sleep(3, "transferring 200 jettons from adminWallet to wallet2...");
 
     getMinterInfoV2(minter);
 
@@ -148,7 +149,7 @@ public class TestJettonStableCoin {
     sendResponse = wallet2.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring 100 jettons from wallet2 to adminWallet...");
+    Utils.sleep(3, "transferring 100 jettons from wallet2 to adminWallet...");
 
     getMinterInfoV2(minter);
 
@@ -180,7 +181,7 @@ public class TestJettonStableCoin {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "locking jettons in jettonWallet2");
+    Utils.sleep(3, "locking jettons in jettonWallet2");
 
     // since the jettonWallet2 is locked the transfer and receive should FAIL
     // TRANSFER from wallet2 to adminWallet (by sending transfer request to wallet2's jettonWallet)
@@ -206,7 +207,7 @@ public class TestJettonStableCoin {
     sendResponse = wallet2.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring 50 jettons after lock from wallet2 to adminWallet...");
+    Utils.sleep(3, "transferring 50 jettons after lock from wallet2 to adminWallet...");
 
     getMinterInfoV2(minter);
 
@@ -228,7 +229,7 @@ public class TestJettonStableCoin {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
 
     adminWallet = GenerateWallet.randomV3R1(adnlLiteClient, 3);
@@ -270,15 +271,16 @@ public class TestJettonStableCoin {
             .build();
 
     SendResponse sendResponse = adminWallet.send(walletV3Config);
+    log.info("sendResponse {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(60, "minting...");
+    Utils.sleep(10, "minting...");
 
     getMinterInfoV2(minter);
 
     assertThat(minter.getJettonData().getTotalSupply().longValue()).isNotEqualTo(0);
 
-    // TRANSFER from adminWallet to wallet2 (by sending transfer request to admin's jettonWallet)
+    // TRANSFER from adminWallet to wallet2 (by sending a transfer request to admin's jettonWallet)
     JettonWalletStableCoin adminJettonWallet = minter.getJettonWallet(adminWallet.getAddress());
 
     log.info(
@@ -305,7 +307,7 @@ public class TestJettonStableCoin {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring 200 jettons from adminWallet to wallet2...");
+    Utils.sleep(3, "transferring 200 jettons from adminWallet to wallet2...");
 
     getMinterInfoV2(minter);
 
@@ -341,7 +343,7 @@ public class TestJettonStableCoin {
     sendResponse = wallet2.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring 100 jettons from wallet2 to adminWallet...");
+    Utils.sleep(3, "transferring 100 jettons from wallet2 to adminWallet...");
 
     getMinterInfoV2(minter);
 
@@ -373,7 +375,7 @@ public class TestJettonStableCoin {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "locking jettons in jettonWallet2");
+    Utils.sleep(3, "locking jettons in jettonWallet2");
 
     // since the jettonWallet2 is locked the transfer and receive should FAIL
     // TRANSFER from wallet2 to adminWallet (by sending transfer request to wallet2's jettonWallet)
@@ -467,7 +469,7 @@ public class TestJettonStableCoin {
     SendResponse sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(60, "minting...");
+    Utils.sleep(10, "minting...");
 
     getMinterInfoV2(minter);
     Utils.sleep(2);
@@ -612,7 +614,7 @@ public class TestJettonStableCoin {
         Utils.formatNanoValue(jettonWallet2.getBalance(), 6),
         jettonWallet2.getAddress());
 
-    // in explorer there will be an error Failed Compute Phase (exit_code 45)
+    // in the explorer there will be an error Failed Compute Phase (exit_code 45)
     assertThat(jettonWallet2.getBalance()).isEqualTo(Utils.toNano(100));
   }
 

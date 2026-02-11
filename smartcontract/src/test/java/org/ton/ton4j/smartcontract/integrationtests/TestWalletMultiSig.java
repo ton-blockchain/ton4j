@@ -102,7 +102,6 @@ public class TestWalletMultiSig extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(5));
-    Utils.sleep(30, "topping up...");
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
@@ -161,7 +160,7 @@ public class TestWalletMultiSig extends CommonTest {
     sendResponse = contract.sendOrder(keyPair5, pubkey5Index, signedOrder);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     Pair<Long, Long> queryState = contract.getQueryState(queryId);
     log.info(
@@ -235,13 +234,12 @@ public class TestWalletMultiSig extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(5));
-    Utils.sleep(30, "topping up...");
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45); // with empty ext-msg
+    contract.waitForDeployment(); // with empty ext-msg
 
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
 
@@ -271,8 +269,7 @@ public class TestWalletMultiSig extends CommonTest {
 
     sendResponse = contract.sendOrder(ownerKeyPair, rootIndex, order);
     assertThat(sendResponse.getCode()).isZero();
-    //        Utils.sleep(30, "processing 1st query");
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     Pair<Long, Long> queryState = contract.getQueryState(queryId);
     log.info(
@@ -300,8 +297,7 @@ public class TestWalletMultiSig extends CommonTest {
     // submitter keypair must come from User3 or User4, otherwise you get error 34
     sendResponse = contract.sendOrder(keyPair3, pubkey3Index, signedOrder);
     assertThat(sendResponse.getCode()).isZero();
-    //        Utils.sleep(20, "processing 1st query");
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     showMessagesInfo(contract.getMessagesUnsigned(), "Messages-Unsigned");
     showMessagesInfo(
@@ -422,13 +418,12 @@ public class TestWalletMultiSig extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(1));
-    Utils.sleep(30, "topping up...");
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45); // with empty ext msg
+    contract.waitForDeployment(); // with empty ext msg
 
     List<OwnerInfo> ownersPublicKeys =
         Arrays.asList(
@@ -493,13 +488,12 @@ public class TestWalletMultiSig extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(5));
-    Utils.sleep(30, "topping up...");
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45); // with empty ext msg
+    contract.waitForDeployment(); // with empty ext msg
 
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
 
@@ -515,7 +509,7 @@ public class TestWalletMultiSig extends CommonTest {
     // send order-1 signed by 3rd owner (root index 2)
     sendResponse = contract.sendOrder(keyPair3, 2, order1); // root index 2
     assertThat(sendResponse.getCode()).isZero();
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     Pair<Long, Long> queryState = contract.getQueryState(queryId1);
     log.info(
@@ -532,7 +526,7 @@ public class TestWalletMultiSig extends CommonTest {
     // send order-2 signed by 2nd owner (root index 1)
     sendResponse = contract.sendOrder(keyPair2, 1, order2);
     assertThat(sendResponse.getCode()).isZero();
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     queryState = contract.getQueryState(queryId2);
     log.info(
@@ -544,7 +538,7 @@ public class TestWalletMultiSig extends CommonTest {
     // send order-2 signed by 3rd owner (root index 2)
     sendResponse = contract.sendOrder(keyPair3, 2, order2);
     assertThat(sendResponse.getCode()).isZero();
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     queryState = contract.getQueryState(queryId2);
     log.info(
@@ -608,13 +602,13 @@ public class TestWalletMultiSig extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(1));
-    Utils.sleep(30, "topping up...");
+
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45); // with empty ext msg
+    contract.waitForDeployment(); // with empty ext msg
 
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
 
@@ -629,7 +623,7 @@ public class TestWalletMultiSig extends CommonTest {
     // send order-1 signed by 1st owner (root index 0)
     sendResponse = contract.sendOrder(ownerKeyPair.getSecretKey(), 0, order); // root index 0
     assertThat(sendResponse.getCode()).isZero();
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     showMessagesInfo(contract.getMessagesUnsignedByIndex(0), "MessagesUnsignedByIndex-" + 0);
     showMessagesInfo(contract.getMessagesSignedByIndex(0), "MessagesSignedByIndex-" + 0);
@@ -644,7 +638,7 @@ public class TestWalletMultiSig extends CommonTest {
     // send order-1 signed by 2nd owner (root index 1)
     sendResponse = contract.sendOrder(keyPair2.getSecretKey(), 1, order); // root index 1
     assertThat(sendResponse.getCode()).isZero();
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     queryState = contract.getQueryState(queryId);
     log.info(
@@ -737,13 +731,13 @@ public class TestWalletMultiSig extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(1));
-    Utils.sleep(30, "topping up...");
+
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45); // with empty ext msg
+    contract.waitForDeployment(); // with empty ext msg
 
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
 
@@ -769,8 +763,8 @@ public class TestWalletMultiSig extends CommonTest {
 
     sendResponse = contract.sendOrder(keyPair3.getSecretKey(), pubkey3Index, order1);
     assertThat(sendResponse.getCode()).isZero();
-    //        Utils.sleep(30, "processing query");
-    contract.waitForBalanceChange(30);
+
+    Utils.sleep(3);
 
     queryState = contract.getQueryState(queryId1);
     log.info(
@@ -843,13 +837,13 @@ public class TestWalletMultiSig extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(1));
-    Utils.sleep(30, "topping up...");
+
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45); // with empty ext msg
+    contract.waitForDeployment(); // with empty ext msg
 
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
     Cell dict1 =
@@ -942,11 +936,7 @@ public class TestWalletMultiSig extends CommonTest {
 
   @Test
   public void testWalletMultiSigOfflineAdnlClient() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     log.info("pubKey0 {}", Utils.bytesToHex(ownerKeyPair.getPublicKey()));
     log.info("pubKey2 {}", Utils.bytesToHex(keyPair2.getPublicKey()));
     log.info("pubKey3 {}", Utils.bytesToHex(keyPair3.getPublicKey()));
@@ -1003,13 +993,13 @@ public class TestWalletMultiSig extends CommonTest {
     BigInteger balance =
         TestnetFaucet.topUpContract(
             adnlLiteClient, Address.of(nonBounceableAddress), Utils.toNano(5));
-    Utils.sleep(30, "topping up...");
+
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(30); // with empty ext-msg
+    contract.waitForDeployment(); // with empty ext-msg
 
     log.info("owners publicKeys {}", contract.getPublicKeys());
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
@@ -1062,7 +1052,7 @@ public class TestWalletMultiSig extends CommonTest {
     sendResponse = contract.sendOrder(keyPair5, pubkey5Index, signedOrder);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     Pair<Long, Long> queryState = contract.getQueryState(queryId);
     log.info(
@@ -1076,10 +1066,7 @@ public class TestWalletMultiSig extends CommonTest {
 
   @Test
   public void testWalletMultiSigOfflineTonCenterClient() throws Exception {
-    TonCenter tonCenterClient =
-        TonCenter.builder()
-            .testnet()
-            .build();
+    TonCenter tonCenterClient = TonCenter.builder().testnet().build();
     log.info("pubKey0 {}", Utils.bytesToHex(ownerKeyPair.getPublicKey()));
     log.info("pubKey2 {}", Utils.bytesToHex(keyPair2.getPublicKey()));
     log.info("pubKey3 {}", Utils.bytesToHex(keyPair3.getPublicKey()));
@@ -1136,13 +1123,13 @@ public class TestWalletMultiSig extends CommonTest {
     BigInteger balance =
         TestnetFaucet.topUpContract(
             tonCenterClient, Address.of(nonBounceableAddress), Utils.toNano(5));
-    Utils.sleep(30, "topping up...");
+
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(30); // with empty ext-msg
+    contract.waitForDeployment(); // with empty ext-msg
 
     log.info("owners publicKeys {}", contract.getPublicKeys());
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
@@ -1195,7 +1182,7 @@ public class TestWalletMultiSig extends CommonTest {
     sendResponse = contract.sendOrder(keyPair5, pubkey5Index, signedOrder);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     Pair<Long, Long> queryState = contract.getQueryState(queryId);
     log.info(
@@ -1209,11 +1196,7 @@ public class TestWalletMultiSig extends CommonTest {
 
   @Test
   public void testMergePendingQueriesAdnlClient() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     log.info("pubKey0 {}", Utils.bytesToHex(ownerKeyPair.getPublicKey()));
     log.info("pubKey1 {}", Utils.bytesToHex(keyPair2.getPublicKey()));
     log.info("pubKey2 {}", Utils.bytesToHex(keyPair3.getPublicKey()));
@@ -1270,13 +1253,13 @@ public class TestWalletMultiSig extends CommonTest {
     BigInteger balance =
         TestnetFaucet.topUpContract(
             adnlLiteClient, Address.of(nonBounceableAddress), Utils.toNano(1));
-    Utils.sleep(30, "topping up...");
+
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45); // with empty ext msg
+    contract.waitForDeployment(); // with empty ext msg
 
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
     Cell dict1 =
@@ -1329,10 +1312,7 @@ public class TestWalletMultiSig extends CommonTest {
 
   @Test
   public void testMergePendingQueriesTonCenterClient() throws Exception {
-    TonCenter tonCenterClient =
-        TonCenter.builder()
-            .testnet()
-            .build();
+    TonCenter tonCenterClient = TonCenter.builder().testnet().build();
     log.info("pubKey0 {}", Utils.bytesToHex(ownerKeyPair.getPublicKey()));
     log.info("pubKey1 {}", Utils.bytesToHex(keyPair2.getPublicKey()));
     log.info("pubKey2 {}", Utils.bytesToHex(keyPair3.getPublicKey()));
@@ -1389,13 +1369,13 @@ public class TestWalletMultiSig extends CommonTest {
     BigInteger balance =
         TestnetFaucet.topUpContract(
             tonCenterClient, Address.of(nonBounceableAddress), Utils.toNano(1));
-    Utils.sleep(30, "topping up...");
+    Utils.sleep(3);
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
-
-    contract.waitForDeployment(45); // with empty ext msg
+    Utils.sleep(3);
+    contract.waitForDeployment(); // with empty ext msg
 
     log.info("owners publicKeysHex {}", contract.getPublicKeysHex());
     Cell dict1 =

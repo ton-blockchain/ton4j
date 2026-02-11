@@ -42,13 +42,11 @@ public class AdnlLiteClientTest {
   @BeforeAll
   static void tearBeforeAll() throws Exception {
 
-    TonGlobalConfig tonGlobalConfig;
     if (mainnet) {
-      tonGlobalConfig = TonGlobalConfig.loadFromUrl(Utils.getGlobalConfigUrlMainnetGithub());
+      client = AdnlLiteClient.builder().mainnet().build();
     } else {
-      tonGlobalConfig = TonGlobalConfig.loadFromUrl(Utils.getGlobalConfigUrlTestnetGithub());
+      client = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     }
-    client = AdnlLiteClient.builder().globalConfig(tonGlobalConfig).build();
   }
 
   @AfterAll
@@ -67,11 +65,7 @@ public class AdnlLiteClientTest {
 
   @Test
   void testMasterchainInfoWithLiteServerContainerOnMyLocalTonDocker() throws Exception {
-    TonGlobalConfig tonGlobalConfig =
-        TonGlobalConfig.loadFromUrl(
-            "http://localhost:8000/lite-server-localhost.global.config.json");
-
-    AdnlLiteClient client = AdnlLiteClient.builder().globalConfig(tonGlobalConfig).build();
+    AdnlLiteClient client = AdnlLiteClient.builder().myLocalTon().build();
 
     assertTrue(client.isConnected(), "Client should be connected");
 
@@ -277,11 +271,13 @@ public class AdnlLiteClientTest {
     log.info("masterchainInfo {}", masterchainInfo.getLast());
     ConfigInfo configInfo = client.getConfigAll(masterchainInfo.getLast(), 0);
     TonHashMap dict = configInfo.getConfigParams().getConfig();
-    Cell cellDict = dict.serialize(k -> CellBuilder.beginCell().storeUint((BigInteger) k, 32).endCell().getBits(),
+    Cell cellDict =
+        dict.serialize(
+            k -> CellBuilder.beginCell().storeUint((BigInteger) k, 32).endCell().getBits(),
             v -> CellBuilder.beginCell().storeRef((Cell) v).endCell());
     log.info("configAll {}", cellDict.toBase64());
-//    assertThat(configInfo.getId().getSeqno()).isGreaterThan(0);
-//    log.info("configParsed {}", configInfo.getConfigParams());
+    //    assertThat(configInfo.getId().getSeqno()).isGreaterThan(0);
+    //    log.info("configParsed {}", configInfo.getConfigParams());
   }
 
   @Test
@@ -809,7 +805,6 @@ public class AdnlLiteClientTest {
     log.info("blockHeader {}", blockHeader);
   }
 
-
   @Test
   void testLookupBlockWithProofMode1() throws Exception {
     log.info("Testing lookupBlockWithProof query");
@@ -818,12 +813,8 @@ public class AdnlLiteClientTest {
     MasterchainInfo masterchainInfo = client.getMasterchainInfo();
 
     LookupBlockResult lookupBlockResult =
-            client.lookupBlockWithProof(
-                    1,
-                    masterchainInfo.getLast().getBlockId(),
-                    masterchainInfo.getLast(),
-                    0,
-                    0);
+        client.lookupBlockWithProof(
+            1, masterchainInfo.getLast().getBlockId(), masterchainInfo.getLast(), 0, 0);
 
     log.info("lookupBlockResult {}", lookupBlockResult);
   }
@@ -1495,20 +1486,13 @@ public class AdnlLiteClientTest {
   public void testAccountBalanceAdnl() throws Exception {
     Address beneficiaryAddress = Address.of("kf_sPxv06KagKaRmOOKxeDQwApCx3i8IQOwv507XD51JOLka");
     log.info("beneficiaryAddress: {}", beneficiaryAddress.toBounceable());
-
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-    log.info("balance {}", adnlLiteClient.getBalance(beneficiaryAddress));
+    log.info("balance {}", client.getBalance(beneficiaryAddress));
   }
 
   @Test
   public void testAccountBalanceAdnlOk() throws Exception {
     Address beneficiaryAddress = Address.of("0QAyni3YDAhs7c-7imWvPyEbMEeVPMX8eWDLQ5GUe-B-Bl9Z");
-    log.info("beneficiaryAddress: {}", beneficiaryAddress.toBounceable());
-
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-    log.info("balance {}", adnlLiteClient.getBalance(beneficiaryAddress));
+    log.info("balance {}", client.getBalance(beneficiaryAddress));
   }
 
   @Test
@@ -1527,18 +1511,14 @@ public class AdnlLiteClientTest {
 
   @Test
   public void testUpdateInitBlock() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-    adnlLiteClient.persistGlobalConfig();
-    log.info(adnlLiteClient.getPersistedGlobalConfigPath());
-    adnlLiteClient.updateInitBlock();
+    client.persistGlobalConfig();
+    log.info(client.getPersistedGlobalConfigPath());
+    client.updateInitBlock();
   }
 
   @Test
-  public void testUpdateInitBlockByPath() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-    adnlLiteClient.updateInitBlock("path/to/global.config.json");
+  public void testUpdateInitBlockByPath() {
+    client.updateInitBlock("path/to/global.config.json");
   }
 
   //  @Test

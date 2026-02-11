@@ -3,8 +3,8 @@ package org.ton.ton4j.smartcontract.wallet;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
 import org.ton.ton4j.smartcontract.token.ft.JettonWallet;
 import org.ton.ton4j.toncenter.TonCenter;
@@ -30,7 +30,7 @@ public class ContractUtils {
       if (++i * 2 >= timeoutSeconds) {
         throw new Error("Can't deploy contract within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleepMs(200);
     } while (!isDeployed(tonlib, address));
   }
 
@@ -43,7 +43,7 @@ public class ContractUtils {
       if (++i * 2 >= timeoutSeconds) {
         throw new Error("Balance was not changed within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleepMs(200);
     } while (initialBalance.equals(tonlib.getAccountBalance(address)));
   }
 
@@ -57,7 +57,7 @@ public class ContractUtils {
         throw new Error(
             "Balance of " + address.toRaw() + " was not changed within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleepMs(200);
     } while (initialBalance.equals(getJettonBalance(tonlib, jettonMinter, address)));
   }
 
@@ -84,11 +84,11 @@ public class ContractUtils {
     BigInteger initialBalance = getJettonBalance(adnlLiteClient, jettonMinter, address);
     int i = 0;
     do {
-      if (++i  >= timeoutSeconds) {
+      if (++i >= timeoutSeconds) {
         throw new Error(
             "Balance of " + address.toRaw() + " was not changed within specified timeout.");
       }
-      Utils.sleep(1);
+      Utils.sleepMs(200);
     } while (initialBalance.equals(getJettonBalance(adnlLiteClient, jettonMinter, address)));
   }
 
@@ -118,7 +118,7 @@ public class ContractUtils {
         throw new Error(
             "Balance of " + address.toRaw() + " was not changed within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleepMs(200);
     } while (initialBalance.equals(getJettonBalance(tonCenterClient, jettonMinter, address)));
   }
 

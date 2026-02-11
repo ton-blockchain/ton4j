@@ -6,14 +6,12 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
-import org.ton.ton4j.smartcontract.faucet.GenerateWallet;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.smartcontract.faucet.GenerateWallet;
 import org.ton.ton4j.smartcontract.token.nft.NftCollection;
 import org.ton.ton4j.smartcontract.token.nft.NftItem;
 import org.ton.ton4j.smartcontract.token.nft.NftMarketplace;
@@ -27,7 +25,6 @@ import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestNft extends CommonTest {
 
   private static final String WALLET2_ADDRESS = "EQB6-6po0yspb68p7RRetC-hONAz-JwxG9514IEOKw_llXd5";
@@ -96,7 +93,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(30, "deploying NFT item #1");
+    Utils.sleep(3, "deploying NFT item #1");
 
     body =
         NftCollection.createMintBody(
@@ -113,7 +110,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(40, "deploying NFT item #2");
+    Utils.sleep(4, "deploying NFT item #2");
 
     assertThat(getNftCollectionInfo(nftCollection)).isEqualTo(2);
 
@@ -134,7 +131,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(30, "deploying nft marketplace");
+    Utils.sleep(3, "deploying nft marketplace");
 
     // deploy nft sale for item 1
     NftSale nftSale1 =
@@ -170,7 +167,7 @@ public class TestNft extends CommonTest {
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(40, "deploying NFT sale smart-contract for nft item #1");
+    Utils.sleep(4, "deploying NFT sale smart-contract for nft item #1");
 
     // get nft item 1 data
     log.info("nftSale data for nft item #1 {}", nftSale1.getData());
@@ -208,7 +205,7 @@ public class TestNft extends CommonTest {
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(40, "deploying NFT sale smart-contract for nft item #2");
+    Utils.sleep(4, "deploying NFT sale smart-contract for nft item #2");
 
     // get nft item 2 data
     log.info("nftSale data for nft item #2 {}", nftSale2.getData());
@@ -216,7 +213,7 @@ public class TestNft extends CommonTest {
     // sends from adminWallet to nftItem request for static data, response comes to adminWallet
     // https://github.com/ton-blockchain/token-contract/blob/main/nft/nft-item.fc#L131
 
-    Utils.sleep(2);
+    Utils.sleep(4);
     getStaticData(adminWallet, Utils.toNano(0.088), nftItem1Address, BigInteger.valueOf(661));
 
     // transfer nft item to nft sale smart-contract (send amount > full_price+1ton)
@@ -227,10 +224,9 @@ public class TestNft extends CommonTest {
         BigInteger.ZERO,
         nftSale1.getAddress(),
         Utils.toNano(0.02),
-        // "gift1".getBytes(),
-        null,
+        "gift1".getBytes(),
         adminWallet.getAddress());
-    Utils.sleep(35, "transferring item-1 to nft-sale-1 and waiting for seqno update");
+    Utils.sleep(3, "transferring item-1 to nft-sale-1 and waiting for seqno update");
 
     transferNftItem(
         adminWallet,
@@ -241,7 +237,7 @@ public class TestNft extends CommonTest {
         Utils.toNano(0.02),
         "gift2".getBytes(),
         adminWallet.getAddress());
-    Utils.sleep(35, "transferring item-2 to nft-sale-2 and waiting for seqno update");
+    Utils.sleep(3, "transferring item-2 to nft-sale-2 and waiting for seqno update");
 
     // cancels selling of item1, moves nft-item from nft-sale-1 smc back to adminWallet. nft-sale-1
     // smc becomes uninitialized
@@ -257,7 +253,7 @@ public class TestNft extends CommonTest {
     sendResponse = adminWallet.send(walletV3Config);
 
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(35, "cancel selling of item1");
+    Utils.sleep(3, "cancel selling of item1");
 
     // buy nft-item-2. send fullPrice+minimalGasAmount(1ton)
     walletV3Config =
@@ -290,11 +286,7 @@ public class TestNft extends CommonTest {
   @Test
   public void testNftAdnlLiteClient() throws Exception {
 
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
 
     adminWallet = GenerateWallet.randomV3R1(adnlLiteClient, 7);
     nftItemBuyer = GenerateWallet.randomV3R1(adnlLiteClient, 3);
@@ -350,7 +342,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(30, "deploying NFT item #1");
+    Utils.sleep(3, "deploying NFT item #1");
 
     body =
         NftCollection.createMintBody(
@@ -367,7 +359,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(40, "deploying NFT item #2");
+    Utils.sleep(4, "deploying NFT item #2");
 
     assertThat(getNftCollectionInfo(nftCollection)).isEqualTo(2);
 
@@ -388,7 +380,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(30, "deploying nft marketplace");
+    Utils.sleep(3, "deploying nft marketplace");
 
     // deploy nft sale for item 1
     NftSale nftSale1 =
@@ -424,7 +416,7 @@ public class TestNft extends CommonTest {
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(40, "deploying NFT sale smart-contract for nft item #1");
+    Utils.sleep(4, "deploying NFT sale smart-contract for nft item #1");
 
     // get nft item 1 data
     log.info("nftSale data for nft item #1 {}", nftSale1.getData());
@@ -462,7 +454,7 @@ public class TestNft extends CommonTest {
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(40, "deploying NFT sale smart-contract for nft item #2");
+    Utils.sleep(4, "deploying NFT sale smart-contract for nft item #2");
 
     // get nft item 2 data
     log.info("nftSale data for nft item #2 {}", nftSale2.getData());
@@ -678,7 +670,6 @@ public class TestNft extends CommonTest {
     assertThat(sendResponse.getCode()).isZero();
   }
 
-
   private void transferNftItem(
       WalletV3R1 wallet,
       BigInteger msgValue,
@@ -792,7 +783,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(30, "deploying NFT item #1");
+    Utils.sleep(3, "deploying NFT item #1");
 
     body =
         NftCollection.createMintBody(
@@ -809,7 +800,7 @@ public class TestNft extends CommonTest {
 
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(40, "deploying NFT item #2");
+    Utils.sleep(3, "deploying NFT item #2");
 
     assertThat(getNftCollectionInfo(nftCollection)).isEqualTo(2);
 
@@ -831,7 +822,7 @@ public class TestNft extends CommonTest {
     Utils.sleep(2);
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(30, "deploying nft marketplace");
+    Utils.sleep(3, "deploying nft marketplace");
 
     // deploy nft sale for item 1
     NftSale nftSale1 =
@@ -867,7 +858,7 @@ public class TestNft extends CommonTest {
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(40, "deploying NFT sale smart-contract for nft item #1");
+    Utils.sleep(5, "deploying NFT sale smart-contract for nft item #1");
 
     // get nft item 1 data
     log.info("nftSale data for nft item #1 {}", nftSale1.getData());
@@ -906,7 +897,7 @@ public class TestNft extends CommonTest {
     sendResponse = adminWallet.send(adminWalletConfig);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(40, "deploying NFT sale smart-contract for nft item #2");
+    Utils.sleep(5, "deploying NFT sale smart-contract for nft item #2");
 
     // get nft item 2 data
     log.info("nftSale data for nft item #2 {}", nftSale2.getData());
@@ -914,8 +905,7 @@ public class TestNft extends CommonTest {
     // sends from adminWallet to nftItem request for static data, response comes to adminWallet
     // https://github.com/ton-blockchain/token-contract/blob/main/nft/nft-item.fc#L131
     Utils.sleep(2);
-    getStaticData(
-        adminWallet, Utils.toNano(0.088), nftItem1Address, BigInteger.valueOf(661));
+    getStaticData(adminWallet, Utils.toNano(0.088), nftItem1Address, BigInteger.valueOf(661));
 
     // transfer nft item to nft sale smart-contract (send amount > full_price+1ton)
     Utils.sleep(2);
@@ -930,7 +920,7 @@ public class TestNft extends CommonTest {
         // "gift1".getBytes(),
         null,
         adminWallet.getAddress());
-    Utils.sleep(30);
+    Utils.sleep(5);
 
     log.info("transferring item-2 to nft-sale-2 and waiting for seqno update");
 
@@ -943,7 +933,7 @@ public class TestNft extends CommonTest {
         Utils.toNano(0.02),
         "gift2".getBytes(),
         adminWallet.getAddress());
-    Utils.sleep(30);
+    Utils.sleep(5);
 
     // cancels selling of item1, moves nft-item from nft-sale-1 smc back to adminWallet. nft-sale-1
     // smc becomes uninitialized
@@ -958,7 +948,7 @@ public class TestNft extends CommonTest {
             .build();
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(35, "cancel selling of item1");
+    Utils.sleep(5, "cancel selling of item1");
 
     // buy nft-item-2. send fullPrice+minimalGasAmount(1ton)
     walletV3Config =

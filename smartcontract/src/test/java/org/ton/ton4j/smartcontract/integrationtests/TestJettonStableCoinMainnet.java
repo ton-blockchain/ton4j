@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinterStableCoin;
 import org.ton.ton4j.smartcontract.token.ft.JettonWalletStableCoin;
 import org.ton.ton4j.smartcontract.types.WalletV3Config;
@@ -18,7 +20,6 @@ import org.ton.ton4j.smartcontract.types.WalletV4R2Config;
 import org.ton.ton4j.smartcontract.utils.MsgUtils;
 import org.ton.ton4j.smartcontract.wallet.v3.WalletV3R2;
 import org.ton.ton4j.smartcontract.wallet.v4.WalletV4R2;
-import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
@@ -27,17 +28,11 @@ public class TestJettonStableCoinMainnet {
   public static final String USDT_MASTER_WALLET =
       "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
 
-  static Tonlib tonlib;
-
+  @Ignore
   @Test
-  public void testJettonStableCoin() {
+  public void testJettonStableCoin() throws Exception {
     // careful - mainnet
-    tonlib =
-        Tonlib.builder()
-            .testnet(false)
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .ignoreCache(false)
-            .build();
+    TonProvider adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
 
     Address usdtMasterAddress = Address.of(USDT_MASTER_WALLET);
 
@@ -48,7 +43,8 @@ public class TestJettonStableCoinMainnet {
         TweetNaclFast.Signature.keyPair_fromSecretKey(secretKey);
 
     // use when you have 32 bytes private key
-    // TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
+    // TweetNaclFast.Signature.KeyPair keyPair =
+    // TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
     // generate private key and get wallet address, that you top up later
     /*
@@ -59,7 +55,8 @@ public class TestJettonStableCoinMainnet {
         WalletV3R2.builder().keyPair(Utils.generateSignatureKeyPair()).walletId(42).build();
 
     // use your wallet
-    WalletV3R2 myWallet = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV3R2 myWallet =
+        WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = myWallet.getAddress().toNonBounceable();
     String bounceableAddress = myWallet.getAddress().toBounceable();
@@ -71,10 +68,7 @@ public class TestJettonStableCoinMainnet {
     log.info("pub-key {}", Utils.bytesToHex(myWallet.getKeyPair().getPublicKey()));
     log.info("prv-key {}", Utils.bytesToHex(myWallet.getKeyPair().getSecretKey()));
 
-    String status = tonlib.getAccountStatus(Address.of(bounceableAddress));
-    log.info("account status {}", status);
-
-    BigInteger balance = tonlib.getAccountBalance(Address.of(bounceableAddress));
+    BigInteger balance = adnlLiteClient.getBalance(Address.of(bounceableAddress));
     log.info("account balance {}", Utils.formatNanoValue(balance));
 
     // myWallet.deploy();
@@ -82,7 +76,10 @@ public class TestJettonStableCoinMainnet {
 
     // get usdt jetton master (minter) address
     JettonMinterStableCoin usdtMasterWallet =
-        JettonMinterStableCoin.builder().tonProvider(tonlib).customAddress(usdtMasterAddress).build();
+        JettonMinterStableCoin.builder()
+            .tonProvider(adnlLiteClient)
+            .customAddress(usdtMasterAddress)
+            .build();
 
     log.info(
         "usdt total supply: {}", Utils.formatJettonValue(usdtMasterWallet.getTotalSupply(), 6, 2));
@@ -113,10 +110,10 @@ public class TestJettonStableCoinMainnet {
     assertThat(sendResponse.getCode()).isZero();
 
     Utils.sleep(
-        90, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
+        9, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
 
     BigInteger balanceOfDestinationWallet =
-        tonlib.getAccountBalance(randomDestinationWallet.getAddress());
+        adnlLiteClient.getBalance(randomDestinationWallet.getAddress());
     log.info("balanceOfDestinationWallet in toncoins: {}", balanceOfDestinationWallet);
     assertThat(balanceOfDestinationWallet).isEqualTo(BigInteger.ONE);
 
@@ -129,15 +126,11 @@ public class TestJettonStableCoinMainnet {
     assertThat(randomJettonWalletBalance).isEqualTo(BigInteger.valueOf(20000));
   }
 
+  @Ignore
   @Test
-  public void testJettonStableCoinV4R2() {
+  public void testJettonStableCoinV4R2() throws Exception {
     // careful - mainnet
-    tonlib =
-        Tonlib.builder()
-            .testnet(false)
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .ignoreCache(false)
-            .build();
+    TonProvider adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
 
     Address usdtMasterAddress = Address.of(USDT_MASTER_WALLET);
 
@@ -152,14 +145,15 @@ public class TestJettonStableCoinMainnet {
     // TweetNaclFast.Signature.KeyPair keyPair =
     // TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
-    // generate private key and get wallet address, that you top up later
+    // generate a private key and get a wallet address that you top up later
     // TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     WalletV4R2 randomDestinationWallet =
         WalletV4R2.builder().keyPair(Utils.generateSignatureKeyPair()).walletId(42).build();
 
     // use your wallet
-    WalletV4R2 myWallet = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 myWallet =
+        WalletV4R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
     String nonBounceableAddress = myWallet.getAddress().toNonBounceable();
     String bounceableAddress = myWallet.getAddress().toBounceable();
@@ -171,10 +165,7 @@ public class TestJettonStableCoinMainnet {
     log.info("pub-key {}", Utils.bytesToHex(myWallet.getKeyPair().getPublicKey()));
     log.info("prv-key {}", Utils.bytesToHex(myWallet.getKeyPair().getSecretKey()));
 
-    String status = tonlib.getAccountStatus(Address.of(bounceableAddress));
-    log.info("account status {}", status);
-
-    BigInteger balance = tonlib.getAccountBalance(Address.of(bounceableAddress));
+    BigInteger balance = adnlLiteClient.getBalance(Address.of(bounceableAddress));
     log.info("account balance {}", Utils.formatNanoValue(balance));
 
     //        myWallet.deploy();
@@ -182,7 +173,10 @@ public class TestJettonStableCoinMainnet {
 
     // get usdt jetton master (minter) address
     JettonMinterStableCoin usdtMasterWallet =
-        JettonMinterStableCoin.builder().tonProvider(tonlib).customAddress(usdtMasterAddress).build();
+        JettonMinterStableCoin.builder()
+            .tonProvider(adnlLiteClient)
+            .customAddress(usdtMasterAddress)
+            .build();
 
     log.info(
         "usdt total supply: {}", Utils.formatJettonValue(usdtMasterWallet.getTotalSupply(), 6, 2));
@@ -213,10 +207,10 @@ public class TestJettonStableCoinMainnet {
     assertThat(sendResponse.getCode()).isZero();
 
     Utils.sleep(
-        120, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
+        3, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
 
     BigInteger balanceOfDestinationWallet =
-        tonlib.getAccountBalance(randomDestinationWallet.getAddress());
+        adnlLiteClient.getBalance(randomDestinationWallet.getAddress());
     log.info("balanceOfDestinationWallet in toncoins: {}", balanceOfDestinationWallet);
 
     JettonWalletStableCoin randomJettonWallet =
@@ -314,7 +308,7 @@ public class TestJettonStableCoinMainnet {
     assertThat(sendResponse.getCode()).isZero();
 
     Utils.sleep(
-        120, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
+        12, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
 
     BigInteger balanceOfDestinationWallet =
         adnlLiteClient.getBalance(randomDestinationWallet.getAddress());

@@ -6,13 +6,12 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.types.CustomContractConfig;
@@ -54,7 +53,7 @@ public class TestExampleContract extends CommonTest {
     SendResponse sendResponse = exampleContract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    exampleContract.waitForDeployment(45);
+    exampleContract.waitForDeployment();
 
     log.info("seqno: {}", exampleContract.getSeqno());
 
@@ -82,8 +81,7 @@ public class TestExampleContract extends CommonTest {
     sendResponse = exampleContract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    exampleContract.waitForBalanceChange(45);
-
+    Utils.sleep(2);
     result = tonlib.runMethod(address, "get_extra_field");
     log.info("gas_used {}, exit_code {} ", result.getGas_used(), result.getExit_code());
     extra_field = (TvmStackEntryNumber) result.getStack().get(0);
@@ -103,7 +101,7 @@ public class TestExampleContract extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
@@ -125,7 +123,7 @@ public class TestExampleContract extends CommonTest {
     SendResponse sendResponse = exampleContract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    exampleContract.waitForDeployment(45);
+    exampleContract.waitForDeployment();
 
     log.info("seqno: {}", exampleContract.getSeqno());
 
@@ -150,7 +148,7 @@ public class TestExampleContract extends CommonTest {
     sendResponse = exampleContract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    exampleContract.waitForBalanceChange(45);
+    exampleContract.waitForBalanceChange();
 
     result = adnlLiteClient.runMethod(address, "get_extra_field");
 
@@ -214,9 +212,10 @@ public class TestExampleContract extends CommonTest {
             .build();
 
     sendResponse = exampleContract.send(config);
+    log.info("sendResponse {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
 
-    exampleContract.waitForBalanceChange(45);
+    Utils.sleep(2);
 
     result = tonCenter.runGetMethod(address.toBounceable(), "get_extra_field", new ArrayList<>());
 

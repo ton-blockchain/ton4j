@@ -98,7 +98,7 @@ public class MyLocalTonFaucet {
         }
       } catch (Exception e) {
         log.info("Cannot get MyLocalTon faucet balance. Restarting...");
-        Utils.sleep(5, "Waiting for MyLocalTon faucet balance");
+        Utils.sleep(1, "Waiting for MyLocalTon faucet balance");
       }
     } while (isNull(faucetBalance));
 
@@ -164,7 +164,7 @@ public class MyLocalTonFaucet {
         }
       } catch (Exception e) {
         log.info("Cannot get MyLocalTon faucet balance. Restarting...");
-        Utils.sleep(5, "Waiting for MyLocalTon faucet balance");
+        Utils.sleep(1, "Waiting for MyLocalTon faucet balance");
       }
     } while (isNull(faucetBalance));
 
@@ -215,7 +215,7 @@ public class MyLocalTonFaucet {
         }
       } catch (Exception e) {
         log.info("Cannot get MyLocalTon faucet balance. Restarting...");
-        Utils.sleep(5, "Waiting for MyLocalTon faucet balance");
+        Utils.sleep(1, "Waiting for MyLocalTon faucet balance");
       }
     } while (isNull(faucetBalance));
 
@@ -243,7 +243,7 @@ public class MyLocalTonFaucet {
       if (++j * 2 >= timeoutSeconds) {
         throw new Error("Balance was not changed within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleepMs(200);
       currentBalance = tonCenterClient.getBalance(destinationAddress.toBounceable());
     } while (initialBalance.equals(currentBalance));
 

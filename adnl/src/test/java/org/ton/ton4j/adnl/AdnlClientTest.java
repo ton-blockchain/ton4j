@@ -5,9 +5,21 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.ton.ton4j.tl.liteserver.responses.MasterchainInfo;
+import org.ton.ton4j.utils.Utils;
 
 @Slf4j
 public class AdnlClientTest {
+
+  @Test
+  void testAdnlClient2() throws Exception {
+    AdnlLiteClient client =
+        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
+    MasterchainInfo info = client.getMasterchainInfo();
+    log.info(info.toString());
+    client.close();
+    log.info("Done");
+  }
 
   @Test
   void testAdnlClient() throws Exception {

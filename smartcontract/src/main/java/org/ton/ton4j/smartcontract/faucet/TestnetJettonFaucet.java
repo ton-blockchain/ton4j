@@ -2,10 +2,10 @@ package org.ton.ton4j.smartcontract.faucet;
 
 import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
-import org.ton.ton4j.provider.TonProvider;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
 import org.ton.ton4j.smartcontract.token.ft.JettonWallet;
 import org.ton.ton4j.smartcontract.types.WalletV3Config;
@@ -14,7 +14,6 @@ import org.ton.ton4j.smartcontract.wallet.ContractUtils;
 import org.ton.ton4j.smartcontract.wallet.v3.WalletV3R2;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
-import org.ton.ton4j.tonlib.types.ExtMessageInfo;
 import org.ton.ton4j.utils.Utils;
 
 /** Faucet for NEOJ jettons. */
@@ -62,10 +61,11 @@ public class TestnetJettonFaucet {
   public static BigInteger topUpContractWithNeoj(
       Tonlib tonlib, Address destinationAddress, BigInteger jettonsAmount) {
 
-//    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
-//      throw new Error(
-//          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
-//    }
+    //    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
+    //      throw new Error(
+    //          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per
+    // request is 100.");
+    //    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
@@ -107,7 +107,7 @@ public class TestnetJettonFaucet {
 
     ContractUtils.waitForJettonBalanceChange(
         tonlib, Address.of(FAUCET_MASTER_ADDRESS), adminWallet.getAddress(), 60);
-    Utils.sleep(10);
+    Utils.sleep(1);
     return ContractUtils.getJettonBalance(
         tonlib, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
@@ -119,10 +119,11 @@ public class TestnetJettonFaucet {
   public static BigInteger topUpContractWithNeoj(
       AdnlLiteClient adnlLiteClient, Address destinationAddress, BigInteger jettonsAmount) {
 
-//    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
-//      throw new Error(
-//          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
-//    }
+    //    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
+    //      throw new Error(
+    //          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per
+    // request is 100.");
+    //    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
@@ -164,7 +165,7 @@ public class TestnetJettonFaucet {
 
     ContractUtils.waitForJettonBalanceChange(
         adnlLiteClient, Address.of(FAUCET_MASTER_ADDRESS), adminWallet.getAddress(), 60);
-    Utils.sleep(10);
+    Utils.sleep(1);
     return ContractUtils.getJettonBalance(
         adnlLiteClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }
@@ -179,10 +180,11 @@ public class TestnetJettonFaucet {
       BigInteger jettonsAmount,
       boolean avoidRateLimit) {
 
-//    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
-//      throw new Error(
-//          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per request is 100.");
-//    }
+    //    if (jettonsAmount.compareTo(Utils.toNano(100)) > 0) {
+    //      throw new Error(
+    //          "Too many NEOJ jettons requested from the TestnetJettonFaucet, maximum amount per
+    // request is 100.");
+    //    }
 
     TweetNaclFast.Signature.KeyPair keyPair =
         TweetNaclFast.Signature.keyPair_fromSeed(Utils.hexToSignedBytes(ADMIN_WALLET_SECRET_KEY));
@@ -235,7 +237,7 @@ public class TestnetJettonFaucet {
         if (++i * 2 >= timeoutSeconds) {
           throw new Error("Jetton balance was not changed within specified timeout.");
         }
-        Utils.sleep(2);
+        Utils.sleepMs(200);
         currentBalance =
             ContractUtils.getJettonBalance(
                 tonCenterClient, Address.of(FAUCET_MASTER_ADDRESS), adminWallet.getAddress());
@@ -244,7 +246,7 @@ public class TestnetJettonFaucet {
       throw new Error("Error waiting for jetton balance change: " + e.getMessage());
     }
 
-    Utils.sleep(10);
+    Utils.sleep(1);
     return ContractUtils.getJettonBalance(
         tonCenterClient, Address.of(FAUCET_MASTER_ADDRESS), destinationAddress);
   }

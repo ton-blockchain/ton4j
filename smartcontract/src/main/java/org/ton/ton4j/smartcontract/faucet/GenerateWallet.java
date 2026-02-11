@@ -82,7 +82,7 @@ public class GenerateWallet {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    Utils.sleep(30, "topping up...");
+    Utils.sleep(3, "topping up...");
     log.info("highload wallet {} balance: {}", wallet.getName(), Utils.formatNanoValue(balance));
 
     HighloadV3Config highloadV3Config =

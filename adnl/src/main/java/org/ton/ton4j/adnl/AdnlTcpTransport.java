@@ -1,5 +1,7 @@
 package org.ton.ton4j.adnl;
 
+import static java.util.Objects.nonNull;
+
 import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -17,13 +19,11 @@ import org.ton.ton4j.tl.liteserver.queries.PingQuery;
 import org.ton.ton4j.tl.liteserver.responses.*;
 import org.ton.ton4j.utils.Utils;
 
-import static java.util.Objects.nonNull;
-
 /**
  * TCP-based ADNL transport implementation for lite-server communication Based on the ADNL-TCP
  * specification and Go reference implementation
- * 
- * Thread-safe implementation that supports multiple concurrent queries from different threads.
+ *
+ * <p>Thread-safe implementation that supports multiple concurrent queries from different threads.
  */
 @Slf4j
 public class AdnlTcpTransport {
@@ -42,7 +42,7 @@ public class AdnlTcpTransport {
   private final ConcurrentHashMap<Long, CompletableFuture<TcpPong>> activePings =
       new ConcurrentHashMap<>();
   private final ScheduledExecutorService timeoutExecutor = Executors.newScheduledThreadPool(2);
-  
+
   // Synchronization objects for thread-safe cipher operations
   private final Object readCipherLock = new Object();
   private final Object writeCipherLock = new Object();
@@ -480,7 +480,7 @@ public class AdnlTcpTransport {
     // Encrypt in-place to maintain cipher state (thread-safe)
     synchronized (writeCipherLock) {
       CryptoUtils.aesCtrTransformInPlace(writeCipher, packetData);
-      
+
       // Send immediately after encryption to maintain proper ordering
       synchronized (output) {
         output.write(packetData);
@@ -502,14 +502,16 @@ public class AdnlTcpTransport {
       sendPacket(serialized);
 
       // Set timeout
-      timeoutExecutor.schedule(
-          () -> {
-            if (activePings.remove(randomId) != null) {
-              future.completeExceptionally(new Exception("Ping timeout"));
-            }
-          },
-          5,
-          TimeUnit.SECONDS);
+      ScheduledFuture<?> timeoutTask =
+          timeoutExecutor.schedule(
+              () -> {
+                if (activePings.remove(randomId) != null) {
+                  future.completeExceptionally(new Exception("Ping timeout"));
+                }
+              },
+              5,
+              TimeUnit.SECONDS);
+      future.whenComplete((result, error) -> timeoutTask.cancel(false));
 
       return future;
     } catch (Exception e) {
@@ -556,21 +558,23 @@ public class AdnlTcpTransport {
       }
 
       // Set timeout - increased to 60 seconds for lite-server queries
-      timeoutExecutor.schedule(
-          () -> {
-            if (activeQueries.remove(queryIdHex) != null) {
-              log.info("Query timed out: {}", queryIdHex);
-              future.completeExceptionally(new Exception("Query timeout"));
+      ScheduledFuture<?> timeoutTask =
+          timeoutExecutor.schedule(
+              () -> {
+                if (activeQueries.remove(queryIdHex) != null) {
+                  log.info("Query timed out: {}", queryIdHex);
+                  future.completeExceptionally(new Exception("Query timeout"));
 
-              // Check if we need to reconnect
-              if (connected && (socket == null || socket.isClosed())) {
-                log.info("Socket closed during query, marking as disconnected");
-                connected = false;
-              }
-            }
-          },
-          60,
-          TimeUnit.SECONDS);
+                  // Check if we need to reconnect
+                  if (connected && (socket == null || socket.isClosed())) {
+                    log.info("Socket closed during query, marking as disconnected");
+                    connected = false;
+                  }
+                }
+              },
+              60,
+              TimeUnit.SECONDS);
+      future.whenComplete((result, error) -> timeoutTask.cancel(false));
 
       return future;
     } catch (Exception e) {
@@ -615,8 +619,15 @@ public class AdnlTcpTransport {
       listenerThread.interrupt();
     }
 
-    // Shutdown timeout executor
-    timeoutExecutor.shutdown();
+    // Shutdown timeout executor and cancel pending tasks to avoid lingering threads.
+    timeoutExecutor.shutdownNow();
+    try {
+      if (!timeoutExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+        log.info("Timeout executor did not terminate cleanly");
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
 
     try {
       if (socket != null && !socket.isClosed()) {

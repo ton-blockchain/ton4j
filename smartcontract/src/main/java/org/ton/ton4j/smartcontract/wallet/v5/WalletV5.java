@@ -1,7 +1,6 @@
 package org.ton.ton4j.smartcontract.wallet.v5;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.iwebpp.crypto.TweetNaclFast;
@@ -9,16 +8,15 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.AccessLevel;
 import org.apache.commons.lang3.StringUtils;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.*;
-import org.ton.ton4j.provider.TonProvider;
-import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.types.Destination;
 import org.ton.ton4j.smartcontract.wallet.Contract;
@@ -55,21 +53,24 @@ public class WalletV5 implements Contract {
   @Getter(AccessLevel.NONE)
   private TonProvider tonProvider;
 
-  /** @deprecated Use tonProvider instead. */
-  @Deprecated
-  private Tonlib tonlib;
+  /**
+   * @deprecated Use tonProvider instead.
+   */
+  @Deprecated private Tonlib tonlib;
+
   private long wc;
 
-  /** @deprecated Use tonProvider instead. */
-  @Deprecated
-  private AdnlLiteClient adnlLiteClient;
-  /** @deprecated Use tonProvider instead. */
-  @Deprecated
-  private TonCenter tonCenterClient;
+  /**
+   * @deprecated Use tonProvider instead.
+   */
+  @Deprecated private AdnlLiteClient adnlLiteClient;
 
   /**
-   * used only with TopUp faucets and emulators
+   * @deprecated Use tonProvider instead.
    */
+  @Deprecated private TonCenter tonCenterClient;
+
+  /** used only with TopUp faucets and emulators */
   BigInteger initialBalance;
 
   @Override
@@ -192,14 +193,14 @@ public class WalletV5 implements Contract {
     }
   }
 
-  @Override
-  public StateInit getStateInit() {
-    return StateInit.builder()
-        .code(createCodeCell())
-        .data(createDataCell())
-        //                .lib(createLibraryCell())
-        .build();
-  }
+  //  @Override
+  //  public StateInit getStateInit() {
+  //    return StateInit.builder()
+  //        .code(createCodeCell())
+  //        .data(createDataCell())
+  //        //                .lib(createLibraryCell())
+  //        .build();
+  //  }
 
   public SendResponse send(WalletV5Config config) {
     return send(prepareExternalMsg(config));

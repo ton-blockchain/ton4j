@@ -9,13 +9,12 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.highload.HighloadWallet;
 import org.ton.ton4j.smartcontract.types.WalletV3Config;
@@ -26,14 +25,12 @@ import org.ton.ton4j.tlb.Transaction;
 import org.ton.ton4j.toncenter.Network;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.toncenter.model.TransactionResponse;
-import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.tonlib.types.RawMessage;
 import org.ton.ton4j.tonlib.types.RawTransaction;
 import org.ton.ton4j.tonlib.types.RawTransactions;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV3R2Short extends CommonTest {
 
   @Test
@@ -98,12 +95,12 @@ public class TestWalletV3R2Short extends CommonTest {
     SendResponse sendResponse = contract1.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract1.waitForDeployment(30);
+    contract1.waitForDeployment();
 
     sendResponse = contract2.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract2.waitForDeployment(30);
+    contract2.waitForDeployment();
 
     WalletV3Config config =
         WalletV3Config.builder()
@@ -118,7 +115,7 @@ public class TestWalletV3R2Short extends CommonTest {
     sendResponse = contract1.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract1.waitForBalanceChange(90);
+    contract1.waitForBalanceChange();
 
     config =
         WalletV3Config.builder()
@@ -132,7 +129,7 @@ public class TestWalletV3R2Short extends CommonTest {
     sendResponse = contract2.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract2.waitForBalanceChange(90);
+    contract2.waitForBalanceChange();
 
     balance1 = contract1.getBalance();
     log.info(
@@ -184,8 +181,7 @@ public class TestWalletV3R2Short extends CommonTest {
     log.info("txs of wallet2");
     txs = tonlib.getRawTransactions(bounceableAddress2, null, null);
     for (RawTransaction tx : txs.getTransactions()) {
-      if (nonNull(tx.getIn_msg())
-          && (!tx.getIn_msg().getSource().getAccount_address().equals(""))) {
+      if (nonNull(tx.getIn_msg()) && (!tx.getIn_msg().getSource().getAccount_address().isEmpty())) {
         log.info(
             "{}, {} <<<<< {} : {}, comment: {} ",
             Utils.toUTC(tx.getUtime()),
@@ -213,63 +209,30 @@ public class TestWalletV3R2Short extends CommonTest {
     tonlib.printAccountMessages(contract2.getAddress());
   }
 
-  /*
-   * addr - EQA-XwAkPLS-i4s9_N5v0CXGVFecw7lZV2rYeXDAimuWi9zI
-   * pub key - 2c188d86ba469755554baad436663b8073145b29f117550432426c513e7c582a
-   * prv key - c67cf48806f08929a49416ebebd97078100540ac8a3283646222b4d958b3e9e22c188d86ba469755554baad436663b8073145b29f117550432426c513e7c582a
-   */
   @Test
-  public void testWallet() throws InterruptedException {
-    WalletV3R2 contract = WalletV3R2.builder().tonProvider(tonlib).walletId(42).build();
-    log.info("pub key: {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
-    log.info("prv key: {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
+  public void testWalletV3R2MyLocalTonDockerFaucet() throws Exception {
 
-    BigInteger balance =
-        TestnetFaucet.topUpContract(tonlib, contract.getAddress(), Utils.toNano(1));
-    log.info(
-        "walletId {} new wallet {} balance: {}",
-        contract.getWalletId(),
-        contract.getName(),
-        Utils.formatNanoValue(balance));
-
-    contract.deploy();
-    contract.waitForDeployment(60);
-  }
-
-  @Test
-  public void testWalletV3R2MyLocalTonDockerFaucet() {
-
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("249489b5c1bfa6f62451be3714679581ee04cc8f82a8e3f74b432a58f3e4fedf");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPairFromSeed(prvKey);
 
     WalletV3R2 contract =
-        WalletV3R2.builder().tonProvider(tonlib).wc(-1).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder()
+            .tonProvider(adnlLiteClient)
+            .wc(-1)
+            .keyPair(keyPair)
+            .walletId(42)
+            .build();
     log.info("WalletV3R2 address {}", contract.getAddress().toRaw());
     assertThat(contract.getAddress().toRaw())
         .isEqualTo("-1:db7ef76c48e888b7a35d3c88ed61cc33e2ec84b74f0ce2d159e4dd6cd34f406c");
   }
 
   @Test
-  public void testWalletV3R2MyLocalTonDockerFaucetHighLoad() {
-
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+  public void testWalletV3R2MyLocalTonDockerFaucetHighLoad() throws Exception {
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("ee26cd8f2709404b63bc172148ec6179bfc7049b1045a22c3ea5446c5d425347");
@@ -277,7 +240,7 @@ public class TestWalletV3R2Short extends CommonTest {
 
     HighloadWallet contract =
         HighloadWallet.builder()
-            .tonProvider(tonlib)
+            .tonProvider(adnlLiteClient)
             .wc(-1)
             .keyPair(keyPair)
             .walletId(42)
@@ -289,133 +252,121 @@ public class TestWalletV3R2Short extends CommonTest {
   }
 
   @Test
-  public void testWalletV3R2MyLocalTonDockerValidator1() {
+  public void testWalletV3R2MyLocalTonDockerValidator1() throws Exception {
 
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("001624080b055bf5ea72a252c1acc2c18552df27b4073a412fbde398d8061316");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPairFromSeed(prvKey);
 
     WalletV3R2 contract =
-        WalletV3R2.builder().tonProvider(tonlib).wc(-1).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder()
+            .tonProvider(adnlLiteClient)
+            .wc(-1)
+            .keyPair(keyPair)
+            .walletId(42)
+            .build();
     assertThat(contract.getAddress().toRaw())
         .isEqualTo("-1:0e4160632db47d34bad8a24b55a56f46ca3b6fc84826d90515cd2b6313bd7cf6");
   }
 
   @Test
-  public void testWalletV3R2MyLocalTonDockerValidator2() {
+  public void testWalletV3R2MyLocalTonDockerValidator2() throws Exception {
 
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("1da5f8b57104cc6c8af748c0541abc8a735362cd241aa96c201d696623684672");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPairFromSeed(prvKey);
 
     WalletV3R2 contract =
-        WalletV3R2.builder().tonProvider(tonlib).wc(-1).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder()
+            .tonProvider(adnlLiteClient)
+            .wc(-1)
+            .keyPair(keyPair)
+            .walletId(42)
+            .build();
     assertThat(contract.getAddress().toRaw())
         .isEqualTo("-1:ddd8df36e13e3bcec0ffbcfb4de51535d39937311b3c5cad520a0802d3de9b54");
   }
 
   @Test
-  public void testWalletV3R2MyLocalTonDockerValidator3() {
+  public void testWalletV3R2MyLocalTonDockerValidator3() throws Exception {
 
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("fe968161dfe5aa6d7a6f8fdd1d43ceeee9395f1ca61bb8224d4f60e48fdc589d");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPairFromSeed(prvKey);
 
     WalletV3R2 contract =
-        WalletV3R2.builder().tonProvider(tonlib).wc(-1).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder()
+            .tonProvider(adnlLiteClient)
+            .wc(-1)
+            .keyPair(keyPair)
+            .walletId(42)
+            .build();
     assertThat(contract.getAddress().toRaw())
         .isEqualTo("-1:1ea99012e00cee2aef95c6ac245ee28894080801e4e5fae2d91363f2ef5a7232");
   }
 
   @Test
-  public void testWalletV3R2MyLocalTonDockerValidator4() {
+  public void testWalletV3R2MyLocalTonDockerValidator4() throws Exception {
 
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("49cce23987cacbd05fac13978eff826e9107d694c0040a1e98bca4c2872d80f8");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPairFromSeed(prvKey);
 
     WalletV3R2 contract =
-        WalletV3R2.builder().tonProvider(tonlib).wc(-1).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder()
+            .tonProvider(adnlLiteClient)
+            .wc(-1)
+            .keyPair(keyPair)
+            .walletId(42)
+            .build();
     assertThat(contract.getAddress().toRaw())
         .isEqualTo("-1:c21b6e9f20c35f31a3c46e510daae29261c3127e43aa2c90e5d1463451f623f8");
   }
 
   @Test
-  public void testWalletV3R2MyLocalTonDockerValidator5() {
+  public void testWalletV3R2MyLocalTonDockerValidator5() throws Exception {
 
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("b5e0ce4fba8ae2e3f44a393ac380549bfa44c3a5ba33a49171d502f1e4ac6c1d");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPairFromSeed(prvKey);
 
     WalletV3R2 contract =
-        WalletV3R2.builder().tonProvider(tonlib).wc(-1).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder()
+            .tonProvider(adnlLiteClient)
+            .wc(-1)
+            .keyPair(keyPair)
+            .walletId(42)
+            .build();
     assertThat(contract.getAddress().toRaw())
         .isEqualTo("-1:a485d0e84de33e212d66eb025fbbaecbeed9dbad7f78cd8cd2058afe20cebde9");
   }
 
   @Test
-  public void testWalletV3R2MyLocalTonDockerGenesis() {
+  public void testWalletV3R2MyLocalTonDockerGenesis() throws Exception {
 
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-            .pathToGlobalConfig("http://127.0.0.1:8000/localhost.global.config.json")
-            .ignoreCache(false)
-            .build();
-
-    log.info("last {}", tonlib.getLast());
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] prvKey =
         Utils.hexToSignedBytes("5f14ebefc57461002fc07f9438a63ad35ff609759bb0ae334fedabbfb4bfdce8");
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPairFromSeed(prvKey);
 
     WalletV3R2 contract =
-        WalletV3R2.builder().tonProvider(tonlib).wc(-1).keyPair(keyPair).walletId(42).build();
+        WalletV3R2.builder()
+            .tonProvider(adnlLiteClient)
+            .wc(-1)
+            .keyPair(keyPair)
+            .walletId(42)
+            .build();
     assertThat(contract.getAddress().toRaw())
         .isEqualTo("-1:0755526dfc926d1b6d468801099cad2d588f40a6a6088bcd3e059566c0ef907c");
   }
@@ -437,14 +388,14 @@ public class TestWalletV3R2Short extends CommonTest {
         contract.getName(),
         Utils.formatNanoValue(balance));
 
-    // deploy using externally signed body
+    // deploy using an externally signed body
     Cell deployBody = contract.createDeployMessage();
 
     byte[] signedDeployBodyHash =
         Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), deployBody.hash());
 
     contract.deploy(signedDeployBodyHash);
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
 
     // send toncoins
     WalletV3Config config =
@@ -470,7 +421,7 @@ public class TestWalletV3R2Short extends CommonTest {
   public void testWalletV3R2AdnlLiteClient() throws Exception {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     WalletV3R2 contract1 =
         WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
@@ -520,12 +471,12 @@ public class TestWalletV3R2Short extends CommonTest {
     SendResponse sendResponse = contract1.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract1.waitForDeployment(30);
+    contract1.waitForDeployment();
 
     sendResponse = contract2.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract2.waitForDeployment(30);
+    contract2.waitForDeployment();
 
     WalletV3Config config =
         WalletV3Config.builder()
@@ -540,7 +491,7 @@ public class TestWalletV3R2Short extends CommonTest {
     sendResponse = contract1.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract1.waitForBalanceChange(90);
+    contract1.waitForBalanceChange();
 
     config =
         WalletV3Config.builder()
@@ -554,7 +505,7 @@ public class TestWalletV3R2Short extends CommonTest {
     sendResponse = contract2.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract2.waitForBalanceChange(90);
+    contract2.waitForBalanceChange();
 
     balance1 = contract1.getBalance();
     log.info(
@@ -713,7 +664,7 @@ public class TestWalletV3R2Short extends CommonTest {
     // transfer coins from new wallet (back to faucet)
     response = contract1.send(config);
     assertThat(response.getCode()).isZero();
-    contract1.waitForBalanceChangeWithTolerance(30, Utils.toNano(0.5));
+    contract1.waitForBalanceChangeWithTolerance(Utils.toNano(0.5));
 
     long seqno2 = toncenter.getSeqno(contract2.getAddress().toBounceable());
     log.info("contract2 seqno {}", seqno2);
@@ -822,18 +773,17 @@ public class TestWalletV3R2Short extends CommonTest {
   @Test
   public void testWalletV3R2TonProvider() throws Exception {
 
-    TonCenter toncenter =  TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
+    TonProvider toncenter = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().build();
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV3R2 contract =  WalletV3R2.builder().keyPair(keyPair).tonProvider(toncenter).walletId(42).build();
+    WalletV3R2 contract =
+        WalletV3R2.builder().keyPair(keyPair).tonProvider(toncenter).walletId(42).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
 
     log.info("non-bounceable address: {}", nonBounceableAddress);
 
-
-    // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(
             toncenter, Address.of(nonBounceableAddress), Utils.toNano(1), true);
@@ -849,12 +799,8 @@ public class TestWalletV3R2Short extends CommonTest {
 
     log.info("tonCenter: contract seqno {}", contract.getSeqno());
 
-    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     contract.setTonProvider(adnlLiteClient);
     log.info("adnlLiteClient: contract seqno {}", contract.getSeqno());
-
-    Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).testnet(true).build();
-    contract.setTonProvider(tonlib);
-    log.info("tonlib: contract seqno {}", contract.getSeqno());
-    }
+  }
 }

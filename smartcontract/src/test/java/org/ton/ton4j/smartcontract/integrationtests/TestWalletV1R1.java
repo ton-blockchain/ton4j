@@ -6,8 +6,6 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
@@ -20,7 +18,6 @@ import org.ton.ton4j.tonlib.types.RawAccountState;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV1R1 extends CommonTest {
 
   @Test
@@ -149,11 +146,7 @@ public class TestWalletV1R1 extends CommonTest {
   public void testNewWalletV1R1AdnlClient() throws Exception {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
 
     WalletV1R1 contract =
         WalletV1R1.builder().tonProvider(adnlLiteClient).wc(0).keyPair(keyPair).build();
@@ -227,7 +220,7 @@ public class TestWalletV1R1 extends CommonTest {
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
-    contract.waitForDeployment(45);
+    contract.waitForDeployment();
 
     balance = contract.getBalance();
     log.info("    wallet balance: {}", Utils.formatNanoValue(balance));

@@ -1,7 +1,5 @@
 package org.ton.ton4j.smartcontract;
 
-import org.ton.ton4j.provider.SendResponse;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.Gson;
@@ -25,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.faucet.TestnetJettonFaucet;
 import org.ton.ton4j.smartcontract.highload.HighloadWalletV3;
@@ -664,7 +663,7 @@ public class TestTonSdkTestCasesSmartContracts {
     assertThat(sendResponse.getCode()).isZero();
 
     Utils.sleep(
-        90, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
+        9, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
 
     BigInteger expectedBalanceOfNanocoinsAtRandomAddress =
         new BigInteger(
@@ -788,7 +787,7 @@ public class TestTonSdkTestCasesSmartContracts {
     assertThat(sendResponse.getCode()).isZero();
 
     Utils.sleep(
-        90, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
+        9, "transferring 0.02 USDT jettons to wallet " + randomDestinationWallet.getAddress());
 
     BigInteger expectedBalanceOfNanocoinsAtRandomAddress =
         new BigInteger(

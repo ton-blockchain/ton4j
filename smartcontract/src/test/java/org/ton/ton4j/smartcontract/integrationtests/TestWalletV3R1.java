@@ -7,10 +7,8 @@ import java.math.BigInteger;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
@@ -27,7 +25,6 @@ import org.ton.ton4j.tonlib.types.RawTransaction;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV3R1 extends CommonTest {
   @Test
   public void testWalletV3R1() throws InterruptedException {
@@ -75,7 +72,7 @@ public class TestWalletV3R1 extends CommonTest {
     ExtMessageInfo extMessageInfo = tonlib.sendRawMessage(msg.toCell().toBase64());
     assertThat(extMessageInfo.getError().getCode()).isZero();
 
-    contract.waitForDeployment(40);
+    contract.waitForDeployment();
 
     // try to transfer coins from new wallet (back to faucet)
     WalletV3Config config =
@@ -90,7 +87,7 @@ public class TestWalletV3R1 extends CommonTest {
     SendResponse sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(90);
+    contract.waitForBalanceChange();
 
     balance = contract.getBalance();
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
@@ -125,7 +122,7 @@ public class TestWalletV3R1 extends CommonTest {
     log.info("msg found in tx {}", tx);
     assertThat(tx).isNotNull();
 
-    contract.waitForDeployment(40);
+    contract.waitForDeployment();
 
     // try to transfer coins from new wallet (back to faucet)
     WalletV3Config config =
@@ -140,7 +137,7 @@ public class TestWalletV3R1 extends CommonTest {
     SendResponse sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(90);
+    Utils.sleep(2);
 
     balance = contract.getBalance();
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
@@ -150,8 +147,8 @@ public class TestWalletV3R1 extends CommonTest {
   @Test
   public void testWalletV3R1SendRawMessageWithConfirmationAdnlLiteClient() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+
     WalletV3R1 contract =
         WalletV3R1.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
@@ -174,9 +171,9 @@ public class TestWalletV3R1 extends CommonTest {
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     // deploy new wallet
-    adnlLiteClient.sendRawMessageWithConfirmation(msg, address);
+    adnlLiteClient.sendExternalMessageWithConfirmation(msg);
 
-    contract.waitForDeployment(40);
+    contract.waitForDeployment();
 
     // try to transfer coins from new wallet (back to faucet)
     WalletV3Config config =
@@ -245,7 +242,7 @@ public class TestWalletV3R1 extends CommonTest {
     response = tonCenterClient.sendBoc(contract.prepareExternalMsg(config).toCell().toBase64());
     assertThat(response.isSuccess()).isTrue();
 
-    contract.waitForBalanceChange();
+    Utils.sleep(2);
 
     balance = contract.getBalance();
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));

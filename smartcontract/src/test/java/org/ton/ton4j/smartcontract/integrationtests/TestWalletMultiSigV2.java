@@ -22,7 +22,6 @@ import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletMultiSigV2 extends CommonTest {
 
   Address dummyRecipient1 = Address.of(Utils.generateRandomAddress(0));
@@ -104,8 +103,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
             .build();
     deployer.send(config);
-    deployer.waitForDeployment(30);
-    Utils.sleep(10, "pause");
+    deployer.waitForDeployment();
+    Utils.sleep(1, "pause");
 
     // send external msg to admin wallet that sends internal msg to multisig with body to create
     // order-contract
@@ -137,7 +136,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
     deployer.send(config);
     deployer.waitForBalanceChange();
 
-    Utils.sleep(15);
+    Utils.sleep(1);
 
     Address orderAddress = multiSigWalletV2.getOrderAddress(BigInteger.ZERO);
     log.info("orderAddress {}", orderAddress);
@@ -160,7 +159,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
     signer2.send(config);
     signer2.waitForBalanceChange();
 
-    Utils.sleep(20);
+    Utils.sleep(2);
 
     log.info(
         "orderData when twice approved {}", multiSigWalletV2.getOrderData(BigInteger.valueOf(0)));
@@ -238,7 +237,6 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .build();
     deployer.send(config);
     deployer.waitForDeployment();
-    Utils.sleep(10);
 
     // send external msg to admin wallet that sends internal msg to multisig with body to create
     // order-contract
@@ -280,9 +278,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .build();
 
     deployer.send(config);
-    deployer.waitForBalanceChange();
-
-    Utils.sleep(15);
+    Utils.sleep(4);
 
     Address orderAddress = multiSigWalletV2.getOrderAddress(BigInteger.ZERO);
     log.info("orderAddress {}", orderAddress);
@@ -297,9 +293,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .body(MultiSigWalletV2.approve(0, 1))
             .build();
     signer2.send(config);
-    signer2.waitForBalanceChange();
 
-    Utils.sleep(45);
+    Utils.sleep(4);
 
     BigInteger balanceRecipient1 = tonlib.getAccountBalance(dummyRecipient1);
     BigInteger balanceRecipient2 = tonlib.getAccountBalance(dummyRecipient2);
@@ -318,9 +313,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .body(MultiSigWalletV2.approve(0, 2))
             .build();
     signer3.send(config);
-    signer3.waitForBalanceChange();
 
-    Utils.sleep(60);
+    Utils.sleep(4);
 
     balanceRecipient1 = tonlib.getAccountBalance(dummyRecipient1);
     balanceRecipient2 = tonlib.getAccountBalance(dummyRecipient2);
@@ -596,13 +590,13 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
             .build();
     deployer.send(config);
-    deployer.waitForDeployment(30);
-    Utils.sleep(15);
+    deployer.waitForDeployment();
+    Utils.sleep(3);
 
     MultiSigV2Data data = multiSigWalletV2.getMultiSigData();
     log.info("multiSig data before {}", data);
 
-    // send external msg to admin wallet that sends internal msg to multisig to change its
+    // send external msg to the admin wallet that sends internal msg to multisig to change its
     // parameters (new threshold=4, new 4 signers and one proposer)
 
     Cell orderBody =
@@ -630,7 +624,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
     deployer.send(config);
     deployer.waitForBalanceChange();
 
-    Utils.sleep(15);
+    Utils.sleep(2);
 
     Address orderAddress = multiSigWalletV2.getOrderAddress(BigInteger.ZERO);
     log.info("orderAddress {}", orderAddress);
@@ -645,9 +639,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .body(MultiSigWalletV2.approve(0, 1))
             .build();
     signer2.send(config);
-    signer2.waitForBalanceChange();
 
-    Utils.sleep(15);
+    Utils.sleep(2);
 
     data = multiSigWalletV2.getMultiSigData();
     log.info("multiSig data after {}", data);
@@ -667,7 +660,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
 
     WalletV3R2 deployer =
@@ -751,8 +744,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
             .build();
     deployer.send(config);
-    deployer.waitForDeployment(30);
-    Utils.sleep(15);
+
+    Utils.sleep(2);
 
     MultiSigV2Data data = multiSigWalletV2.getMultiSigData();
     log.info("multiSig data before {}", data);
@@ -819,11 +812,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
   @Test
   public void testMultiSigV2DeploymentAnd2out3ApprovalsAdnlClient() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     WalletV3R2 deployer =
         WalletV3R2.builder()
             .tonProvider(adnlLiteClient)
@@ -1004,9 +993,13 @@ public class TestWalletMultiSigV2 extends CommonTest {
     log.info("recipient2 {}", dummyRecipient2.toRaw());
 
     topUpAndDeploy(deployer);
+    Utils.sleep(1);
     topUpAndDeploy(signer2);
+    Utils.sleep(1);
     log.info("deployer seqno {}", deployer.getSeqno());
+    Utils.sleep(1);
     log.info("signer2 seqno {}", signer2.getSeqno());
+    Utils.sleep(1);
 
     MultiSigWalletV2 multiSigWalletV2 =
         MultiSigWalletV2.builder()
@@ -1037,8 +1030,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
             .build();
     deployer.send(config);
-    deployer.waitForDeployment(30);
-    Utils.sleep(15);
+    deployer.waitForDeployment();
+    Utils.sleep(5);
 
     MultiSigV2Data data = multiSigWalletV2.getMultiSigData();
     log.info("multiSig data before {}", data);
@@ -1069,9 +1062,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .build();
 
     deployer.send(config);
-    deployer.waitForBalanceChange();
 
-    Utils.sleep(15);
+    Utils.sleep(5);
 
     Address orderAddress = multiSigWalletV2.getOrderAddress(BigInteger.ZERO);
     log.info("orderAddress {}", orderAddress);
@@ -1086,18 +1078,17 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .body(MultiSigWalletV2.approve(0, 1))
             .build();
     signer2.send(config);
-    signer2.waitForBalanceChange();
 
-    Utils.sleep(15);
+    Utils.sleep(5);
 
     data = multiSigWalletV2.getMultiSigData();
     log.info("multiSig data after {}", data);
     assertThat(data.getThreshold()).isEqualTo(4);
     assertThat(data.getSigners().size()).isEqualTo(4);
     assertThat(data.getProposers().size()).isEqualTo(2);
-
+    Utils.sleep(3);
     log.info("orderData {}", multiSigWalletV2.getOrderData(BigInteger.valueOf(0)));
-
+    Utils.sleep(3);
     log.info(
         "getOrderEstimate for 10 years {}",
         multiSigWalletV2.getOrderEstimate(orderBody, Utils.now() + 60 * 60 * 24 * 365 * 10));
@@ -1167,7 +1158,6 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .build();
     deployer.send(config);
     deployer.waitForDeployment();
-    Utils.sleep(10, "pause");
 
     // send external msg to admin wallet that sends internal msg to multisig with body to create
     // order-contract
@@ -1197,9 +1187,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .build();
 
     deployer.send(config);
-    deployer.waitForBalanceChange();
 
-    Utils.sleep(15);
+    Utils.sleep(4);
 
     Address orderAddress = multiSigWalletV2.getOrderAddress(BigInteger.ZERO);
     log.info("orderAddress {}", orderAddress);
@@ -1221,9 +1210,8 @@ public class TestWalletMultiSigV2 extends CommonTest {
             .build();
 
     signer2.send(config);
-    signer2.waitForBalanceChange();
 
-    Utils.sleep(20);
+    Utils.sleep(3);
 
     log.info(
         "orderData when twice approved {}", multiSigWalletV2.getOrderData(BigInteger.valueOf(0)));
@@ -1241,13 +1229,12 @@ public class TestWalletMultiSigV2 extends CommonTest {
 
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
-            TestnetFaucet.topUpContract(
-                    tonCenter, Address.of(nonBounceableAddress), Utils.toNano(1));
+        TestnetFaucet.topUpContract(tonCenter, Address.of(nonBounceableAddress), Utils.toNano(1));
     log.info(
-            "new wallet (id={} {}) balance: {}",
-            wallet.getWalletId(),
-            wallet.getName(),
-            Utils.formatNanoValue(balance));
+        "new wallet (id={} {}) balance: {}",
+        wallet.getWalletId(),
+        wallet.getName(),
+        Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = wallet.deploy();
     assertThat(sendResponse.getCode()).isZero();
@@ -1291,6 +1278,7 @@ public class TestWalletMultiSigV2 extends CommonTest {
         Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = wallet.deploy();
+    log.info("sendResponse {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
 
     wallet.waitForDeployment();

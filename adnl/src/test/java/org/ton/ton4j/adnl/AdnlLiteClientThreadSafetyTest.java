@@ -2,7 +2,6 @@ package org.ton.ton4j.adnl;
 
 import lombok.extern.slf4j.Slf4j;
 
-
 import org.junit.jupiter.api.Test;
 import org.ton.ton4j.tl.liteserver.responses.MasterchainInfo;
 import org.ton.ton4j.utils.Utils;
@@ -23,11 +22,7 @@ public class AdnlLiteClientThreadSafetyTest {
   public void testConcurrentQueries() throws Exception {
 
     AdnlLiteClient client =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .maxRetries(3)
-            .queryTimeout(30)
-            .build();
+        AdnlLiteClient.builder().testnet().maxRetries(3).queryTimeout(30).build();
 
     try {
       // Number of concurrent threads

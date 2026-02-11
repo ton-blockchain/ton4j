@@ -10,8 +10,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
@@ -30,7 +28,6 @@ import org.ton.ton4j.tonlib.types.QueryFees;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV1R3 extends CommonTest {
 
   @Test
@@ -70,7 +67,7 @@ public class TestWalletV1R3 extends CommonTest {
     ExtMessageInfo extMessageInfo = tonlib.sendRawMessage(msg.toCell().toBase64());
     assertThat(extMessageInfo.getError().getCode()).isZero();
 
-    contract.waitForDeployment(20);
+    contract.waitForDeployment();
 
     WalletV1R3Config config =
         WalletV1R3Config.builder()
@@ -84,7 +81,7 @@ public class TestWalletV1R3 extends CommonTest {
     SendResponse sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(30);
+    contract.waitForBalanceChange();
 
     balance = new BigInteger(tonlib.getRawAccountState(address).getBalance());
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
@@ -144,7 +141,7 @@ public class TestWalletV1R3 extends CommonTest {
     ExtMessageInfo extMessageInfo = tonlib.sendRawMessage(msg.toCell().toBase64());
     assertThat(extMessageInfo.getError().getCode()).isZero();
 
-    contract.waitForDeployment(30);
+    contract.waitForDeployment();
 
     WalletV1R3Config config =
         WalletV1R3Config.builder()
@@ -158,7 +155,7 @@ public class TestWalletV1R3 extends CommonTest {
     SendResponse sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(30);
+    contract.waitForBalanceChange();
 
     balance = new BigInteger(tonlib.getRawAccountState(address).getBalance());
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
@@ -218,7 +215,7 @@ public class TestWalletV1R3 extends CommonTest {
         TestnetFaucet.topUpContract(tonlib, contract.getAddress(), Utils.toNano(0.1));
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
-    // deploy using externally signed body
+    // deploy using an externally signed body
     Cell deployBody = contract.createDeployMessage();
 
     byte[] signedDeployBodyHash =
@@ -226,7 +223,7 @@ public class TestWalletV1R3 extends CommonTest {
 
     SendResponse sendResponse = contract.deploy(signedDeployBodyHash);
     log.info("extMessageInfo {}", sendResponse);
-    contract.waitForDeployment(120);
+    contract.waitForDeployment();
 
     // send toncoins
     WalletV1R3Config config =
@@ -237,13 +234,13 @@ public class TestWalletV1R3 extends CommonTest {
             .comment("testWalletV1R3-signed-externally")
             .build();
 
-    // transfer coins from new wallet (back to faucet) using externally signed body
+    // transfer coins from a new wallet (back to faucet) using an externally signed body
     Cell transferBody = contract.createTransferBody(config);
     byte[] signedTransferBodyHash =
         Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), transferBody.hash());
     sendResponse = contract.send(config, signedTransferBodyHash);
     log.info("extMessageInfo: {}", sendResponse);
-    contract.waitForBalanceChange(120);
+    contract.waitForBalanceChange();
     Assertions.assertThat(contract.getBalance()).isLessThan(Utils.toNano(0.03));
   }
 
@@ -251,8 +248,7 @@ public class TestWalletV1R3 extends CommonTest {
   public void testWalletSignedExternallyAdnlClient() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] publicKey = keyPair.getPublicKey();
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     WalletV1R3 contract =
         WalletV1R3.builder().tonProvider(adnlLiteClient).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
@@ -261,7 +257,7 @@ public class TestWalletV1R3 extends CommonTest {
         TestnetFaucet.topUpContract(adnlLiteClient, contract.getAddress(), Utils.toNano(0.1));
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
-    // deploy using externally signed body
+    // deploy using an externally signed body
     Cell deployBody = contract.createDeployMessage();
 
     byte[] signedDeployBodyHash =
@@ -269,7 +265,7 @@ public class TestWalletV1R3 extends CommonTest {
 
     SendResponse sendResponse = contract.deploy(signedDeployBodyHash);
     log.info("extMessageInfo {}", sendResponse);
-    contract.waitForDeployment(120);
+    contract.waitForDeployment();
 
     // send toncoins
     WalletV1R3Config config =
@@ -286,7 +282,7 @@ public class TestWalletV1R3 extends CommonTest {
         Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), transferBody.hash());
     sendResponse = contract.send(config, signedTransferBodyHash);
     log.info("extMessageInfo: {}", sendResponse);
-    contract.waitForBalanceChange(120);
+    contract.waitForBalanceChange();
     Assertions.assertThat(contract.getBalance()).isLessThan(Utils.toNano(0.03));
   }
 
@@ -294,8 +290,7 @@ public class TestWalletV1R3 extends CommonTest {
   public void testWalletSignedExternallyTonCenterClient() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] publicKey = keyPair.getPublicKey();
-    TonCenter tonCenterClient =
-        TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().debug().build();
+    TonCenter tonCenterClient = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().build();
     WalletV1R3 contract =
         WalletV1R3.builder().tonProvider(tonCenterClient).publicKey(publicKey).build();
     log.info("pub key: {}", Utils.bytesToHex(publicKey));
@@ -329,14 +324,12 @@ public class TestWalletV1R3 extends CommonTest {
             .comment("ton4j testWalletV1R3-signed-externally")
             .build();
 
-    // transfer coins from new wallet (back to faucet) using externally signed body
+    // transfer coins from a new wallet (back to faucet) using an externally signed body
     Cell transferBody = contract.createTransferBody(config);
     byte[] signedTransferBodyHash =
         Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), transferBody.hash());
     sendResponse = contract.send(config, signedTransferBodyHash);
     log.info("sendResponse: {}", sendResponse);
-    Utils.sleep(2);
-    contract.waitForBalanceChange();
     Utils.sleep(2);
     balance = contract.getBalance();
     log.info("wallet {} new balance: {}", contract.getName(), Utils.formatNanoValue(balance));

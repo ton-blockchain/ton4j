@@ -15,8 +15,9 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMap;
 import org.ton.ton4j.cell.TonHashMapE;
-import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
+import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.faucet.TestnetJettonFaucet;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
@@ -44,7 +45,7 @@ public class TestWalletV5 extends CommonTest {
 
   /** Wallet V5 deploy Without Library and Without Extensions. */
   @Test
-  public void testWalletV5Deployment() throws InterruptedException {
+  public void testWalletV5Deployment() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     //        byte[] secretKey =
     // Utils.hexToSignedBytes("F182111193F30D79D517F2339A1BA7C25FDF6C52142F0F2C1D960A1F1D65E1E4");
@@ -86,7 +87,7 @@ public class TestWalletV5 extends CommonTest {
 
   /** Transfer to 1 recipient. Without Library and Without Extensions and without OtherActions. */
   @Test
-  public void testWalletV5SimpleTransfer1() throws InterruptedException {
+  public void testWalletV5SimpleTransfer1() throws Exception {
     //        byte[] secretKey =
     // Utils.hexToSignedBytes("F182111193F30D79D517F2339A1BA7C25FDF6C52142F0F2C1D960A1F1D65E1E4");
     //        TweetNaclFast.Signature.KeyPair keyPair =
@@ -156,7 +157,7 @@ public class TestWalletV5 extends CommonTest {
    */
   @Test
   public void testWalletV5SimpleTransfer255Recipients()
-      throws InterruptedException, NoSuchAlgorithmException {
+          throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
@@ -198,7 +199,7 @@ public class TestWalletV5 extends CommonTest {
 
   /** Transfer to 0 recipient. Without Library and Without Extensions and without OtherActions. */
   @Test
-  public void testWalletV5SimpleTransfer0() throws InterruptedException {
+  public void testWalletV5SimpleTransfer0() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
@@ -242,7 +243,7 @@ public class TestWalletV5 extends CommonTest {
 
   /** Deploy without extension and then add an extension. */
   @Test
-  public void testWalletV5DeployOneExtension() throws InterruptedException {
+  public void testWalletV5DeployOneExtension() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
@@ -293,14 +294,14 @@ public class TestWalletV5 extends CommonTest {
 
     sendResponse = contract.send(walletV5Config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(15);
+    Utils.sleep(1);
     log.info("extensions {}", contract.getRawExtensions());
     assertThat(contract.getRawExtensions().elements.size()).isEqualTo(1);
   }
 
   /** Deploy without extension and then add two extensions. */
   @Test
-  public void testWalletV5DeployTwoExtensions() throws InterruptedException {
+  public void testWalletV5DeployTwoExtensions() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
@@ -359,7 +360,7 @@ public class TestWalletV5 extends CommonTest {
 
     sendResponse = contract.send(walletV5Config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(15);
+    Utils.sleep(1);
     log.info("extensions {}", contract.getRawExtensions());
     assertThat(contract.getRawExtensions().elements.size()).isEqualTo(2);
   }
@@ -375,7 +376,7 @@ public class TestWalletV5 extends CommonTest {
   }
 
   @Test
-  public void testWalletV5DeployWithOneExtension() throws InterruptedException {
+  public void testWalletV5DeployWithOneExtension() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     // initial extensions
@@ -419,7 +420,7 @@ public class TestWalletV5 extends CommonTest {
   }
 
   @Test
-  public void testWalletV5DeployWithThreeExtensions() throws InterruptedException {
+  public void testWalletV5DeployWithThreeExtensions() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     // initial extensions
@@ -465,7 +466,7 @@ public class TestWalletV5 extends CommonTest {
   }
 
   @Test
-  public void testWalletV5DeployWithThreeExtensionsAndDeleteOne() throws InterruptedException {
+  public void testWalletV5DeployWithThreeExtensionsAndDeleteOne() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     // initial extensions
@@ -528,7 +529,7 @@ public class TestWalletV5 extends CommonTest {
 
     sendResponse = contract.send(walletV5Config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(15);
+    Utils.sleep(1);
 
     log.info("extensions {}", contract.getRawExtensions());
     assertThat(contract.getRawExtensions().elements.size()).isEqualTo(2);
@@ -546,7 +547,7 @@ public class TestWalletV5 extends CommonTest {
    */
   @Test
   public void testWalletV5DeployWithTwoExtensionsAndDeleteOneExtensionAndSendTransfer()
-      throws InterruptedException {
+          throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     // initial extensions
@@ -618,7 +619,7 @@ public class TestWalletV5 extends CommonTest {
 
     sendResponse = contract.send(walletV5Config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(15);
+    Utils.sleep(1);
 
     log.info("extensions {}", contract.getRawExtensions());
     assertThat(contract.getRawExtensions().elements.size()).isEqualTo(2);
@@ -629,7 +630,7 @@ public class TestWalletV5 extends CommonTest {
    * allowed flag.
    */
   @Test
-  public void testWalletV5ModifySignatureAuthAllowed() throws InterruptedException {
+  public void testWalletV5ModifySignatureAuthAllowed() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
@@ -655,7 +656,7 @@ public class TestWalletV5 extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
 
     long newSeq = contract.getSeqno();
     assertThat(newSeq).isEqualTo(1);
@@ -685,7 +686,7 @@ public class TestWalletV5 extends CommonTest {
 
     sendResponse = contract.send(walletV5Config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(15);
+    Utils.sleep(1);
 
     log.info("walletId {}", contract.getWalletId());
     log.info("publicKey {}", Utils.bytesToHex(contract.getPublicKey()));
@@ -703,7 +704,7 @@ public class TestWalletV5 extends CommonTest {
    * As you may notice v3r1 can use v5r1's funds, but needs a signature from v5r1.
    */
   @Test
-  public void testWalletV5InternalTransfer1() throws InterruptedException {
+  public void testWalletV5InternalTransfer1() throws Exception {
 
     // create user wallet that sends an internal message to wallet v5
 
@@ -800,7 +801,7 @@ public class TestWalletV5 extends CommonTest {
    * signature from v5r1, since v3r1 is an extension of v5r1.
    */
   @Test
-  public void testWalletV5TransferFromExtension() throws InterruptedException {
+  public void testWalletV5TransferFromExtension() throws Exception {
 
     // create a wallet v3r1 that will be an extension
 
@@ -893,7 +894,7 @@ public class TestWalletV5 extends CommonTest {
 
   /** Test removal of extensions from other extension. */
   @Test
-  public void testWalletV5ManageExtensionsFromExtension() throws InterruptedException {
+  public void testWalletV5ManageExtensionsFromExtension() throws Exception {
 
     // create a wallet v3r1 that will be an extension
 
@@ -950,6 +951,7 @@ public class TestWalletV5 extends CommonTest {
 
     // deploy wallet v5
     sendResponse = contractV5.deploy();
+    log.info("sendResponse {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
 
     contractV5.waitForDeployment(60);
@@ -987,79 +989,9 @@ public class TestWalletV5 extends CommonTest {
     assertThat(contractV5.getRawExtensions().elements.size()).isEqualTo(2);
   }
 
-  /** Wallet V5 deploy Without Library and Without Extensions. */
+  /** Transfer to 1 recipient. With Library and Without Extensions and without OtherActions.  See also TestLibraryDeployer.java  */
   @Test
-  public void testWalletV5DeploymentAsLibrary() throws InterruptedException {
-
-    TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    WalletV5 contract =
-        WalletV5.builder()
-            .tonProvider(tonlib)
-            .walletId(42)
-            .keyPair(keyPair)
-            .isSigAuthAllowed(true)
-            .deployAsLibrary(true)
-            .build();
-
-    Address walletAddress = contract.getAddress();
-
-    String nonBounceableAddress = walletAddress.toNonBounceable();
-    String bounceableAddress = walletAddress.toBounceable();
-    log.info("bounceableAddress: {}", bounceableAddress);
-    log.info("pub-key {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
-    log.info("prv-key {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
-
-    BigInteger balance =
-        TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(0.5));
-    log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
-
-    // deploy wallet-v5
-    SendResponse sendResponse = contract.deploy();
-    assertThat(sendResponse.getCode()).isZero();
-
-    contract.waitForDeployment(60);
-  }
-
-  /** Use wallet v5 as library. See TestLibraryDeployer.java for library deployment. */
-  @Test
-  public void testWalletV5DeployAsLibrary() throws InterruptedException {
-
-    TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    WalletV5 contract =
-        WalletV5.builder()
-            .tonProvider(tonlib)
-            .walletId(42)
-            .keyPair(keyPair)
-            .isSigAuthAllowed(true)
-            .build();
-
-    Address walletAddress = contract.getAddress();
-
-    String nonBounceableAddress = walletAddress.toNonBounceable();
-    String bounceableAddress = walletAddress.toBounceable();
-    log.info("bounceableAddress: {}", bounceableAddress);
-    log.info("pub-key {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
-    log.info("prv-key {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
-
-    BigInteger balance =
-        TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(0.1));
-    log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
-
-    // deploy wallet-v5
-    SendResponse sendResponse = contract.deploy();
-    assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(15, "takes longer...");
-    assertThat(contract.getSeqno()).isEqualTo(1);
-
-    log.info("walletId {}", contract.getWalletId());
-    log.info("publicKey {}", Utils.bytesToHex(contract.getPublicKey()));
-    log.info("isSignatureAuthAllowed {}", contract.getIsSignatureAuthAllowed());
-    log.info("extensions {}", contract.getRawExtensions());
-  }
-
-  /** Transfer to 1 recipient. With Library and Without Extensions and without OtherActions. */
-  @Test
-  public void testWalletV5SimpleTransfer1WhenDeployedAsLibrary() throws InterruptedException {
+  public void testWalletV5SimpleTransfer1WhenDeployedAsLibrary() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
@@ -1084,9 +1016,10 @@ public class TestWalletV5 extends CommonTest {
 
     // deploy wallet-v5
     SendResponse sendResponse = contract.deploy();
+    log.info("sendResponse {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
 
     long newSeq = contract.getSeqno();
     assertThat(newSeq).isEqualTo(1);
@@ -1217,7 +1150,7 @@ public class TestWalletV5 extends CommonTest {
   }
 
   @Test
-  public void testWalletV5SimpleTransfer_ExternallySigned() throws InterruptedException {
+  public void testWalletV5SimpleTransfer_ExternallySigned() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] pubKey = keyPair.getPublicKey();
     WalletV5 contract =
@@ -1246,7 +1179,7 @@ public class TestWalletV5 extends CommonTest {
     byte[] signedDeployBodyHash = Utils.signData(pubKey, keyPair.getSecretKey(), deployBody.hash());
 
     SendResponse sendResponse = contract.deploy(signedDeployBodyHash);
-    log.info("extMessageInfo: {}", sendResponse);
+    log.info("sendResponse: {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
 
     contract.waitForDeployment(60);
@@ -1300,10 +1233,10 @@ public class TestWalletV5 extends CommonTest {
   public void testWalletV5InternalTransferAdnlClient() throws Exception {
 
     // create user wallet that sends an internal message to wallet v5
-    AdnlLiteClient adnlLiteClient =
+    TonProvider adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
     WalletV3R1 contractV3 =
         WalletV3R1.builder().tonProvider(adnlLiteClient).walletId(43).build();
@@ -1397,10 +1330,10 @@ public class TestWalletV5 extends CommonTest {
   @Test
   public void testWalletV5DeployTwoExtensionsAdnlClient() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    AdnlLiteClient adnlLiteClient =
+    TonProvider adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
     WalletV5 contract =
         WalletV5.builder()
@@ -1469,7 +1402,7 @@ public class TestWalletV5 extends CommonTest {
   public void testWalletV5InternalTransferTonCenterClient() throws Exception {
 
     // create a user wallet that sends an internal message to wallet v5
-    TonCenter tonCenterClient = TonCenter.builder().testnet().build();
+    TonProvider tonCenterClient = TonCenter.builder().testnet().build();
     WalletV3R1 contractV3 =
         WalletV3R1.builder().tonProvider(tonCenterClient).walletId(43).build();
 

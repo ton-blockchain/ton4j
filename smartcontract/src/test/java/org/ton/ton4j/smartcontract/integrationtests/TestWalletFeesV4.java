@@ -10,11 +10,9 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
-import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.types.WalletV4R2Config;
 import org.ton.ton4j.smartcontract.wallet.v4.WalletV4R2;
@@ -26,7 +24,6 @@ import org.ton.ton4j.tonlib.types.QueryFees;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletFeesV4 extends CommonTest {
 
   /**
@@ -38,7 +35,8 @@ public class TestWalletFeesV4 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairA = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 walletA = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPairA).walletId(42).build();
+    WalletV4R2 walletA =
+        WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPairA).walletId(42).build();
 
     String nonBounceableAddrWalletA = walletA.getAddress().toNonBounceable();
     String rawAddrWalletA = walletA.getAddress().toRaw();
@@ -49,7 +47,8 @@ public class TestWalletFeesV4 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairB = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 walletB = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPairB).walletId(98).build();
+    WalletV4R2 walletB =
+        WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPairB).walletId(98).build();
 
     String nonBounceableAddrWalletB = walletB.getAddress().toNonBounceable();
     String rawAddrWalletB = walletB.getAddress().toRaw();
@@ -62,30 +61,20 @@ public class TestWalletFeesV4 extends CommonTest {
     // top up new walletA using test-faucet-wallet
     BigInteger balance1 =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddrWalletA), Utils.toNano(1));
-    log.info(
-        "walletId {} new wallet {} balance: {}",
-        walletA.getWalletId(),
-        walletA.getName(),
-        Utils.formatNanoValue(balance1));
 
     // top up new walletB using test-faucet-wallet
     BigInteger balance2 =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddrWalletB), Utils.toNano(1));
-    log.info(
-        "walletId {} new wallet {} balance: {}",
-        walletB.getWalletId(),
-        walletB.getName(),
-        Utils.formatNanoValue(balance2));
 
     SendResponse sendResponse = walletA.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    walletA.waitForDeployment(30);
+    walletA.waitForDeployment();
 
     sendResponse = walletB.deploy();
     AssertionsForClassTypes.assertThat(sendResponse.getCode()).isZero();
 
-    walletB.waitForDeployment(30);
+    walletB.waitForDeployment();
 
     // transfer 0.1 from walletA to walletB where B receives exact amount i.e. 0.1
     BigInteger balanceAbefore = walletA.getBalance();
@@ -108,7 +97,7 @@ public class TestWalletFeesV4 extends CommonTest {
         tonlib.estimateFees(
             walletB.getAddress().toBounceable(), msg.getBody().toBase64(), null, null, true);
 
-    // adjust amount by including storage fee
+    // adjust the amount by including a storage fee
     configA.setAmount(
         Utils.toNano(0.1)
             .add(walletA.getGasFees())
@@ -119,7 +108,7 @@ public class TestWalletFeesV4 extends CommonTest {
 
     walletA.send(configA);
 
-    walletB.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     BigInteger balanceAafter = walletA.getBalance();
     BigInteger balanceBafter = walletB.getBalance();
@@ -196,7 +185,7 @@ public class TestWalletFeesV4 extends CommonTest {
 
     walletA.send(configA);
 
-    walletB.waitForBalanceChange(30);
+    Utils.sleep(3);
 
     BigInteger balanceAafter = walletA.getBalance();
     BigInteger balanceBafter = walletB.getBalance();
@@ -256,7 +245,7 @@ public class TestWalletFeesV4 extends CommonTest {
         15,
         TimeUnit.SECONDS);
 
-    Utils.sleep(600);
+    Utils.sleep(60);
   }
 
   @Test
@@ -319,6 +308,6 @@ public class TestWalletFeesV4 extends CommonTest {
         15,
         TimeUnit.SECONDS);
 
-    Utils.sleep(600);
+    Utils.sleep(60);
   }
 }

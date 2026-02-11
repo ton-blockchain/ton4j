@@ -129,19 +129,43 @@ You can use each submodule individually. Click the module below to get more deta
 
 ## Connection
 In the TON ecosystem you can interact with a TON blockchain in four ways:
-  - tonlib shared library — connect to lite-server via tonlibjson.so/dll/dylib shared library;
-  - ADNL lite-client — used to connect to lite-server using native Java ADNL protocol implementation; In the current implementation it does not download proofs on start and thus is much faster than tonlibjson.  
-  - Native lite-client — a java wrapper for compiled lite-client executable. Handles and parses responses returned by lite-client. Obsolete way of connecting to TON blockchain and should not be used.
-  - TonCenter API — a java wrapper to interact with a [TonCenter HTTP API](https://toncenter.com/) service. For production usage consider obtaining API key.  
+  - **Tonlib shared library** — connect to lite-server via tonlibjson.so/dll/dylib shared library;
+  - **ADNL lite-client** — used to connect to lite-server using native Java ADNL protocol implementation; In the current implementation it does not download proofs on start and thus is much faster than tonlibjson.  
+  - **Native lite-client** — a java wrapper for compiled lite-client executable. Handles and parses responses returned by lite-client. Obsolete way of connecting to TON blockchain and should not be used.
+  - **TonCenter API** — a java wrapper to interact with a [TonCenter HTTP API](https://toncenter.com/) service. For production usage consider getting an API key.  
 
 `TonProvider` interface is used to unite three most commonly used clients `Tonlib`, `AdnlLiteClient` and `TonCenter`.
 It is preferable to use it in all smart contract builders. See below.
 
+To quickly run the below snippets, add a `lomboc` dependency to your project:
+```xml
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.38</version>
+</dependency>
+```
+and then other dependencies for particular use cases, like one of the below:
+```java
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>tonlib</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
+
 ### Tonlib
 
-Connect to the TON Mainnet with the latest tonlibjson downloaded from the TON github release
+Connect to the TON Mainnet with the latest tonlibjson downloaded from the TON Github release.
+You can also specify an absolute path to your tonlibjson shared library.
 
-Connect to the TON Mainnet
+```java
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>tonlib</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 
 ```java
 Tonlib tonlib =
@@ -152,59 +176,63 @@ Tonlib tonlib =
 BlockIdExt block = tonlib.getLast().getLast();
 log.info("block {}", block);
 ```
-More examples in [tests](tonlib/src/test/java/org/ton/ton4j/tonlib/TestTonlibJson.java).
+More examples with Tonlibjson can be found in [tests](tonlib/src/test/java/org/ton/ton4j/tonlib/TestTonlibJson.java).
 
 ### ADNL lite-client
 
-Connect to the TON Mainnet
+Connect to the TON **Mainnet** using an ADNL lite-client. 
 
 ```java
-TonGlobalConfig tonGlobalConfig = TonGlobalConfig.loadFromUrl(Utils.getGlobalConfigUrlMainnetGithub());
-AdnlLiteClient client = AdnlLiteClient.builder().globalConfig(tonGlobalConfig).build();
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>adnl</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
+
+```java
+AdnlLiteClient client = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
 MasterchainInfo info = client.getMasterchainInfo();
 ```
-Connect to the TON Testnet
+Connect to the TON **Testnet**
 ```java
-TonGlobalConfig tonGlobalConfig = TonGlobalConfig.loadFromUrl(Utils.getGlobalConfigUrlTestnetGithub());
-AdnlLiteClient client = AdnlLiteClient.builder().globalConfig(tonGlobalConfig).build();
+AdnlLiteClient client = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
 MasterchainInfo info = client.getMasterchainInfo();
 ```
 
-Connect to MyLocalTon
+Connect to **MyLocalTon**
 ```java
-TonGlobalConfig tonGlobalConfig = TonGlobalConfig.loadFromUrl(Utils.getGlobalConfigUrlMyLocalTon());
-AdnlLiteClient client = AdnlLiteClient.builder().globalConfig(tonGlobalConfig).build();
+AdnlLiteClient client = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMyLocalTon()).build();
 MasterchainInfo info = client.getMasterchainInfo();
 ```
-More examples in [tests](adnl/src/test/java/org/ton/ton4j/adnl/AdnlLiteClientTest.java).
+More examples with AdnlLiteClient can be found in [tests](adnl/src/test/java/org/ton/ton4j/adnl/AdnlLiteClientTest.java).
 
 ### Native lite-client
-Download lite-client executable and run its methods
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>liteclient</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
+Download lite-client executable and run its methods and parse the results
 ```java
 LiteClient liteClient =
-  LiteClient.builder()
-    .testnet(false)
-    .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
+LiteClient.builder()
+  .testnet(false)
+  .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
   .build();
-liteClient.executeLast();
+String last = liteClient.executeLast();
+log.info("Last command stdOut: {}", last);
+ResultLastBlock lastParsed = LiteClientParser.parseLast(last);
+log.info("Last command parsed: {}", lastParsed);
+
 liteClient.executeRunMethod(
             "EQDCJVrezD71y-KPcTIG-YeKNj4naeiR7odpQgVA1uDsZqPC",
             "(-1,8000000000000000,20301499):070D07EB64D36CCA2D8D20AA644489637059C150E2CD466247C25B4997FB8CD9:D7D7271D466D52D0A98771F9E8DCAA06E43FCE01C977AACD9DE9DAD9A9F9A424",
             "seqno", "");
 ```
-Parse result if required
-```java
-LiteClient liteClient =
-  LiteClient.builder()
-    .testnet(false)
-    .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
-    .build();
-String resultLast = liteClient.executeLast();
-ResultLastBlock blockIdLast = LiteClientParser.parseLast(resultLast);
-String stdout = liteClient.executeBySeqno(blockIdLast.getWc(), blockIdLast.getShard(), blockIdLast.getSeqno());
-ResultLastBlock blockId = LiteClientParser.parseBySeqno(stdout);
-```
-Download block's dump and parse it
+Download the latest block's dump and parse it
 ```java
 LiteClient liteClient =
   LiteClient.builder()
@@ -214,17 +242,26 @@ LiteClient liteClient =
 String stdoutLast = liteClient.executeLast();
 ResultLastBlock blockIdLast = LiteClientParser.parseLast(stdoutLast);
 String stdoutDumpblock = liteClient.executeDumpblock(blockIdLast);
-Block block = LiteClientParser.parseDumpblock(stdoutDumpblock, false, false);
+Block block = LiteClientParser.parseDumpblock(stdoutDumpblock, false, true);
+log.info(block.toString());
 ```
-More examples in [tests](liteclient/src/test/java/org/ton/ton4j/liteclient/LiteClientTest.java).
+More examples on how to work with LiteClient wrapper can be found in [tests](liteclient/src/test/java/org/ton/ton4j/liteclient/LiteClientTest.java).
 
 ### TonCenter API V2
 
-Run get method on smart contract
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>toncenter</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
+
+Run get method on smart contract. Empty API KEY means the default public rate limit is applied.
 ```java
-TonCenter client = TonCenter.builder().apiKey("your-toncenter-api-key").network(Network.MAINNET).build();
+TonCenter client = TonCenter.builder().apiKey("").network(Network.MAINNET).build();
 try {
-  TonResponse<RunGetMethodResponse> response =  client.runGetMethod(tonWallet, "seqno", new ArrayList<>());
+  TonResponse<RunGetMethodResponse> response =  client.runGetMethod("UQBmzW4wYlFW0tiBgj5sP1CgSlLdYs-VpjPWM7oPYPYWQBqW", "seqno", new ArrayList<>());
   log.info("response {}", response.getResult());
   log.info("Get method 'seqno' executed successfully");
 } finally {
@@ -232,9 +269,9 @@ try {
 }
 ```
 
-Get seqno of a contract
+Get seqno alternative way
 ```java
-TonCenter client = TonCenter.builder().apiKey("your-toncenter-api-key").network(Network.MAINNET).build();
+TonCenter client = TonCenter.builder().apiKey("").network(Network.MAINNET).build();
 try {
   long seqno = client.getSeqno(tonWallet);      
   log.info("Get method 'seqno' executed successfully, seqno {}", seqno);
@@ -254,7 +291,7 @@ TonCenterV3 client =
     .mainnet()
     .connectTimeout(Duration.ofSeconds(15))
     .readTimeout(Duration.ofSeconds(30))
-    .apiKey("your-toncenter-api-key")
+    .apiKey("")
     .build();
 
 List<String> addresses = Collections.singletonList("0:a44757069a7b04e393782b4a2d3e5e449f19d16a4986a9e25436e6b97e45a16a");
@@ -269,11 +306,10 @@ TonCenterV3 client =
     .mainnet()
     .connectTimeout(Duration.ofSeconds(15))
     .readTimeout(Duration.ofSeconds(30))
-    .apiKey("your-toncenter-api-key")
+    .apiKey("")
     .build();
 try {
   List<AccountBalance> response = client.getTopAccountsByBalance(10, 0);
-  assertNotNull(response);
   log.info("Retrieved {} top accounts", response.size());
   if (!response.isEmpty()) {
     log.info("Top account balance: {}", response.get(0).getBalance());
@@ -284,18 +320,18 @@ try {
 }
 ```
 
-Get traces
+Get traces. If you get error `{"error":"timeout: context deadline exceeded"}`, then use your own TON Center API KEY.
+
 ```java
 TonCenterV3 client =
   TonCenterV3.builder()
     .mainnet()
-    .connectTimeout(Duration.ofSeconds(15))
-    .readTimeout(Duration.ofSeconds(30))
-    .apiKey("your-toncenter-api-key")
+    .connectTimeout(Duration.ofSeconds(60))
+    .readTimeout(Duration.ofSeconds(60))
+    .apiKey("")
     .build();
 try {
-  TracesResponse response = client.getTraces(TEST_ADDRESS, null,null, null, null, null, null, null, null, null, null, 10, 0, "desc");
-  assertNotNull(response);
+  TracesResponse response = client.getTraces("0:a44757069a7b04e393782b4a2d3e5e449f19d16a4986a9e25436e6b97e45a16a", null,null, null, null, null, null, null, null, null, null, 10, 0, "desc");
   log.info("Retrieved traces");
 } finally {
   client.close();
@@ -304,18 +340,26 @@ try {
 More TonCenter V3 examples in [tests](toncenter-indexer-v3/src/test/java/org/ton/ton4j/toncenterv3/TonCenterV3Test.java).
 
 ### Ton Provider
-All ton4j wallet and smart contract classes accept `TonProvider` interface, e.g.:
+
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>smartcontract</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
+All `ton4j` wallet and smart contract classes accept `TonProvider` interface, e.g.:
 
 TonCenter as a TON client provider
 ```java
-TonCenter tonCenterClient = TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
-WalletV3R1 contract = WalletV3R1.builder().keyPair(keyPair).tonProvider(tonCenterClient).walletId(42).build();
+TonCenter tonCenterClient = TonCenter.builder().apiKey("").mainnet().build();
+WalletV3R1 contract = WalletV3R1.builder().keyPair("keyPair").tonProvider(tonCenterClient).walletId(42).build();
 ```
 
 AdnlLiteClient as a TON client provider
 ```java
-AdnlLiteClient adnlLiteClient =  AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-WalletV3R1 contract = WalletV3R1.builder().keyPair(keyPair).tonProvider(adnlLiteClient).walletId(42).build();
+AdnlLiteClient adnlLiteClient =  AdnlLiteClient.builder().mainnet().build();
+WalletV3R1 contract = WalletV3R1.builder().keyPair("keyPair").tonProvider(adnlLiteClient).walletId(42).build();
 ```
 
 Tonlib as a TON client provider
@@ -330,7 +374,7 @@ WalletV3R1 contract = WalletV3R1.builder().tonProvider(tonlib).walletId(42).buil
 ```
 
 #### Interface
-All TON clients in ton4j implement at least the following methods; however, individually each TON client has many more methods.
+All TON clients in `ton4j` implement at least the following methods; however, individually each TON client has many more methods.
 ```java
 BigInteger getBalance(Address address);
 long getSeqno(Address address);
@@ -349,6 +393,13 @@ SendResponse sendExternalMessage(Message externalMessage);
 ```
 
 ## Smart contract address
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>address</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 In TON smart contract address has various [formats](https://docs.ton.org/foundations/addresses/formats).
 
 ```java
@@ -357,11 +408,17 @@ Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl(
 WalletV3R2 wallet = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
 String raw = wallet.getAddress().toRaw();
+log.info("rawAddress: {}", raw);
+
 String bounceableTestnet = wallet.getAddress().toBounceableTestnet();
 String nonBounceableTestnet = wallet.getAddress().toNonBounceableTestnet();
+log.info("bounceableTestnet: {}", bounceableTestnet);
+log.info("nonBounceableTestnet: {}", nonBounceableTestnet);
 
 String bounceableMainnet = wallet.getAddress().toBounceable();
 String nonBounceableMainnet = wallet.getAddress().toNonBounceable();
+log.info("bounceableMainnet: {}", bounceableMainnet);
+log.info("nonBounceableMainnet: {}", nonBounceableMainnet);
 ```
 Parse and convert base64 address to raw format
 ```java
@@ -371,31 +428,37 @@ String rawAddress = address.toRaw();
 More examples in [tests](address/src/test/java/org/ton/ton4j/address/TestAddress.java).
 
 ## Wallets
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>smartcontract</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 In TON there are [many types of wallets](https://docs.ton.org/standard/wallets/history), i.e., smart contracts. 
 The most popular ones are V3R2 and V4R2 and V5R1. 
-Some of them are advanced version of the previous ones and some have specific purpose, like vesting and multisig. 
+Some of them are advanced versions of the previous ones, and some have specific purpose, like vesting and multisig. 
 
 ### Create wallet
 Create a simple wallet V3R2 in the Mainnet
 ```java
 // prepare 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
+TonProvider adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
 WalletV3R2 contract = WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
 
-// retrieve the address and send some toncoins to it, normally up to 0.1 toncoins are more than enough
-// then deploy the wallet
+// now send some toncoins to nonBounceableAddress, normally up to 0.1 toncoins is enough, then deploy the wallet
 contract.deploy();
 ```
 
 ### Transfer toncoins in Testnet
 ```java
-// prepare 
+// generate keypair, create TonProvider and define wallet 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
+TonProvider adnlLiteClient = AdnlLiteClient.builder().testnet().build();
 WalletV3R2 contract = WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
@@ -405,11 +468,14 @@ log.info("non-bounceable address: {}", nonBounceableAddress);
 // in testnet you can use a helper method that uses Testnet Faucet to top up the address with test toncoins
 TestnetFaucet.topUpContract(adnlLiteClient, Address.of(nonBounceableAddress), Utils.toNano(1));
 
-// deploy the wallet
+// send deploy message
 contract.deploy();
 
+// wait till wallet is deployed
+contract.waitForDeployment();
+
 // check if wallet is deployed
-contract.isDeployed();
+log.info("deployed: {}", contract.isDeployed());
 
 //send toncoins
 WalletV3Config config =
@@ -427,9 +493,11 @@ contract.send(config);
 
 ### Deploy and transfer toncoins signed externally
 ```java
+TonProvider adnlLiteClient = AdnlLiteClient.builder().testnet().build();
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 byte[] publicKey = keyPair.getPublicKey();
-WalletV3R2 contract = WalletV3R2.builder().tonProvider(tonlib).publicKey(publicKey).walletId(42).build();
+// we use only a public key to create a wallet,
+WalletV3R2 contract = WalletV3R2.builder().tonProvider(adnlLiteClient).publicKey(publicKey).walletId(42).build();
 
 BigInteger balance = TestnetFaucet.topUpContract(tonlib, contract.getAddress(), Utils.toNano(0.1));
 log.info("walletId {} new wallet {} balance: {}",
@@ -440,6 +508,7 @@ log.info("walletId {} new wallet {} balance: {}",
 // deploy using an externally signed body
 Cell deployBody = contract.createDeployMessage();
 
+// sign deploy body with a private key wherever you want
 byte[] signedDeployBodyHash = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), deployBody.hash());
 
 contract.deploy(signedDeployBodyHash);
@@ -457,6 +526,7 @@ WalletV3Config config =
 
 // transfer coins from a new wallet (back to faucet) using an externally signed body
 Cell transferBody = contract.createTransferBody(config);
+// sign the transfer body with a private key wherever you want
 byte[] signedTransferBodyHash = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), transferBody.hash());
 SendResponse sendResponse = contract.send(config, signedTransferBodyHash);
 log.info("sendResponse: {}", sendResponse);
@@ -469,26 +539,43 @@ In TON there are [several ways](smartcontract/README-WALLETS.md) how to transfer
 You can use WalletV2R2 to send toncoins to up to four recipients 
 
 ```java
-// generate keypair
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-// create wallet
-WalletV2R2 contract = WalletV2R2.builder().tonProvider(tonlib).keyPair(keyPair).build();
 
-// deploy wallet as per the above examples and then define recipients
-config = WalletV2R2Config.builder()
-        .seqno(contract.getSeqno())
-        .destination1(Address.of("recipient-1"))
-        .destination1(Address.of("recipient-2"))
-        .destination1(Address.of("recipient-3"))
-        .destination1(Address.of("recipient-3"))
-        .amount1(Utils.toNano(0.15))
-        .amount2(Utils.toNano(0.15))
-        .amount3(Utils.toNano(0.15))
-        .amount4(Utils.toNano(0.15))
-        .build();
+TonProvider tonProvider = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+WalletV2R1 contract = WalletV2R1.builder().tonProvider(tonProvider).keyPair(keyPair).build();
 
-// send
-contract.send(config);
+String nonBounceableAddress = contract.getAddress().toNonBounceable();
+String bounceableAddress = contract.getAddress().toBounceable();
+
+log.info("non-bounceable address {}", nonBounceableAddress);
+log.info("    bounceable address {}", bounceableAddress);
+
+// top up new wallet using test-faucet-wallet
+BigInteger balance = TestnetFaucet.topUpContract(tonProvider, Address.of(nonBounceableAddress), Utils.toNano(1));
+log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
+
+contract.deploy();
+
+contract.waitForDeployment();
+
+log.info("sending to 4 destinations...");
+WalletV2R1Config config = WalletV2R1Config.builder()
+  .seqno(contract.getSeqno())
+  .destination1(Address.of("EQA84DSUMyREa1Frp32wxFATnAVIXnWlYrbd3TFS1NLCbC-B"))
+  .destination2(Address.of("EQCJZ3sJnes-o86xOa4LDDug6Lpz23RzyJ84CkTMIuVCCuan"))
+  .destination3(Address.of("EQBjS7elE36MmEmE6-jbHQZNEEK0ObqRgaAxXWkx4pDGeefB"))
+  .destination4(Address.of("EQAaGHUHfkpWFGs428ETmym4vbvRNxCA1o4sTkwqigKjgf-_"))
+  .amount1(Utils.toNano(0.15))
+  .amount2(Utils.toNano(0.15))
+  .amount3(Utils.toNano(0.15))
+  .amount4(Utils.toNano(0.15))
+  .build();
+
+contract.sendWithConfirmation(config);
+
+log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(contract.getBalance()));
+
+log.info("seqno {}", contract.getSeqno());
 ```
 
 Or you can use WalletV3R2 and construct a body with up to 4 recipients yourself.
@@ -498,49 +585,47 @@ Refer to [this](smartcontract/src/main/java/org/ton/ton4j/smartcontract/wallet/v
 To send toncoins or custom payloads to more than 4 recipients, use Highload Wallet V3.  
 ```java
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
+AdnlLiteClient adnlClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+TonProvider tonProvider = adnlClient;
+try {
+    HighloadWalletV3 contract = HighloadWalletV3.builder().tonProvider(tonProvider).keyPair(keyPair).walletId(42).build();
+    String nonBounceableAddress = contract.getAddress().toNonBounceable();
 
-HighloadWalletV3 contract = HighloadWalletV3.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
+    log.info("non-bounceable address {}", nonBounceableAddress);
 
-String nonBounceableAddress = contract.getAddress().toNonBounceable();
-String bounceableAddress = contract.getAddress().toBounceable();
-String rawAddress = contract.getAddress().toRaw();
+    BigInteger balance =  TestnetFaucet.topUpContract(tonProvider, Address.of(nonBounceableAddress), Utils.toNano(2));
 
-log.info("non-bounceable address {}", nonBounceableAddress);
+    log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
-// top up new wallet using test-faucet-wallet
-BigInteger balance =  TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(2));
-Utils.sleep(30, "topping up...");
-log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
+    HighloadV3Config config =
+        HighloadV3Config.builder()
+                .walletId(42)
+                .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
+                .build();
 
-HighloadV3Config config =
-  HighloadV3Config.builder()
-    .walletId(42)
-    .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
-    .build();
+    contract.deploy(config);
 
-SendResponse sendResponse = contract.deploy(config);
-assertThat(sendResponse.getCode()).isZero();
+    contract.waitForDeployment();
 
-contract.waitForDeployment();
+    config = HighloadV3Config.builder()
+        .walletId(42)
+        .queryId(HighloadQueryId.fromSeqno(1).getQueryId())
+        .body(contract.createBulkTransfer(createDummyDestinations(1000), BigInteger.valueOf(HighloadQueryId.fromSeqno(1).getQueryId())))
+        .build();
 
-config = HighloadV3Config.builder()
-  .walletId(42)
-  .queryId(HighloadQueryId.fromSeqno(1).getQueryId())
-  .body(contract.createBulkTransfer(createDummyDestinations(1000), BigInteger.valueOf(HighloadQueryId.fromSeqno(1).getQueryId())))
-  .build();
-
-sendResponse = contract.send(config);
-assertThat(sendResponse.getCode()).isZero();
-log.info("sent to 1000 recipients");
+    contract.send(config);
+    log.info("sent to 1000 recipients");
+} finally {
+   adnlClient.close();
+}
 ```
 
 In the example above we used method `createDummyDestinations()`, replace it with your logic defining recipients 
 ```java
-  List<Destination> createDummyDestinations(int count) {
+  static List<Destination> createDummyDestinations(int count) {
     List<Destination> result = new ArrayList<>();
     for (int i = 0; i < count; i++) {
       String dstDummyAddress = Utils.generateRandomAddress(0);
-
       result.add(
         Destination.builder()
           .bounce(false)

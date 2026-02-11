@@ -1818,6 +1818,22 @@ public class AdnlLiteClient implements TonProvider {
       return this;
     }
 
+    public Builder mainnet() {
+      this.globalConfig = TonGlobalConfig.loadFromUrl(Utils.getGlobalConfigUrlMainnet());
+      return this;
+    }
+
+    public Builder testnet() {
+      this.globalConfig = TonGlobalConfig.loadFromUrl(Utils.getGlobalConfigUrlTestnetGithub());
+      return this;
+    }
+
+    public Builder myLocalTon() {
+      this.globalConfig =
+          TonGlobalConfig.loadFromUrl("http://localhost:8000/localhost.global.config.json");
+      return this;
+    }
+
     /**
      * Set the global config from a file path
      *
@@ -1928,7 +1944,7 @@ public class AdnlLiteClient implements TonProvider {
       if (++i >= timeoutSeconds) {
         throw new Error("Can't deploy contract within specified timeout.");
       }
-      Utils.sleep(1);
+      Utils.sleepMs(200);
       log.info(
           "Waiting for state init to be deployed, balance {}",
           Utils.formatNanoValue(getBalance(address)));
@@ -1944,7 +1960,7 @@ public class AdnlLiteClient implements TonProvider {
         throw new Error(
             "Balance of " + address.toRaw() + " was not changed within specified timeout.");
       }
-      Utils.sleep(1);
+      Utils.sleepMs(200);
     } while (initialBalance.equals(getBalance(address)));
   }
 
@@ -1961,7 +1977,7 @@ public class AdnlLiteClient implements TonProvider {
                 + Utils.formatNanoValue(tolerateNanoCoins)
                 + " within specified timeout.");
       }
-      Utils.sleep(1);
+      Utils.sleepMs(200);
       BigInteger currentBalance = getBalance(address);
 
       diff =
@@ -1999,7 +2015,7 @@ public class AdnlLiteClient implements TonProvider {
             return;
           }
         }
-        Utils.sleep(5);
+        Utils.sleepMs(1000);
       }
       log.error("Timeout waiting for message hash");
       throw new Error("Cannot find hash of the sent message");
@@ -2020,6 +2036,7 @@ public class AdnlLiteClient implements TonProvider {
   public Transaction sendExternalMessageWithConfirmation(Message externalMessage) {
     try {
       SendMsgStatus sendMsgStatus = sendMessage(externalMessage);
+
       log.info(
           "Message has been successfully sent. Waiting for delivery of message with hash {} ({})",
           Utils.bytesToHex(externalMessage.getNormalizedHash()),
@@ -2038,7 +2055,7 @@ public class AdnlLiteClient implements TonProvider {
             return tx;
           }
         }
-        Utils.sleep(5);
+        Utils.sleepMs(1000);
       }
       log.error("Timeout waiting for message hash");
       throw new Error("Cannot find hash of the sent message");

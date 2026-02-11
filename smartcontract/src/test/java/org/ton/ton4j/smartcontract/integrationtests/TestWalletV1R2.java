@@ -20,7 +20,6 @@ import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV1R2 extends CommonTest {
 
   @Test
@@ -43,7 +42,7 @@ public class TestWalletV1R2 extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45);
+    contract.waitForDeployment();
 
     log.info("wallet seqno: {}", contract.getSeqno());
 
@@ -59,7 +58,7 @@ public class TestWalletV1R2 extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(45);
+    contract.waitForBalanceChange();
 
     balance = contract.getBalance();
     log.info("wallet {} new balance: {}", contract.getName(), Utils.formatNanoValue(balance));
@@ -87,7 +86,7 @@ public class TestWalletV1R2 extends CommonTest {
 
     SendResponse sendResponse = contract.deploy(signedDeployBodyHash);
     log.info("sendResponse {}", sendResponse);
-    contract.waitForDeployment(120);
+    contract.waitForDeployment();
 
     // send toncoins
     WalletV1R2Config config =
@@ -110,13 +109,8 @@ public class TestWalletV1R2 extends CommonTest {
 
   @Test
   public void testNewWalletV1R2AdnlClient() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
-    WalletV1R2 contract =
-        WalletV1R2.builder().tonProvider(adnlLiteClient).initialSeqno(2).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+    WalletV1R2 contract = WalletV1R2.builder().tonProvider(adnlLiteClient).initialSeqno(2).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -134,7 +128,7 @@ public class TestWalletV1R2 extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45);
+    contract.waitForDeployment();
 
     log.info("wallet seqno: {}", contract.getSeqno());
 
@@ -150,7 +144,7 @@ public class TestWalletV1R2 extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(45);
+    contract.waitForBalanceChange();
 
     balance = contract.getBalance();
     log.info("wallet {} new balance: {}", contract.getName(), Utils.formatNanoValue(balance));
@@ -160,13 +154,8 @@ public class TestWalletV1R2 extends CommonTest {
 
   @Test
   public void testNewWalletV1R2AdnlClientWithConfirmation() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
-    WalletV1R2 contract =
-        WalletV1R2.builder().tonProvider(adnlLiteClient).initialSeqno(2).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+    WalletV1R2 contract = WalletV1R2.builder().tonProvider(adnlLiteClient).initialSeqno(2).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -184,7 +173,7 @@ public class TestWalletV1R2 extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45);
+    contract.waitForDeployment();
 
     log.info("wallet seqno: {}", contract.getSeqno());
 
@@ -208,8 +197,7 @@ public class TestWalletV1R2 extends CommonTest {
   @Test
   public void testNewWalletV1R2TonCenterClient() throws Exception {
     TonCenter tonCenterClient = TonCenter.builder().testnet().build();
-    WalletV1R2 contract =
-        WalletV1R2.builder().tonProvider(tonCenterClient).initialSeqno(2).build();
+    WalletV1R2 contract = WalletV1R2.builder().tonProvider(tonCenterClient).initialSeqno(2).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -227,10 +215,10 @@ public class TestWalletV1R2 extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(45);
+    Utils.sleep(2);
 
     log.info("wallet seqno: {}", contract.getSeqno());
-
+    Utils.sleep(2);
     WalletV1R2Config config =
         WalletV1R2Config.builder()
             .seqno(contract.getSeqno())
@@ -243,10 +231,12 @@ public class TestWalletV1R2 extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(45);
+    Utils.sleep(2);
 
     balance = contract.getBalance();
     log.info("wallet {} new balance: {}", contract.getName(), Utils.formatNanoValue(balance));
+    Utils.sleep(2);
+
     log.info("wallet seqno: {}", contract.getSeqno());
     assertThat(balance.longValue()).isLessThan(Utils.toNano(0.02).longValue());
   }

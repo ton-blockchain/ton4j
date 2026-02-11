@@ -7,10 +7,8 @@ import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.types.WalletV1R3Config;
@@ -22,7 +20,6 @@ import org.ton.ton4j.toncenter.model.SendBocResponse;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV1R3Short extends CommonTest {
 
   @Test
@@ -83,10 +80,8 @@ public class TestWalletV1R3Short extends CommonTest {
   public void testWalletV1R3AdnlLiteClient() throws Exception {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-    WalletV1R3 contract =
-        WalletV1R3.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+    WalletV1R3 contract = WalletV1R3.builder().tonProvider(adnlLiteClient).keyPair(keyPair).build();
 
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
     String bounceableAddress = contract.getAddress().toBounceable();
@@ -105,7 +100,7 @@ public class TestWalletV1R3Short extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(20);
+    contract.waitForDeployment();
 
     // transfer coins from new wallet (back to faucet)
     WalletV1R3Config config =
@@ -119,7 +114,7 @@ public class TestWalletV1R3Short extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForBalanceChange(30);
+    contract.waitForBalanceChange();
 
     balance = contract.getBalance();
     status = adnlLiteClient.getAccountStatus(Address.of(bounceableAddress));
@@ -141,10 +136,7 @@ public class TestWalletV1R3Short extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     TonCenter tonCenterClient =
-        TonCenter.builder()
-            .apiKey(TESTNET_API_KEY)
-            .network(Network.TESTNET)
-            .build();
+        TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
 
     WalletV1R3 contract =
         WalletV1R3.builder().keyPair(keyPair).tonProvider(tonCenterClient).build();
@@ -183,9 +175,9 @@ public class TestWalletV1R3Short extends CommonTest {
 
     contract.waitForBalanceChange();
 
-//    Utils.sleep(2); // avoid rate limit error
+    //    Utils.sleep(2); // avoid rate limit error
     balance = contract.getBalance();
-//    Utils.sleep(2);
+    //    Utils.sleep(2);
     status = tonCenterClient.getAddressState(bounceableAddress).getResult();
     log.info(
         "new wallet {} with status {} and balance: {}",
@@ -195,11 +187,11 @@ public class TestWalletV1R3Short extends CommonTest {
 
     assertThat(balance.longValue()).isLessThan(Utils.toNano(0.25).longValue());
 
-//    Utils.sleep(2);
+    //    Utils.sleep(2);
     log.info("seqno {}", tonCenterClient.getSeqno(contract.getAddress().toBounceable()));
-//    Utils.sleep(2);
+    //    Utils.sleep(2);
     log.info("pubkey {}", tonCenterClient.getPublicKey(contract.getAddress().toBounceable()));
-//    Utils.sleep(2);
+    //    Utils.sleep(2);
     log.info(
         "transactions {}",
         tonCenterClient.getTransactions(contract.getAddress().toBounceable(), 10).getResult());

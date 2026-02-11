@@ -10,11 +10,9 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
-import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.types.WalletV3Config;
 import org.ton.ton4j.smartcontract.wallet.v3.WalletV3R2;
@@ -22,12 +20,10 @@ import org.ton.ton4j.tlb.Message;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.toncenter.TonResponse;
 import org.ton.ton4j.toncenter.model.EstimateFeeResponse;
-import org.ton.ton4j.tonlib.types.ExtMessageInfo;
 import org.ton.ton4j.tonlib.types.QueryFees;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletFeesV3 extends CommonTest {
 
   /**
@@ -39,7 +35,8 @@ public class TestWalletFeesV3 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairA = Utils.generateSignatureKeyPair();
 
-    WalletV3R2 walletA = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPairA).walletId(42).build();
+    WalletV3R2 walletA =
+        WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPairA).walletId(42).build();
 
     String nonBounceableAddrWalletA = walletA.getAddress().toNonBounceable();
     String rawAddrWalletA = walletA.getAddress().toRaw();
@@ -50,7 +47,8 @@ public class TestWalletFeesV3 extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPairB = Utils.generateSignatureKeyPair();
 
-    WalletV3R2 walletB = WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPairB).walletId(98).build();
+    WalletV3R2 walletB =
+        WalletV3R2.builder().tonProvider(tonlib).keyPair(keyPairB).walletId(98).build();
 
     String nonBounceableAddrWalletB = walletB.getAddress().toNonBounceable();
     String rawAddrWalletB = walletB.getAddress().toRaw();
@@ -81,12 +79,12 @@ public class TestWalletFeesV3 extends CommonTest {
     SendResponse sendResponse = walletA.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    walletA.waitForDeployment(30);
+    walletA.waitForDeployment();
 
     sendResponse = walletB.deploy();
     AssertionsForClassTypes.assertThat(sendResponse.getCode()).isZero();
 
-    walletB.waitForDeployment(30);
+    walletB.waitForDeployment();
 
     // transfer 0.1 from walletA to walletB where B receives exact amount i.e. 0.1
     BigInteger balanceAbefore = walletA.getBalance();
@@ -100,7 +98,7 @@ public class TestWalletFeesV3 extends CommonTest {
             .seqno(walletA.getSeqno())
             .destination(walletB.getAddress())
             .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
-                // no amount, will be set below
+            // no amount, will be set below
             .build();
 
     Message msg = walletA.prepareExternalMsg(configA);
@@ -119,7 +117,7 @@ public class TestWalletFeesV3 extends CommonTest {
 
     walletA.send(configA);
 
-    walletB.waitForBalanceChange(30);
+    walletB.waitForBalanceChange();
 
     BigInteger balanceAafter = walletA.getBalance();
     BigInteger balanceBafter = walletB.getBalance();
@@ -195,7 +193,7 @@ public class TestWalletFeesV3 extends CommonTest {
 
     walletA.send(configA);
 
-    walletB.waitForBalanceChange(30);
+    walletB.waitForBalanceChange();
 
     BigInteger balanceAafter = walletA.getBalance();
     BigInteger balanceBafter = walletB.getBalance();
@@ -273,7 +271,7 @@ public class TestWalletFeesV3 extends CommonTest {
         15,
         TimeUnit.SECONDS);
 
-    Utils.sleep(600);
+    Utils.sleep(60);
   }
 
   @Test
@@ -283,11 +281,7 @@ public class TestWalletFeesV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairA = Utils.generateSignatureKeyPair();
 
     WalletV3R2 walletA =
-        WalletV3R2.builder()
-            .tonProvider(tonCenterClient)
-            .keyPair(keyPairA)
-            .walletId(42)
-            .build();
+        WalletV3R2.builder().tonProvider(tonCenterClient).keyPair(keyPairA).walletId(42).build();
 
     String nonBounceableAddrWalletA = walletA.getAddress().toNonBounceable();
     String rawAddrWalletA = walletA.getAddress().toRaw();
@@ -299,11 +293,7 @@ public class TestWalletFeesV3 extends CommonTest {
     TweetNaclFast.Signature.KeyPair keyPairB = Utils.generateSignatureKeyPair();
 
     WalletV3R2 walletB =
-        WalletV3R2.builder()
-            .tonProvider(tonCenterClient)
-            .keyPair(keyPairB)
-            .walletId(98)
-            .build();
+        WalletV3R2.builder().tonProvider(tonCenterClient).keyPair(keyPairB).walletId(98).build();
 
     String nonBounceableAddrWalletB = walletB.getAddress().toNonBounceable();
     String rawAddrWalletB = walletB.getAddress().toRaw();
@@ -315,7 +305,8 @@ public class TestWalletFeesV3 extends CommonTest {
 
     // top up new walletA using test-faucet-wallet
     BigInteger balance1 =
-        TestnetFaucet.topUpContract(tonCenterClient, Address.of(nonBounceableAddrWalletA), Utils.toNano(1), true);
+        TestnetFaucet.topUpContract(
+            tonCenterClient, Address.of(nonBounceableAddrWalletA), Utils.toNano(1), true);
     log.info(
         "walletId {} new wallet {} balance: {}",
         walletA.getWalletId(),
@@ -324,7 +315,8 @@ public class TestWalletFeesV3 extends CommonTest {
 
     // top up new walletB using test-faucet-wallet
     BigInteger balance2 =
-        TestnetFaucet.topUpContract(tonCenterClient, Address.of(nonBounceableAddrWalletB), Utils.toNano(1), true);
+        TestnetFaucet.topUpContract(
+            tonCenterClient, Address.of(nonBounceableAddrWalletB), Utils.toNano(1), true);
     log.info(
         "walletId {} new wallet {} balance: {}",
         walletB.getWalletId(),
@@ -370,13 +362,13 @@ public class TestWalletFeesV3 extends CommonTest {
             .add(walletA.getGasFees())
             .add(BigInteger.valueOf(fees.getResult().getSourceFees().getStorageFee())));
 
-    log.info("fees on walletB with msg body from A: {}", fees.getResult().getSourceFees().getStorageFee());
+    log.info(
+        "fees on walletB with msg body from A: {}",
+        fees.getResult().getSourceFees().getStorageFee());
     log.info("sending {}", Utils.formatNanoValue(configA.getAmount()));
 
     walletA.send(configA);
     Utils.sleep(2);
-
-    walletB.waitForBalanceChange();
 
     Utils.sleep(2);
     BigInteger balanceAafter = walletA.getBalance();

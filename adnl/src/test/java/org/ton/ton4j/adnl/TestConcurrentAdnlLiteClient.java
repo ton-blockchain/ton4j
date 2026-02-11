@@ -14,25 +14,25 @@ import org.ton.ton4j.utils.Utils;
 @RunWith(ConcurrentTestRunner.class)
 public class TestConcurrentAdnlLiteClient {
 
-  public static final String TESTNET_ADDRESS = "0QAyni3YDAhs7c-7imWvPyEbMEeVPMX8eWDLQ5GUe-B-Bl9Z";
+    public static final String TESTNET_ADDRESS = "0QAyni3YDAhs7c-7imWvPyEbMEeVPMX8eWDLQ5GUe-B-Bl9Z";
 
-  AdnlLiteClient adnlLiteClient =
-      AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
 
-  public TestConcurrentAdnlLiteClient() throws Exception {}
+    public TestConcurrentAdnlLiteClient() throws Exception {
+    }
 
-  @Test
-  @ThreadCount(20)
-  public void testAdnlLiteClientRunMethod() throws Exception {
-    Utils.sleepMs(Utils.getRandomInt() % 5000);
+    @Test
+    @ThreadCount(20)
+    public void testAdnlLiteClientRunMethod() throws Exception {
+        Utils.sleepMs(Utils.getRandomInt() % 5000);
 
-    MasterchainInfo masterchainInfo = adnlLiteClient.getMasterchainInfo();
-    BigInteger balance = adnlLiteClient.getBalance(Address.of(TESTNET_ADDRESS));
-    System.out.println(
-        Thread.currentThread().getName()
-            + " - "
-            + masterchainInfo.getLast().getSeqno()
-            + " - "
-            + balance);
-  }
+        MasterchainInfo masterchainInfo = adnlLiteClient.getMasterchainInfo();
+        BigInteger balance = adnlLiteClient.getBalance(Address.of(TESTNET_ADDRESS));
+        System.out.println(
+                Thread.currentThread().getName()
+                        + " - "
+                        + masterchainInfo.getLast().getSeqno()
+                        + " - "
+                        + balance);
+    }
 }

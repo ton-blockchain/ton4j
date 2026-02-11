@@ -41,7 +41,8 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 contract = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 contract =
+        WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 
@@ -64,7 +65,8 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 contract = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 contract =
+        WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 
@@ -265,7 +267,8 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    WalletV4R2 contract = WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
+    WalletV4R2 contract =
+        WalletV4R2.builder().tonProvider(tonlib).keyPair(keyPair).walletId(42).build();
 
     Address walletAddress = contract.getAddress();
 
@@ -366,10 +369,10 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    AdnlLiteClient adnlLiteClient =
+    TonProvider adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
 
     WalletV4R2 contract =
@@ -392,7 +395,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(30);
+    contract.waitForDeployment();
 
     long walletCurrentSeqno = contract.getSeqno();
     log.info("walletV4 balance: {}", Utils.formatNanoValue(contract.getBalance()));
@@ -475,7 +478,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
         MsgUtils.createExternalMessageWithSignedBody(
             contract.getKeyPair(), pluginAddress, null, null);
 
-    adnlLiteClient.sendMessage(extMessage);
+    adnlLiteClient.sendExternalMessage(extMessage);
 
     adnlLiteClient.waitForDeployment(beneficiaryAddress, 90);
     //    ContractUtils.waitForDeployment(tonlib, beneficiaryAddress, 90); // no need?
@@ -503,7 +506,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
     extMessage =
         MsgUtils.createExternalMessageWithSignedBody(
             contract.getKeyPair(), pluginAddress, null, null);
-    adnlLiteClient.sendMessage(extMessage);
+    adnlLiteClient.sendExternalMessage(extMessage);
 
     adnlLiteClient.waitForDeployment(subscriptionInfo.getBeneficiary(), 90);
 
@@ -568,7 +571,8 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
-    TonCenter tonCenter = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().uniqueRequests().build();
+    TonCenter tonCenter =
+        TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().uniqueRequests().build();
 
     WalletV4R2 contract =
         WalletV4R2.builder().tonProvider(tonCenter).keyPair(keyPair).walletId(42).build();
@@ -624,7 +628,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
 
     tonCenter.waitForDeployment(beneficiaryAddress);
 
-//    Utils.sleep(20);
+    //    Utils.sleep(20);
 
     log.info(
         "beneficiaryWallet balance {}",
@@ -655,7 +659,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
     sendResponse = contract.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-//    tonCenter.waitForBalanceChange(beneficiaryAddress);
+    //    tonCenter.waitForBalanceChange(beneficiaryAddress);
 
     Utils.sleep(20);
 

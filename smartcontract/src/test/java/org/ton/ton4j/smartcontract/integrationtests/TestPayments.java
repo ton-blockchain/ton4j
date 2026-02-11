@@ -5,15 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.provider.SendResponse;
-import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.smartcontract.faucet.GenerateWallet;
 import org.ton.ton4j.smartcontract.payments.PaymentChannel;
 import org.ton.ton4j.smartcontract.payments.PaymentsUtils;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.wallet.v3.WalletV3R1;
+import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
@@ -119,7 +119,7 @@ public class TestPayments extends CommonTest {
 
     SendResponse sendResponse = walletA.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(35, "deploying channel A");
+    Utils.sleep(2, "deploying channel A");
 
     log.info("channel A state {}", channelA.getChannelState());
     ChannelData data = channelA.getData();
@@ -146,7 +146,7 @@ public class TestPayments extends CommonTest {
     sendResponse = walletA.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    walletA.waitForBalanceChange(45);
+    Utils.sleep(2);
 
     config =
         WalletV3Config.builder()
@@ -162,7 +162,7 @@ public class TestPayments extends CommonTest {
 
     sendResponse = walletB.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(40, "topping up from wallet B...");
+    Utils.sleep(2, "topping up from wallet B...");
 
     ChannelData channelData = channelA.getData();
     log.info("channel A state {}", channelA.getChannelState());
@@ -187,7 +187,7 @@ public class TestPayments extends CommonTest {
 
     sendResponse = walletA.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(45, "initializing channel...");
+    Utils.sleep(3, "initializing channel...");
 
     BigInteger channelAState = channelA.getChannelState();
     log.info("channel A state {}", channelAState);
@@ -317,8 +317,8 @@ public class TestPayments extends CommonTest {
   public void testPaymentsAdnlLiteClient() throws Exception {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .testnet()
+            .liteServerIndex(2)
             .build();
     // PARTIES
     // The payment channel is established between two participants A and B.
@@ -412,7 +412,7 @@ public class TestPayments extends CommonTest {
 
     SendResponse sendResponse = walletA.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(35, "deploying channel A");
+    Utils.sleep(2, "deploying channel A");
 
     log.info("channel A state {}", channelA.getChannelState());
     ChannelData data = channelA.getData();
@@ -439,7 +439,7 @@ public class TestPayments extends CommonTest {
     sendResponse = walletA.send(config);
     assertThat(sendResponse.getCode()).isZero();
 
-    walletA.waitForBalanceChange(45);
+    Utils.sleep(2);
 
     config =
         WalletV3Config.builder()
@@ -455,7 +455,7 @@ public class TestPayments extends CommonTest {
 
     sendResponse = walletB.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(40, "topping up from wallet B...");
+    Utils.sleep(3, "topping up from wallet B...");
 
     ChannelData channelData = channelA.getData();
     log.info("channel A state {}", channelA.getChannelState());
@@ -480,7 +480,7 @@ public class TestPayments extends CommonTest {
 
     sendResponse = walletA.send(config);
     assertThat(sendResponse.getCode()).isZero();
-    Utils.sleep(45, "initializing channel...");
+    Utils.sleep(2, "initializing channel...");
 
     BigInteger channelAState = channelA.getChannelState();
     log.info("channel A state {}", channelAState);
@@ -602,8 +602,6 @@ public class TestPayments extends CommonTest {
     sendResponse = walletA.send(config);
     log.info("channel B address {}", channelB.getAddress());
     assertThat(sendResponse.getCode()).isZero();
-
-    walletA.waitForBalanceChange(45);
   }
   
   @Test

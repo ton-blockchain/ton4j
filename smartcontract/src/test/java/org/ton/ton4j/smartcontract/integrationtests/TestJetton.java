@@ -14,8 +14,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
-import org.ton.ton4j.smartcontract.faucet.GenerateWallet;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.smartcontract.faucet.GenerateWallet;
 import org.ton.ton4j.smartcontract.highload.HighloadWalletV3;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
 import org.ton.ton4j.smartcontract.token.ft.JettonWallet;
@@ -75,7 +75,7 @@ public class TestJetton {
     SendResponse sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
     log.info("deploying minter");
-    minter.waitForDeployment(60);
+    minter.waitForDeployment();
 
     getMinterInfo(minter); // nothing minted, so zero returned
 
@@ -102,7 +102,7 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(45, "minting...");
+    Utils.sleep(4, "minting...");
 
     getMinterInfo(minter);
 
@@ -121,7 +121,7 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "edit minter content, OP 4");
+    Utils.sleep(3, "edit minter content, OP 4");
 
     getMinterInfo(minter);
 
@@ -139,11 +139,11 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "change minter admin, OP 3");
+    Utils.sleep(3, "change minter admin, OP 3");
 
     getMinterInfo(minter);
 
-    Utils.sleep(30);
+    Utils.sleep(3);
 
     log.info("adminWallet balance: {}", Utils.formatNanoValue(adminWallet.getBalance()));
     log.info("    wallet2 balance: {}", Utils.formatNanoValue(wallet2.getBalance()));
@@ -173,7 +173,7 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring 444 jettons...");
+    Utils.sleep(3, "transferring 444 jettons...");
     log.info("admin balance {}", Utils.formatNanoValue(adminJettonWallet.getBalance()));
 
     // wallet 2, after received jettons, can use JettonWallet
@@ -193,7 +193,7 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "burning 111 jettons in admin wallet");
+    Utils.sleep(3, "burning 111 jettons in admin wallet");
     log.info("admin balance {}", Utils.formatNanoValue(adminJettonWallet.getBalance()));
 
     getMinterInfo(minter);
@@ -242,8 +242,7 @@ public class TestJetton {
     SendResponse sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
     log.info("deploying minter and minting...");
-    minter.waitForDeployment(60);
-    Utils.sleep(15);
+    minter.waitForDeployment();
 
     getMinterInfo(minter);
 
@@ -277,7 +276,7 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     Assertions.assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring 2000 jettons from adminWallet to highloadWallet2...");
+    Utils.sleep(3, "transferring 2000 jettons from adminWallet to highloadWallet2...");
 
     JettonWallet highloadJettonWallet2 = minter.getJettonWallet(highloadWallet2.getAddress());
 
@@ -296,7 +295,7 @@ public class TestJetton {
     sendResponse = highloadWallet2.send(highloadV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "transferring to 50 recipients 2 jettons...");
+    Utils.sleep(3, "transferring to 50 recipients 2 jettons...");
     log.info("admin balance {}", Utils.formatNanoValue(adminJettonWallet.getBalance()));
 
     getMinterInfo(minter);
@@ -370,7 +369,7 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(45, "minting...");
+    Utils.sleep(4, "minting...");
 
     getMinterInfo(minter);
 
@@ -389,7 +388,7 @@ public class TestJetton {
     sendResponse = adminWallet.send(walletV3Config);
     assertThat(sendResponse.getCode()).isZero();
 
-    Utils.sleep(30, "edit minter content, OP 4");
+    Utils.sleep(3, "edit minter content, OP 4");
 
     getMinterInfo(minter);
 

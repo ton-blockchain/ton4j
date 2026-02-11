@@ -1,7 +1,5 @@
 package org.ton.ton4j.smartcontract;
 
-import org.ton.ton4j.provider.SendResponse;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.iwebpp.crypto.TweetNaclFast;
@@ -11,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.faucet.TestnetJettonFaucet;
 import org.ton.ton4j.smartcontract.token.ft.JettonMinter;
@@ -103,10 +102,9 @@ public class TestJettonFaucet {
     log.info("Bounceable address (for later access): {}", adminWallet.getAddress().toBounceable());
     log.info("Raw address: {}", adminWallet.getAddress().toRaw());
 
-    BigInteger balance =
-        TestnetFaucet.topUpContract(
-            tonlib, Address.of(adminWallet.getAddress().toNonBounceable()), Utils.toNano(10));
-    Utils.sleep(30, "topping up...");
+    TestnetFaucet.topUpContract(
+        tonlib, Address.of(adminWallet.getAddress().toNonBounceable()), Utils.toNano(10));
+    Utils.sleep(3, "topping up...");
 
     SendResponse sendResponse = adminWallet.deploy();
     assertThat(sendResponse.getCode()).isZero();

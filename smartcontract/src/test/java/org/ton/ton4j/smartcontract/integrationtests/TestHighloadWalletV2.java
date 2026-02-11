@@ -12,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.cell.CellBuilder;
-import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.highload.HighloadWallet;
 import org.ton.ton4j.smartcontract.types.Destination;
@@ -53,13 +53,13 @@ public class TestHighloadWalletV2 extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(5));
-    Utils.sleep(30, "topping up...");
+
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(30);
+    contract.waitForDeployment();
 
     HighloadConfig config =
         HighloadConfig.builder()
@@ -121,7 +121,7 @@ public class TestHighloadWalletV2 extends CommonTest {
     assertThat(sendResponse.getCode()).isZero();
 
     log.info("sending to 10 destinations");
-    contract.waitForBalanceChange(90);
+    Utils.sleep(5);
 
     balance = contract.getBalance();
     log.info(
@@ -157,13 +157,12 @@ public class TestHighloadWalletV2 extends CommonTest {
     // top up new wallet using test-faucet-wallet
     BigInteger balance =
         TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(15));
-    Utils.sleep(30, "topping up...");
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
 
     List<Destination> destinations = generateTargetsWithSameAmountAndSendMode(250);
 

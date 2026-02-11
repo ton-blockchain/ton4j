@@ -1,15 +1,15 @@
 package org.ton.ton4j.smartcontract.integrationtests;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.smartcontract.LibraryDeployer;
@@ -24,11 +24,7 @@ import org.ton.ton4j.tonlib.types.SmcLibraryEntry;
 import org.ton.ton4j.tonlib.types.SmcLibraryResult;
 import org.ton.ton4j.utils.Utils;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestLibraryDeployer extends CommonTest {
 
   /**
@@ -39,6 +35,9 @@ public class TestLibraryDeployer extends CommonTest {
   public void testDeployLibraryDeployer() throws InterruptedException {
 
     Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
+    //    Cell walletV5Code =
+    // CellBuilder.beginCell().fromBoc(WalletCodes.V4R2.getValue()).endCell(); // v4r2 hash
+    // /rX/aCDi/w2Ug+fg1iyBfYRniftK5YDIeIZtlZ2r1cA=
 
     LibraryDeployer libraryDeployer =
         LibraryDeployer.builder().tonProvider(tonlib).libraryCode(walletV5Code).build();
@@ -56,10 +55,12 @@ public class TestLibraryDeployer extends CommonTest {
     libraryDeployer.deploy();
 
     Utils.sleep(
-        10,
+        1,
         "Deployment of LibraryDeployer will never happen. Lite-server will return an error, but the library will be deployed");
 
-    log.info("walletV5Code library hash(b64) in testnet {}", Utils.bytesToBase64(walletV5Code.getHash()));
+    log.info(
+        "walletV5Code library hash(b64) in testnet {}",
+        Utils.bytesToBase64(walletV5Code.getHash()));
 
     SmcLibraryResult smcLibraryResult =
         tonlib.getLibraries(
@@ -78,14 +79,21 @@ public class TestLibraryDeployer extends CommonTest {
 
   @Test
   public void testIfLibraryHasBeenDeployed() {
+    //    Cell walletV5Code =
+    // CellBuilder.beginCell().fromBoc(WalletCodes.V4R2.getValue()).endCell();
     Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
-    log.info("walletV5Code library hash(hex) in testnet {}", Utils.bytesToHex(walletV5Code.getHash()));
-    log.info("walletV5Code library hash(b64) in testnet {}", Utils.bytesToBase64(walletV5Code.getHash()));
+    log.info(
+        "walletV5Code library hash(hex) in testnet {}", Utils.bytesToHex(walletV5Code.getHash()));
+    log.info(
+        "walletV5Code library hash(b64) in testnet {}",
+        Utils.bytesToBase64(walletV5Code.getHash()));
     SmcLibraryResult smcLibraryResult =
         tonlib.getLibraries(Collections.singletonList(Utils.bytesToBase64(walletV5Code.getHash())));
-    //                "IINLe3KxEhR+Gy+0V7hOdNGjDwT3N9T2KmaOlVLSty8="));
+    //
+    // tonlib.getLibraries(Collections.singletonList("IINLe3KxEhR+Gy+0V7hOdNGjDwT3N9T2KmaOlVLSty8="));
 
     log.info("smcLibraryResult {}", smcLibraryResult);
+    log.info("hex {}", Utils.bytesToHex(walletV5Code.getHash()));
 
     for (SmcLibraryEntry l : smcLibraryResult.getResult()) {
       String cellLibBoc = l.getData();
@@ -100,9 +108,11 @@ public class TestLibraryDeployer extends CommonTest {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
-    Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
+    //    Cell walletV5Code =
+    // CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
+    Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V4R2.getValue()).endCell();
 
     LibraryDeployer libraryDeployer =
         LibraryDeployer.builder().tonProvider(adnlLiteClient).libraryCode(walletV5Code).build();
@@ -121,14 +131,16 @@ public class TestLibraryDeployer extends CommonTest {
     libraryDeployer.deploy();
 
     Utils.sleep(
-        10,
+        1,
         "Deployment of LibraryDeployer will never happen. Lite-server will return an error, but the library will be deployed");
 
     LibraryResult smcLibraryResult =
         adnlLiteClient.getLibraries(
             Collections.singletonList(
-                walletV5Code.getHash()
+                Utils.base64ToBytes(Utils.bytesToBase64(walletV5Code.getHash()))
                 //                "IINLe3KxEhR+Gy+0V7hOdNGjDwT3N9T2KmaOlVLSty8="
+                //
+                // Utils.base64ToBytes("/rX/aCDi/w2Ug+fg1iyBfYRniftK5YDIeIZtlZ2r1cA=")
                 ));
     //
     log.info("smcLibraryResult {}", smcLibraryResult);
@@ -141,12 +153,10 @@ public class TestLibraryDeployer extends CommonTest {
 
   @Test
   public void testDeployLibraryDeployerTonCenterClient() throws Exception {
-    TonCenter tonCenter =
-        TonCenter.builder()
-            .apiKey(TESTNET_API_KEY)
-            .testnet()
-            .build();
-    Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
+    TonCenter tonCenter = TonCenter.builder().apiKey(TESTNET_API_KEY).testnet().debug().build();
+    //    Cell walletV5Code =
+    // CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
+    Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V4R2.getValue()).endCell();
 
     LibraryDeployer libraryDeployer =
         LibraryDeployer.builder().tonProvider(tonCenter).libraryCode(walletV5Code).build();
@@ -165,14 +175,12 @@ public class TestLibraryDeployer extends CommonTest {
     libraryDeployer.deploy();
 
     Utils.sleep(
-        10,
+        1,
         "Deployment of LibraryDeployer will never happen. Lite-server will return an error, but the library will be deployed");
 
     TonResponse<GetLibrariesResponse> smcLibraryResult =
-            tonCenter.getLibraries(
-                    Collections.singletonList(
-                            Utils.bytesToHex(walletV5Code.getHash())
-                    ));
+        tonCenter.getLibraries(
+            Collections.singletonList(Utils.bytesToBase64(walletV5Code.getHash())));
     log.info("response {}", smcLibraryResult.getResult());
 
     // The response should be successful even if libraries don't exist
@@ -188,12 +196,10 @@ public class TestLibraryDeployer extends CommonTest {
 
   @Test
   public void testIfLibraryHasBeenDeployedAdnlLiteClient() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder()
-            .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
-            .build();
-    Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+    //    Cell walletV5Code =
+    // CellBuilder.beginCell().fromBoc(WalletCodes.V5R1.getValue()).endCell();
+    Cell walletV5Code = CellBuilder.beginCell().fromBoc(WalletCodes.V4R2.getValue()).endCell();
 
     LibraryResult smcLibraryResult =
         adnlLiteClient.getLibraries(Collections.singletonList(walletV5Code.getHash()));

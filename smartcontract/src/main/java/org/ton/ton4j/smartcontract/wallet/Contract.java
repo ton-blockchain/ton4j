@@ -248,30 +248,30 @@ public interface Contract {
     return provider.sendExternalMessageWithConfirmation(externalMessage);
   }
 
-  /** Checks every 2 seconds for 60 seconds if account state was deployed at the address */
+  /** Checks every second for 60 seconds if the account state was deployed at the address */
   default void waitForDeployment() {
     waitForDeployment(60);
   }
 
-  /** Checks every 2 seconds for timeoutSeconds if account state was deployed at address */
+  /** Checks every second for timeoutSeconds if the account state was deployed at the address */
   default void waitForDeployment(int timeoutSeconds) {
     int i = 0;
     do {
-      if (++i * 2 >= timeoutSeconds) {
+      if (++i >= timeoutSeconds) {
         throw new Error("Can't deploy contract within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleep(1);
     } while (!isDeployed());
   }
 
-  /** Checks every 2 seconds for 60 if account balance was changed */
+  /** Checks every second for 60 if the account balance was changed */
   default void waitForBalanceChange() {
     waitForBalanceChange(60);
   }
 
   /**
-   * Checks every 2 seconds for timeoutSeconds if account balance was changed. Notice, storage fee
-   * changes often by 1 nanocoin with few seconds, if you need to tolerate that consider using
+   * Checks every second for timeoutSeconds if account balance was changed. Notice, storage fee
+   * often changes by 1 nanocoin with a few seconds, if you need to tolerate that consider using
    * waitForBalanceChangeWithTolerance().
    */
   default void waitForBalanceChange(int timeoutSeconds) {
@@ -279,10 +279,37 @@ public interface Contract {
     BigInteger currentBalance;
     int i = 0;
     do {
-      if (++i * 2 >= timeoutSeconds) {
+      if (++i >= timeoutSeconds) {
         throw new Error("Balance was not changed within specified timeout.");
       }
-      Utils.sleep(2);
+      Utils.sleep(1);
+      currentBalance = getBalance();
+
+    } while (initialBalance.equals(currentBalance));
+  }
+
+  /**
+   * Checks every second for 60 seconds if an account balance was changed with comparison to the initial balance. Notice, the storage fee
+   * often changes by 1 nanocoin with a few seconds, if you need to tolerate that consider using
+   * waitForBalanceChangeWithTolerance().
+   */
+  default void waitForBalanceChange(BigInteger initialBalance) {
+    waitForBalanceChange(initialBalance, 60);
+  }
+
+  /**
+   * Checks every second for timeoutSeconds if the account balance was changed with comparison to the initial balance. Notice, the storage fee
+   * often changes by 1 nanocoin with a few seconds, if you need to tolerate that consider using
+   * waitForBalanceChangeWithTolerance().
+   */
+  default void waitForBalanceChange(BigInteger initialBalance, int timeoutSeconds) {
+    BigInteger currentBalance;
+    int i = 0;
+    do {
+      if (++i >= timeoutSeconds) {
+        throw new Error("Balance was not changed within specified timeout.");
+      }
+      Utils.sleep(1);
       currentBalance = getBalance();
 
     } while (initialBalance.equals(currentBalance));
@@ -550,7 +577,7 @@ public interface Contract {
           }
         }
       }
-      Utils.sleep(5);
+      Utils.sleepMs(1000);
     }
     throw new Error("time out waiting for extra-currency with id " + extraCurrencyId);
   }

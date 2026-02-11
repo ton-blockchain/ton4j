@@ -22,7 +22,6 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.tlb.*;
-import org.ton.ton4j.tlb.print.TransactionPrintInfo;
 import org.ton.ton4j.tonlib.types.*;
 import org.ton.ton4j.tonlib.types.BlockHeader;
 import org.ton.ton4j.tonlib.types.BlockIdExt;
@@ -242,25 +241,6 @@ public class TestTonlibJson {
   }
 
   @Test
-  public void testTonlib() {
-
-    Tonlib tonlib =
-        Tonlib.builder()
-            .pathToTonlibSharedLib(tonlibPath)
-            .pathToGlobalConfig("g:/libs/global-config-archive.json")
-            .build();
-    BlockIdExt fullblock = tonlib.lookupBlock(23512606, -1, -9223372036854775808L, 0, 0);
-
-    log.info(fullblock.toString());
-
-    MasterChainInfo masterChainInfo = tonlib.getLast();
-    log.info(masterChainInfo.toString());
-
-    BlockHeader header = tonlib.getBlockHeader(masterChainInfo.getLast());
-    log.info(header.toString());
-  }
-
-  @Test
   public void testTonlibGetShards() {
     Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(tonlibPath).testnet(true).build();
     MasterChainInfo masterChainInfo = tonlib.getLast();
@@ -347,20 +327,20 @@ public class TestTonlibJson {
     for (Map.Entry<String, RawTransactions> entry : txs.entrySet()) {
       for (RawTransaction tx : entry.getValue().getTransactions()) {
         if (nonNull(tx.getIn_msg())
-                && (!tx.getIn_msg().getSource().getAccount_address().equals(""))) {
+            && (!tx.getIn_msg().getSource().getAccount_address().equals(""))) {
           log.info(
-                  "{} <<<<< {} : {} ",
-                  tx.getIn_msg().getSource().getAccount_address(),
-                  tx.getIn_msg().getDestination().getAccount_address(),
-                  Utils.formatNanoValue(tx.getIn_msg().getValue(), 9));
+              "{} <<<<< {} : {} ",
+              tx.getIn_msg().getSource().getAccount_address(),
+              tx.getIn_msg().getDestination().getAccount_address(),
+              Utils.formatNanoValue(tx.getIn_msg().getValue(), 9));
         }
         if (nonNull(tx.getOut_msgs())) {
           for (RawMessage msg : tx.getOut_msgs()) {
             log.info(
-                    "{} >>>>> {} : {} ",
-                    msg.getSource().getAccount_address(),
-                    msg.getDestination().getAccount_address(),
-                    Utils.formatNanoValue(msg.getValue()));
+                "{} >>>>> {} : {} ",
+                msg.getSource().getAccount_address(),
+                msg.getDestination().getAccount_address(),
+                Utils.formatNanoValue(msg.getValue()));
           }
         }
       }

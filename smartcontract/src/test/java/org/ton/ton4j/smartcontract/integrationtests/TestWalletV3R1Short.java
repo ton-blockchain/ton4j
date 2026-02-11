@@ -42,7 +42,7 @@ public class TestWalletV3R1Short extends CommonTest {
 
     SendResponse sendResponse = contract.deploy();
     log.info(sendResponse.toString());
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
     // send toncoins
     WalletV3Config config =
         WalletV3Config.builder()
@@ -82,7 +82,7 @@ public class TestWalletV3R1Short extends CommonTest {
 
     SendResponse sendResponse = contract.deploy(signedDeployBodyHash);
     log.info("sendResponse {}", sendResponse);
-    contract.waitForDeployment(120);
+    contract.waitForDeployment();
 
     // send toncoins
     WalletV3Config config =
@@ -100,14 +100,13 @@ public class TestWalletV3R1Short extends CommonTest {
         Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), transferBody.hash());
     sendResponse = contract.send(config, signedTransferBodyHash);
     log.info("sendResponse: {}", sendResponse);
-    contract.waitForBalanceChange(120);
+    contract.waitForBalanceChange();
     assertThat(contract.getBalance()).isLessThan(Utils.toNano(0.03));
   }
 
   @Test
   public void testWalletV3R1AdnlLiteClient() throws Exception {
-    AdnlLiteClient adnlLiteClient =
-        AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
     WalletV3R1 contract = WalletV3R1.builder().tonProvider(adnlLiteClient).walletId(42).build();
     log.info("pub key: {}", Utils.bytesToHex(contract.getKeyPair().getPublicKey()));
     log.info("prv key: {}", Utils.bytesToHex(contract.getKeyPair().getSecretKey()));
@@ -122,7 +121,7 @@ public class TestWalletV3R1Short extends CommonTest {
 
     SendResponse sendResponse = contract.deploy();
     log.info("sendResponse {}", sendResponse);
-    contract.waitForDeployment(60);
+    contract.waitForDeployment();
     // send toncoins
     WalletV3Config config =
         WalletV3Config.builder()

@@ -77,7 +77,7 @@ public class TestExtraCurrency {
 
     contract.waitForBalanceChange();
 
-    Utils.sleep(30);
+    Utils.sleep(3);
 
     FullAccountState accountState = tonlib.getAccountState(Address.of(rawAddress));
     log.info("state {}", accountState);
@@ -110,7 +110,7 @@ public class TestExtraCurrency {
 
     contract.waitForBalanceChange();
 
-    Utils.sleep(30);
+    Utils.sleep(3);
     accountState = tonlib.getAccountState(Address.of(rawAddress));
     log.info("state {}", accountState);
     rawAccountState = tonlib.getRawAccountState(Address.of(rawAddress));
@@ -259,7 +259,7 @@ public class TestExtraCurrency {
 
     contract.waitForBalanceChange();
 
-    Utils.sleep(30);
+    Utils.sleep(3);
 
     FullAccountState accountState = tonlib.getAccountState(Address.of(rawAddress));
     log.info("state {}", accountState);
@@ -293,7 +293,7 @@ public class TestExtraCurrency {
 
     contract.waitForBalanceChange();
 
-    Utils.sleep(30);
+    Utils.sleep(3);
     accountState = tonlib.getAccountState(Address.of(rawAddress));
     log.info("state {}", accountState);
     rawAccountState = tonlib.getRawAccountState(Address.of(rawAddress));
@@ -305,7 +305,7 @@ public class TestExtraCurrency {
     AdnlLiteClient adnlLiteClient =
         AdnlLiteClient.builder()
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
-            .liteServerIndex(0)
+            .liteServerIndex(2)
             .build();
 
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
@@ -335,6 +335,7 @@ public class TestExtraCurrency {
             .build();
 
     SendResponse sendResponse = contract.deploy(config);
+    log.info("sendResponse: {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
     contract.waitForDeployment();
 
@@ -354,12 +355,11 @@ public class TestExtraCurrency {
 
     //  receive test extra-currency (ECHIDNA)
     sendResponse = contract.send(config);
+    log.info("sendResponse: {}", sendResponse);
     assertThat(sendResponse.getCode()).isZero();
     log.info("sent 1 message with request to get 3.7 ECHIDNA extra-currency");
 
-    contract.waitForBalanceChange();
-
-    Utils.sleep(30);
+    Utils.sleep(5);
 
     Account accountState = adnlLiteClient.getAccount(Address.of(rawAddress));
     //    log.info("state {}", accountState);
@@ -468,7 +468,7 @@ public class TestExtraCurrency {
 
     contract.waitForBalanceChange();
 
-    Utils.sleep(30);
+    Utils.sleep(3);
 
     // Get account information using TonCenter API
     AddressInformationResponse accountInfo = 
