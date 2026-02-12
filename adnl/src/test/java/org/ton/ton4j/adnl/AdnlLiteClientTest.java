@@ -1497,10 +1497,8 @@ public class AdnlLiteClientTest {
 
   @Test
   public void testAccountBalanceAdnlOkMyLocalton() throws Exception {
-    TonGlobalConfig tonGlobalConfig =
-        TonGlobalConfig.loadFromUrl("http://localhost:8000/localhost.global.config.json");
 
-    AdnlLiteClient client = AdnlLiteClient.builder().globalConfig(tonGlobalConfig).build();
+    AdnlLiteClient client = AdnlLiteClient.builder().myLocalTon().build();
 
     Address beneficiaryAddress =
         Address.of("-1:0000000000000000000000000000000000000000000000000000000000000000");

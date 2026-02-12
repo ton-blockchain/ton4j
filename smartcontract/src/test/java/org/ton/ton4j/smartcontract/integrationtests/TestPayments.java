@@ -605,7 +605,7 @@ public class TestPayments extends CommonTest {
   }
   
   @Test
-  public void testPaymentsTonCenterClient() throws Exception {
+  public void testPaymentsTonCenterClient() {
     TonCenter tonCenter =
         TonCenter.builder()
             .apiKey(TESTNET_API_KEY)

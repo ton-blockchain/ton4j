@@ -32,7 +32,7 @@ public class TonConnect {
     } else {
       publicKeyBytes = Hex.decodeHex(account.getPublicKey());
     }
-    byte[] signature = Utils.base64ToBytes(tonProof.getSignature());
+    byte[] signature = Utils.base64SafeUrlToBytes(tonProof.getSignature());
     byte[] messageForSigning = createMessageForSigning(tonProof, account.getAddress());
 
     return Ed25519.verify(publicKeyBytes, messageForSigning, signature);

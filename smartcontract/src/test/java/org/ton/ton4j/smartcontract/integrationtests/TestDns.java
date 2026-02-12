@@ -110,7 +110,7 @@ public class TestDns extends CommonTest {
     }
 
     @Test
-    public void testDnsResolveTestnetTonCenterClient() throws Exception {
+    public void testDnsResolveTestnetTonCenterClient() {
         TonCenter tonCenterClient = TonCenter.builder().apiKey(TESTNET_API_KEY).network(Network.TESTNET).build();
 
         Dns dns = Dns.builder().tonProvider(tonCenterClient).build();

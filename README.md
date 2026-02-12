@@ -1932,9 +1932,124 @@ log.info("new transaction {}", result.getTransaction());
 log.info("new actions {}", result.getActions());
 ```
 ## TON connect
-```java
+Read about the TON Connect and how it works [here](https://docs.ton.org/develop/dapps/ton-connect/sign#how-does-it-work).
+Below are step-by-step instructions how it works in `ton4j`.
 
+```java
+// prepare data for demonstration
+AdnlLiteClient client = AdnlLiteClient.builder().myLocalTon().build();
+
+byte[] secretKey = Utils.hexToSignedBytes("1bd726fa69d850a5c0032334b16802c7eda48fde7a0e24f28011b22159cc97b7");
+TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
+log.info("prvKey: {}", Utils.bytesToHex(secretKey));
+log.info("pubKey: {}", Utils.bytesToHex(keyPair.getPublicKey()));
+
+String addressStr = "0:1da77f0269bbbb76c862ea424b257df63bd1acb0d4eb681b68c9aadfbf553b93";
+Address address = Address.of(addressStr);
+Account account = client.getAccount(address);
+log.info("account {}", account);
+
+// Step 1. Now user can initia a sign-in process at the dapp's frontend, then daps sends a request to the backend
+// go generate a ton_proff payload
+
+// Step 2. Backend generates a TonProof entity and sends it to a frontend
+
+String payload = "doc-example-<BACKEND_AUTH_ID>";
+String sig = "";
+
+String proof = String.format(
+  "{\n"
+      + "                \"timestamp\": 1722999580, \n"
+      + "                \"domain\": {\n"
+      + "                    \"lengthBytes\": 16, \n"
+      + "                    \"value\": \"xxx.xxx.com\"\n"
+      + "                }, \n"
+      + "                \"signature\": \"%s\", \n" + // <---------- to be updated
+      "                \"payload\": \"%s\"\n"
+      + "            }",
+  sig, payload);
+
+log.info("proof: {}", proof);
+TonProof tonProof = gson.fromJson(proof, TonProof.class);
+byte[] message = TonConnect.createMessageForSigning(tonProof, addressStr);
+
+// Step 3. Frontend signs in to the wallet using TonProof and receives back a signed TonProof.
+// Basically a user signs the payload with his private key.
+byte[] signature = Utils.signData(keyPair.getPublicKey(), secretKey, message);
+log.info("signature: {}", Utils.bytesToHex(signature));
+// update TonProof by adding a signature
+tonProof.setSignature(Utils.bytesToBase64SafeUrl(signature));
+log.info("proof (updated): {}", tonProof);
+
+// Step 4. Frontend sends signed TonProof to a backend for verification.
+// If a smart contract does not have a get_public_key method, you can calculate a public key from
+// its state init.
+
+StateInit stateInit =
+  StateInit.builder()
+    .code(account.getStateInit().getCode())
+    .data(account.getStateInit().getData())
+    .build();
+
+log.info("wallet code bocHex: {}", account.getStateInit().getCode().toHex());
+log.info("wallet version {}", WalletCodes.getKeyByValue(account.getStateInit().getCode().toHex()));
+
+BigInteger publicKeyRemote = client.getPublicKey(address);
+// OR handover stateInit to calculate pubkey from contract's data
+
+String accountString =
+  String.format(
+  "{\n"
+          + "      \"address\": \"%s\", \n"
+          + "      \"chain\": \"-239\", \n"
+          + "      \"walletStateInit\": \"%s\", \n" + // either this
+          "        \"publicKey\": \"%s\"\n" +         // or this
+          "    }",
+address.toRaw(), stateInit.toCell().toBase64(), publicKeyRemote.toString(16));
+log.info("accountString: {}", accountString);
+
+WalletAccount walletAccount = gson.fromJson(accountString, WalletAccount.class);
+log.info("account:{}", walletAccount);
+
+// Step 5. Backend verifies the proof
+assertThat(TonConnect.checkProof(tonProof, walletAccount)).isTrue();
 ```
+
+A shorter and clear example
+```java
+String addressStr = "0:2d29bfa071c8c62fa3398b661a842e60f04cb8a915fb3e749ef7c6c41343e16c";
+
+// backend prepares a payload and generates a TonProof
+
+TonProof tonProof =
+    TonProof.builder()
+        .timestamp(1722999580)
+        .domain(Domain.builder().value("xxx.xxx.com").lengthBytes(16).build())
+        .payload("doc-example-<BACKEND_AUTH_ID>")
+        .build();
+
+// user wallet signs it
+byte[] secretKey =
+    Utils.hexToSignedBytes("F182111193F30D79D517F2339A1BA7C25FDF6C52142F0F2C1D960A1F1D65E1E4");
+TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
+byte[] message = TonConnect.createMessageForSigning(tonProof, addressStr);
+byte[] signature = Utils.signData(keyPair.getPublicKey(), secretKey, message);
+log.info("signature: {}", Utils.bytesToHex(signature));
+
+// and updates TonProof by adding a signature
+tonProof.setSignature(Utils.bytesToBase64SafeUrl(signature));
+
+// backend verifies if proof is valid
+WalletAccount walletAccount =
+    WalletAccount.builder()
+        .chain(-239)
+        .address(addressStr)
+        .publicKey("82a0b2543d06fec0aac952e9ec738be56ab1b6027fc0c1aa817ae14b4d1ed2fb")
+        .build();
+
+assertThat(TonConnect.checkProof(tonProof, walletAccount)).isTrue();
+```
+
 ## Smart contract disassembler
 
 Provides Fift-like code from a smart contract compiled source.

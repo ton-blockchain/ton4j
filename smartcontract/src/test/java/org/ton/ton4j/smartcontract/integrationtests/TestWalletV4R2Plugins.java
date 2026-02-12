@@ -7,14 +7,11 @@ import java.math.BigInteger;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.address.Address;
-import org.ton.ton4j.provider.TonProvider;
-import org.ton.ton4j.provider.SendResponse;
-import org.ton.ton4j.toncenter.TonCenter;
+import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.Cell;
+import org.ton.ton4j.provider.SendResponse;
+import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.smartcontract.SendMode;
 import org.ton.ton4j.smartcontract.faucet.TestnetFaucet;
 import org.ton.ton4j.smartcontract.types.DeployedPlugin;
@@ -24,13 +21,11 @@ import org.ton.ton4j.smartcontract.utils.MsgUtils;
 import org.ton.ton4j.smartcontract.wallet.v4.SubscriptionInfo;
 import org.ton.ton4j.smartcontract.wallet.v4.WalletV4R2;
 import org.ton.ton4j.tlb.Message;
-import org.ton.ton4j.toncenter.TonResponse;
-import org.ton.ton4j.toncenter.model.SendBocResponse;
+import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.types.ExtMessageInfo;
 import org.ton.ton4j.utils.Utils;
 
 @Slf4j
-@RunWith(JUnit4.class)
 public class TestWalletV4R2Plugins extends CommonTest {
 
   static String FAUCET_ADDRESS_RAW =
@@ -85,7 +80,7 @@ public class TestWalletV4R2Plugins extends CommonTest {
     SendResponse sendResponse = contract.deploy();
     assertThat(sendResponse.getCode()).isZero();
 
-    contract.waitForDeployment(30);
+    contract.waitForDeployment();
 
     long walletCurrentSeqno = contract.getSeqno();
     log.info("walletV4 balance: {}", Utils.formatNanoValue(contract.getBalance()));

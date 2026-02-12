@@ -157,7 +157,7 @@ public class TestWalletV3R2Short extends CommonTest {
     RawTransactions txs = tonlib.getRawTransactions(bounceableAddress1, null, null);
     for (RawTransaction tx : txs.getTransactions()) {
       if (nonNull(tx.getIn_msg())
-          && (!tx.getIn_msg().getSource().getAccount_address().equals(""))) {
+          && (!tx.getIn_msg().getSource().getAccount_address().isEmpty())) {
         log.info(
             "{}, {} <<<<< {} : {}, comment: {} ",
             Utils.toUTC(tx.getUtime()),
