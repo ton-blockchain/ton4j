@@ -14,6 +14,7 @@ public class WalletV5Config implements WalletConfig {
   int op;
   long walletId;
   long seqno;
+  List<Destination> recipients;
   long validUntil;
   boolean bounce;
   Cell body;

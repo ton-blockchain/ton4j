@@ -1,6 +1,7 @@
 package org.ton.ton4j.smartcontract.wallet.v5;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.iwebpp.crypto.TweetNaclFast;
@@ -17,9 +18,11 @@ import org.ton.ton4j.adnl.AdnlLiteClient;
 import org.ton.ton4j.cell.*;
 import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.provider.TonProvider;
+import org.ton.ton4j.smartcontract.token.ft.*;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.types.Destination;
 import org.ton.ton4j.smartcontract.wallet.Contract;
+import org.ton.ton4j.smartcontract.wallet.ContractUtils;
 import org.ton.ton4j.tl.liteserver.responses.RunMethodResult;
 import org.ton.ton4j.tlb.*;
 import org.ton.ton4j.toncenter.TonCenter;
@@ -41,6 +44,9 @@ public class WalletV5 implements Contract {
   private static final int PREFIX_SIGNED_EXTERNAL = 0x7369676E;
   private static final int PREFIX_SIGNED_INTERNAL = 0x73696E74;
   private static final int PREFIX_EXTENSION_ACTION = 0x6578746e;
+
+  public static final String USDT_MASTER_WALLET =
+      "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
 
   TweetNaclFast.Signature.KeyPair keyPair;
   long initialSeqno;
@@ -89,12 +95,12 @@ public class WalletV5 implements Contract {
   }
 
   @Override
-  public org.ton.ton4j.toncenter.TonCenter getTonCenterClient() {
+  public TonCenter getTonCenterClient() {
     return tonCenterClient;
   }
 
   @Override
-  public void setTonCenterClient(org.ton.ton4j.toncenter.TonCenter pTonCenterClient) {
+  public void setTonCenterClient(TonCenter pTonCenterClient) {
     tonCenterClient = pTonCenterClient;
   }
 
@@ -347,6 +353,13 @@ public class WalletV5 implements Contract {
   }
 
   public Cell createExternalTransferBody(WalletV5Config config) {
+    Cell body;
+    if (nonNull(config.getRecipients())) {
+      body = createBulkTransfer(config.getRecipients()).toCell();
+    }
+    else {
+      body = config.getBody();
+    }
     return CellBuilder.beginCell()
         .storeUint(PREFIX_SIGNED_EXTERNAL, 32)
         .storeUint(config.getWalletId(), SIZE_WALLET_ID)
@@ -356,11 +369,18 @@ public class WalletV5 implements Contract {
                 : config.getValidUntil(),
             SIZE_VALID_UNTIL)
         .storeUint(config.getSeqno(), SIZE_SEQNO)
-        .storeCell(config.getBody()) // innerRequest
+        .storeCell(body) // innerRequest
         .endCell();
   }
 
   public Cell createInternalTransferBody(WalletV5Config config) {
+    Cell body;
+    if (nonNull(config.getRecipients())) {
+      body = createBulkTransfer(config.getRecipients()).toCell();
+    }
+    else {
+      body = config.getBody();
+    }
     return CellBuilder.beginCell()
         .storeUint(PREFIX_SIGNED_INTERNAL, 32)
         .storeUint(config.getWalletId(), SIZE_WALLET_ID)
@@ -370,7 +390,7 @@ public class WalletV5 implements Contract {
                 : config.getValidUntil(),
             SIZE_VALID_UNTIL)
         .storeUint(config.getSeqno(), SIZE_SEQNO)
-        .storeCell(config.getBody()) // innerRequest
+        .storeCell(body) // innerRequest
         .endCell();
   }
 
@@ -595,6 +615,69 @@ public class WalletV5 implements Contract {
       CellSlice cs = CellSlice.beginParse(Cell.fromBocBase64(base64Msg));
 
       return cs.loadDict(256, k -> k.readUint(256), v -> v);
+    } else {
+      throw new Error("Provider not set");
+    }
+  }
+
+  /**
+   * returns user's usdt wallet address in specified workchain offline
+   *
+   * @return Address
+   */
+  public Address getUsdtWalletAddressOffline() {
+    return JettonWalletV2.calculateUserJettonWalletAddress(
+        getAddress().wc,
+        getAddress(),
+        Address.of(USDT_MASTER_WALLET),
+        JettonWalletStableCoin.CODE_LIB_CELL);
+  }
+
+  /**
+   * returns user's usdt wallet address in specified workchain online
+   *
+   * @return Address
+   */
+  public Address getUsdtWalletAddressOnline() {
+    JettonMinterStableCoin usdtMasterWallet =
+        JettonMinterStableCoin.builder()
+            .tonProvider(adnlLiteClient)
+            .customAddress(Address.of(USDT_MASTER_WALLET))
+            .build();
+    return usdtMasterWallet.getJettonWallet(getAddress()).getAddress();
+  }
+
+  public JettonWallet getUsdtWallet() {
+    JettonMinter usdtMasterWallet =
+        JettonMinter.builder()
+            .tonProvider(adnlLiteClient)
+            .customAddress(Address.of(USDT_MASTER_WALLET))
+            .build();
+    return usdtMasterWallet.getJettonWallet(getAddress());
+  }
+
+  public BigInteger getUsdtBalance() {
+    TonProvider provider = getTonProvider();
+    if (provider instanceof TonCenter) {
+      try {
+        return ContractUtils.getJettonBalance(
+            tonCenterClient, Address.of(USDT_MASTER_WALLET), getAddress());
+      } catch (Throwable e) {
+        throw new Error(e);
+      }
+    } else if (provider instanceof AdnlLiteClient) {
+      try {
+        return ContractUtils.getJettonBalance(
+            adnlLiteClient, Address.of(USDT_MASTER_WALLET), getAddress());
+      } catch (Exception e) {
+        throw new Error(e);
+      }
+    } else if (provider instanceof Tonlib) {
+      try {
+        return ContractUtils.getJettonBalance(tonlib, Address.of(USDT_MASTER_WALLET), getAddress());
+      } catch (Exception e) {
+        throw new Error(e);
+      }
     } else {
       throw new Error("Provider not set");
     }

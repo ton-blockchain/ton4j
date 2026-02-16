@@ -156,8 +156,7 @@ public class TestWalletV5 extends CommonTest {
    * Transfer to 255 recipients. Without Library and Without Extensions and without OtherActions.
    */
   @Test
-  public void testWalletV5SimpleTransfer255Recipients()
-          throws Exception {
+  public void testWalletV5SimpleTransfer255Recipients() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     WalletV5 contract =
         WalletV5.builder()
@@ -547,7 +546,7 @@ public class TestWalletV5 extends CommonTest {
    */
   @Test
   public void testWalletV5DeployWithTwoExtensionsAndDeleteOneExtensionAndSendTransfer()
-          throws Exception {
+      throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
 
     // initial extensions
@@ -989,7 +988,10 @@ public class TestWalletV5 extends CommonTest {
     assertThat(contractV5.getRawExtensions().elements.size()).isEqualTo(2);
   }
 
-  /** Transfer to 1 recipient. With Library and Without Extensions and without OtherActions.  See also TestLibraryDeployer.java  */
+  /**
+   * Transfer to 1 recipient. With Library and Without Extensions and without OtherActions. See also
+   * TestLibraryDeployer.java
+   */
   @Test
   public void testWalletV5SimpleTransfer1WhenDeployedAsLibrary() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
@@ -1150,6 +1152,107 @@ public class TestWalletV5 extends CommonTest {
   }
 
   @Test
+  public void testWalletV5SimpleJettonTransferAdnl() throws Exception {
+    AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(4).build();
+    TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
+    WalletV5 walletV5 =
+        WalletV5.builder()
+            .tonProvider(adnlLiteClient)
+            .walletId(42)
+            .keyPair(keyPair)
+            .isSigAuthAllowed(true)
+            .build();
+
+    Address walletAddress = walletV5.getAddress();
+
+    String nonBounceableAddress = walletAddress.toNonBounceable();
+    String bounceableAddress = walletAddress.toBounceable();
+    log.info("bounceableAddress: {}", bounceableAddress);
+    log.info("rawAddress: {}", walletAddress.toRaw());
+    log.info("pub-key {}", Utils.bytesToHex(walletV5.getKeyPair().getPublicKey()));
+    log.info("prv-key {}", Utils.bytesToHex(walletV5.getKeyPair().getSecretKey()));
+
+    // top up wallet-v5 with some toncoins before deployment
+    BigInteger balance =
+        TestnetFaucet.topUpContract(
+            adnlLiteClient, Address.of(nonBounceableAddress), Utils.toNano(0.1));
+    log.info("new wallet {} balance: {}", walletV5.getName(), Utils.formatNanoValue(balance));
+
+    // deploy wallet-v5
+    SendResponse sendResponse = walletV5.deploy();
+    assertThat(sendResponse.getCode()).isZero();
+
+    walletV5.waitForDeployment(60);
+
+    long newSeq = walletV5.getSeqno();
+    assertThat(newSeq).isEqualTo(1);
+
+    // top up new wallet-v5 with 100 NEOJ jettons using test-jetton-faucet-wallet
+    balance =
+        TestnetJettonFaucet.topUpContractWithNeoj(
+            adnlLiteClient, Address.of(nonBounceableAddress), BigInteger.valueOf(100));
+    log.info(
+        "new wallet {} jetton balance: {}",
+        walletV5.getName(),
+        Utils.formatJettonValue(balance, 2, 2));
+
+    String neojMasterJettonContractAddress = "kQAN6TAGauShFKDQvZCwNb_EeTUIjQDwRZ9t6GOn4FBzfg9Y";
+    JettonMinter jettonMinterWallet =
+        JettonMinter.builder()
+            .tonProvider(adnlLiteClient)
+            .customAddress(Address.of(neojMasterJettonContractAddress))
+            .build();
+
+    // two ways to show balance in jettons
+
+    // way first
+    JettonWallet myJettonWallet = jettonMinterWallet.getJettonWallet(walletV5.getAddress());
+    log.info(
+        "walletV5 ({}) balance in jettons {}",
+        walletV5.getAddress().toRaw(),
+        myJettonWallet.getBalance());
+
+    // way second
+    BigInteger balance1 =
+        ContractUtils.getJettonBalance(
+            adnlLiteClient, Address.of(neojMasterJettonContractAddress), walletV5.getAddress());
+    log.info("walletV5 ({}) balance in jettons {}", walletV5.getAddress().toRaw(), balance1);
+    // send jettons from wallet-v5
+
+    WalletV5Config walletV5Config =
+        WalletV5Config.builder()
+            .seqno(newSeq)
+            .walletId(42)
+            .recipients(
+                Collections.singletonList(
+                    Destination.builder()
+                        .bounce(true)
+                        .address(myJettonWallet.getAddress().toBounceable())
+                        .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
+                        .amount(Utils.toNano(0.05)) // processing fee
+                        .body(
+                            JettonWallet.createTransferBody(
+                                0,
+                                BigInteger.valueOf(50), // number of jettons to send
+                                Address.of("recipient-addr"), // recipient
+                                myJettonWallet.getAddress(), // response address
+                                null, // custom payload
+                                BigInteger.ONE, // fwd amount
+                                MsgUtils.createTextMessageBody("v5-jetton-demo"))) // fwd payload
+                        .build()))
+            .build();
+
+    sendResponse = walletV5.send(walletV5Config);
+    assertThat(sendResponse.getCode()).isZero();
+
+    Utils.sleep(20);
+    log.info(
+        "walletV5 ({}) balance left in jettons {}",
+        walletV5.getAddress().toRaw(),
+        myJettonWallet.getBalance());
+  }
+
+  @Test
   public void testWalletV5SimpleTransfer_ExternallySigned() throws Exception {
     TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
     byte[] pubKey = keyPair.getPublicKey();
@@ -1238,8 +1341,7 @@ public class TestWalletV5 extends CommonTest {
             .configUrl(Utils.getGlobalConfigUrlTestnetGithub())
             .liteServerIndex(2)
             .build();
-    WalletV3R1 contractV3 =
-        WalletV3R1.builder().tonProvider(adnlLiteClient).walletId(43).build();
+    WalletV3R1 contractV3 = WalletV3R1.builder().tonProvider(adnlLiteClient).walletId(43).build();
 
     Address walletAddressV3 = contractV3.getAddress();
 
@@ -1403,8 +1505,7 @@ public class TestWalletV5 extends CommonTest {
 
     // create a user wallet that sends an internal message to wallet v5
     TonProvider tonCenterClient = TonCenter.builder().testnet().build();
-    WalletV3R1 contractV3 =
-        WalletV3R1.builder().tonProvider(tonCenterClient).walletId(43).build();
+    WalletV3R1 contractV3 = WalletV3R1.builder().tonProvider(tonCenterClient).walletId(43).build();
 
     Address walletAddressV3 = contractV3.getAddress();
 

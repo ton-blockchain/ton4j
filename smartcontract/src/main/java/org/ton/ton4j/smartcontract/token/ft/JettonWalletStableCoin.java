@@ -37,6 +37,12 @@ public class JettonWalletStableCoin implements Contract {
   public static Cell CODE_CELL =
       CellBuilder.beginCell().fromBoc(WalletCodes.jettonWalletStableCoin.getValue()).endCell();
 
+  public static Cell CODE_LIB_CELL =
+          CellBuilder.beginCell()
+                  .fromBoc(
+                          "B5EE9C72010101010023000842028F452D7A4DFD74066B682365177259ED05734435BE76B5FD4BD5D8AF2B7C3D68")
+                  .endCell();
+
   public static class JettonWalletStableCoinBuilder {}
 
   public static JettonWalletStableCoinBuilder builder() {

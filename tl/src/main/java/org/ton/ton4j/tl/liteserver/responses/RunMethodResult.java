@@ -181,4 +181,10 @@ public class RunMethodResult implements Serializable, LiteServerAnswer {
     Cell cell = ((VmStackValueCell) vmStack.getStack().getTos().get(stackIndex)).getCell();
     return CellSlice.beginParse(cell).loadAddress();
   }
+
+  public Address getAddressByIndexFromSlice(int stackIndex) {
+    VmStack vmStack = VmStack.deserialize(CellSlice.beginParse(Cell.fromBoc(result)));
+    Cell cell = ((VmStackValueSlice) vmStack.getStack().getTos().get(stackIndex)).toCell();
+    return CellSlice.beginParse(cell).loadAddress();
+  }
 }

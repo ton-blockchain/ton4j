@@ -101,7 +101,7 @@ public class TestnetFaucet {
       throw new Error(sendResponse.getMessage());
     }
 
-    tonlib.waitForBalanceChange(destinationAddress, 60);
+    Utils.sleep(2);
 
     return tonlib.getAccountBalance(destinationAddress);
   }
@@ -156,7 +156,7 @@ public class TestnetFaucet {
       throw new Error(sendResponse.getMessage());
     }
 
-    adnlLiteClient.waitForBalanceChange(destinationAddress, 60);
+    Utils.sleep(2);
     return adnlLiteClient.getBalance(destinationAddress);
   }
 

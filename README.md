@@ -58,8 +58,8 @@ You can use each submodule individually. Click the module below to get more deta
 * [Fift](fift/README.md) - wrapper for using external precompiled fift binary.
 * [Func](func/README.md) - wrapper for using external precompiled func binary.
 * [Tolk](tolk/README.md) - wrapper for using external precompiled tolk binary.
-* [TonConnect](tonconnect/README.md) - implementation of Ton Connect standard.
-* [Disassembler](disassembler/README.md) - implementation of Ton Connect standard.
+* [TonConnect](tonconnect/README.md) – implementation of a TON Connect standard.
+* [Disassembler](disassembler/README.md) - TON Smart Contract disassembler.
 * [TL-B](tlb/README.md) - TL-B structures and their de/serialization.
 * [TL](tl/README.md) - TL structures and their de/serialization. Used mainly for lite-server queries and responses as well as for RockDB key/values. 
 * [Utils](utils/README.md) - create private and public keys, convert data, etc.
@@ -81,7 +81,7 @@ You can use each submodule individually. Click the module below to get more deta
   - [Transfer to up to 4 recipients](#Transfer-to-up-to-4-recipients)
   - [Transfer to up to 1000 recipients](#Transfer-to-up-to-1000-recipients)
   - [Transfer to up to 1000 recipients using Secp256k1 and externally signed](#Transfer-to-up-to-1000-recipients-using-Secp256k1-and-externally-signed)
-  - [Send message to contract](#send-a-message-to-a-contract)
+  - [Send message to a contract](#send-a-message-to-a-contract)
   - [Send message signed externally](#send-message-signed-externally)
 - [Accounts](#Accounts)
   - [List transactions](#get-account-transactions)
@@ -101,16 +101,21 @@ You can use each submodule individually. Click the module below to get more deta
   - [Sell NFT](#Sell-NFT)
   - [Cancel NFT sale](#Cancel-NFT-sale)
   - [Buy NFT](#Buy-NFT)
-  - [Sell NFT on Getgems](#Sell-NFT-on-Getgems)
 - [Jettons](#Jettons)
-  - [Get info](#Retrieve-jetton-info)
-  - [Mint](#Mint-jetton)
-  - [Transfer](Transfer-jetton)
+  - [Create USDT jetton wallet](#Create-USDT-jetton-wallet)
+  - [Transfer USDT to a single wallet](#Transfer-USDT-to-a-single-wallet)
+  - [Transfer USDT to multiple wallets](#Transfer-USDT-to-multiple-wallets)
+  - [Mint Jetton](#Mint-jetton)
+  - [Get Jetton information](#Get-jetton-information)
+  - [Edit minter jetton content](#Edit-minter-jetton-content)
+  - [Edit jetton admin address](#Edit-jetton-admin-address) 
+  - [Transfer Jetton](#Transfer-jetton)
+  - [Burn Jettons](#Burn-jettons)
 - [DNS](#DNS)
   - [Resolve](#Resolve-DNS-records)
   - [Deploy own root DNS](#Deploy-own-root-DNS)
 - [Smart Contracts](#Smart-Contracts)
-  - [Retrieve contract's information](#Using-GET-methods)
+  - [Retrieve contract's information](#Smart-Contracts)
   - [Develop custom smart contract](#Develop-custom-smart-contract)
   - [Develop custom smart contract with JavaTonBuilder](#Develop-custom-smart-contract-using-JavaTonBuilder)
 - [BitString](#BitString)
@@ -125,7 +130,6 @@ You can use each submodule individually. Click the module below to get more deta
 - [TON Connect](#ton-connect)
 - [Smart contract disassembler](#Smart-contract-disassembler)
 - [Notes](#notes)
-- [FAQ](#FAQ)
 
 ## Connection
 In the TON ecosystem you can interact with a TON blockchain in four ways:
@@ -477,7 +481,7 @@ contract.waitForDeployment();
 // check if wallet is deployed
 log.info("deployed: {}", contract.isDeployed());
 
-//send toncoins
+// send toncoins
 WalletV3Config config =
   WalletV3Config.builder()
     .walletId(42)
@@ -530,7 +534,6 @@ Cell transferBody = contract.createTransferBody(config);
 byte[] signedTransferBodyHash = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), transferBody.hash());
 SendResponse sendResponse = contract.send(config, signedTransferBodyHash);
 log.info("sendResponse: {}", sendResponse);
-contract.waitForBalanceChange();
 ```
 
 ### Transfer to up to 4 recipients
@@ -592,19 +595,17 @@ try {
     String nonBounceableAddress = contract.getAddress().toNonBounceable();
 
     log.info("non-bounceable address {}", nonBounceableAddress);
-
     BigInteger balance =  TestnetFaucet.topUpContract(tonProvider, Address.of(nonBounceableAddress), Utils.toNano(2));
 
     log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
     HighloadV3Config config =
-        HighloadV3Config.builder()
-                .walletId(42)
-                .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
-                .build();
+      HighloadV3Config.builder()
+        .walletId(42)
+        .queryId(HighloadQueryId.fromSeqno(0).getQueryId())
+        .build();
 
     contract.deploy(config);
-
     contract.waitForDeployment();
 
     config = HighloadV3Config.builder()
@@ -622,7 +623,7 @@ try {
 
 In the example above we used method `createDummyDestinations()`, replace it with your logic defining recipients 
 ```java
-  static List<Destination> createDummyDestinations(int count) {
+  public static List<Destination> createDummyDestinations(int count) {
     List<Destination> result = new ArrayList<>();
     for (int i = 0; i < count; i++) {
       String dstDummyAddress = Utils.generateRandomAddress(0);
@@ -640,29 +641,22 @@ In the example above we used method `createDummyDestinations()`, replace it with
 ### Transfer to up to 1000 recipients using Secp256k1 and externally signed
 
 ```java
-
+AdnlLiteClient adnlClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
 Secp256k1KeyPair keyPair = Utils.generateSecp256k1SignatureKeyPair();
 byte[] pubKey = keyPair.getPublicKey();
 
 HighloadWalletV3S contract =
   HighloadWalletV3S.builder()
-    .tonProvider(tonlib)
+    .tonProvider(adnlClient)
     .publicKey(pubKey) // no private key is used
     .walletId(42)
     .build();
 
 String nonBounceableAddress = contract.getAddress().toNonBounceable();
-String bounceableAddress = contract.getAddress().toBounceable();
-String rawAddress = contract.getAddress().toRaw();
-
 log.info("non-bounceable address {}", nonBounceableAddress);
-log.info("    bounceable address {}", bounceableAddress);
-log.info("           raw address {}", rawAddress);
 
 // top up a new wallet using test-faucet-wallet
-BigInteger balance =
-    TestnetFaucet.topUpContract(tonlib, Address.of(nonBounceableAddress), Utils.toNano(0.5));
-Utils.sleep(30, "topping up...");
+BigInteger balance = TestnetFaucet.topUpContract(adnlClient, Address.of(nonBounceableAddress), Utils.toNano(3));
 log.info("new wallet {} balance: {}", contract.getName(), Utils.formatNanoValue(balance));
 
 HighloadV3Config config =
@@ -676,8 +670,7 @@ Cell deployBody = contract.createDeployMessage(config);
 // sign deployBody without exposing the private key and come back with a signature
 byte[] signedDeployBody = Utils.signDataSecp256k1(deployBody.hash(), keyPair.getPrivateKey(), pubKey).getSignature();
 
-SendResponse sendResponse = contract.deploy(config, signedDeployBody);
-assertThat(sendResponse.getCode()).isZero();
+contract.deploy(config, signedDeployBody);
 
 contract.waitForDeployment();
 
@@ -690,10 +683,12 @@ config = HighloadV3Config.builder()
 
 Cell transferBody = contract.createTransferMessage(config);
 
-// sign transferBody without exposing private key and come back with a signature
+// sign the transferBody without exposing the private key and come back with a signature
 byte[] signedTransferBody = Utils.signDataSecp256k1(transferBody.hash(), keyPair.getPrivateKey(), keyPair.getPublicKey()).getSignature();
 
-sendResponse = contract.send(config, signedTransferBody);
+SendResponse sendResponse = contract.send(config, signedTransferBody);
+log.info("sendResponse {}   ", sendResponse);
+log.info("sent to 1000 recipients");
 ```
 
 ### Send a message to a contract
@@ -703,7 +698,7 @@ You can also send a custom payload to a smart contract
 ```java
 // prepare 
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
-AdnlLiteClient adnlLiteClient =  AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
+AdnlLiteClient adnlLiteClient =  AdnlLiteClient.builder().testnet().build();
 WalletV3R2 contract =  WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
 
 // to deploy a wallet, you have to top it up with some toncoins first
@@ -738,84 +733,129 @@ In a critical infrastructure you store customers' private keys in a secure place
 In that case you sign data outside the main application and use already signed data within an application.
 
 ```java
-AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
-
 TweetNaclFast.Signature.KeyPair keyPair = Utils.generateSignatureKeyPair();
+byte[] publicKey = keyPair.getPublicKey();
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(5).build();
 
 WalletV3R2 wallet =
-  WalletV3R2.builder()
-    .tonProvider(adnlLiteClient)
-    .publicKey(keyPair.getPublicKey()) // no private key in app
+  WalletV3R2.builder().tonProvider(adnlLiteClient).publicKey(publicKey).walletId(42).build();
+  log.info("pub key: {}", Utils.bytesToHex(publicKey));
+  log.info("wallet address: {}", wallet.getAddress().toBounceable());
+
+BigInteger balance = TestnetFaucet.topUpContract(adnlLiteClient, wallet.getAddress(), Utils.toNano(0.1));
+log.info("walletId {} new wallet {} balance: {}",
+  wallet.getWalletId(),
+  wallet.getName(),
+  Utils.formatNanoValue(balance));
+
+// deploy using an externally signed body
+Cell deployBody = wallet.createDeployMessage();
+
+byte[] signedDeployBodyHash = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), deployBody.hash());
+
+wallet.deploy(signedDeployBodyHash);
+log.info("deploying wallet");
+
+wallet.waitForDeployment();
+log.info("deployed");
+
+// send toncoins
+WalletV3Config config =
+  WalletV3Config.builder()
     .walletId(42)
+    .seqno(wallet.getSeqno())
+    .destination(Address.of(TestnetFaucet.BOUNCEABLE))
+    .amount(Utils.toNano(0.08))
+    .comment("testWalletV3R2-signed-externally")
     .build();
 
-// Create a payload, sign elsewhere (HSM), then deploy
-Cell deployBody = wallet.createDeployMessage();
-byte[] signature = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), deployBody.hash());
-
-wallet.signature(signedData);
+// transfer coins from a new wallet (back to faucet) using an externally signed body
+Cell transferBody = wallet.createTransferBody(config);
+byte[] signedTransferBodyHash = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), transferBody.hash());
+SendResponse sendResponse = wallet.send(config, signedTransferBodyHash);
+log.info("sendResponse: {}", sendResponse);
 ```
 More examples on how to work with TON wallets in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract).
 
 ## Accounts
-
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>smartcontract</artifactId>
+    <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>adnl</artifactId>
+    <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>tonlib</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 ### Get account transactions
 
 With the help of an ADNL lite-client limited by 10 transactions
 
 ```java
-AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-TransactionList transactionList = client.getTransactions(Address.of("wallet-address"), 0, null, 10);
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
+TransactionList transactionList = adnlLiteClient.getTransactions(Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N"), 0, null, 10);
 for (Transaction tx : transactionList.getTransactionsParsed()) {
   log.info("tx {}", tx);
 }
 ```
+or
+```java
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().mainnet().build();        
+adnlLiteClient.printAccountTransactions(Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N"));
+```
+or with messages
+```java
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().mainnet().build();        
+adnlLiteClient.printAccountTransactions(Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N"), true);
+```
 
 With help of Tonlibjson shared library
 ```java
-Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).build();
-tonlib.printAccountTransactions(Address.of("wallet-address"), 20, true);
+Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).testnet(false).build();
+tonlib.printAccountTransactions(Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N"), 20, true);
 ```
 
 ### Get account messages
 With help of Tonlibjson shared library
 ```java
-Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).build();
-tonlib.printAccountMessages(Address.of("wallet-address"), 20, true);
+Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).testnet(false).build();
+tonlib.printAccountMessages(Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N"), 20);
 ```
 
 ### Get account balance
 With help of Tonlibjson shared library
 ```java
-Tonlib tonlib =
-  Tonlib.builder()
-    .pathToTonlibSharedLib(Utils.getTonlibGithubUrl())
-    .testnet(false)
-    .build();
-BigInteger balance = tonlib.getAccountBalance(Address.of("wallet-address"));
+Tonlib tonlib = Tonlib.builder().pathToTonlibSharedLib(Utils.getTonlibGithubUrl()).testnet(false).build();
+log.info("balance {}", tonlib.getAccountBalance(Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N")));
 ```
 
 With help of ADNL lite-client
 ```java
-AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-log.info("balance {}", adnlLiteClient.getBalance(Address.of("wallet-address")));
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
+log.info("balance {}", adnlLiteClient.getBalance(Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N")));
 ```
 
 ### Get account state
 - Using TonCenter V3 client
 ```java
-  TonCenterV3 client =
-    TonCenterV3.builder()
-      .mainnet()
-      .connectTimeout(Duration.ofSeconds(15))
-      .readTimeout(Duration.ofSeconds(30))
-      .apiKey(API_KEY);
-      .build(); 
+TonCenterV3 client =
+  TonCenterV3.builder()
+    .mainnet()
+    .connectTimeout(Duration.ofSeconds(15))
+    .readTimeout(Duration.ofSeconds(30))
+    .apiKey("")
+    .build(); 
 try {
-  List<String> addresses = Collections.singletonList(TEST_ADDRESS);
+  List<String> addresses = Collections.singletonList("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N");
   AccountStatesResponse response = client.getAccountStates(addresses, true);
-  assertNotNull(response);
-  assertNotNull(response.getAccounts());
   log.info("Retrieved {} account states", response.getAccounts().size());
   log.info(response.toString());
 } finally {
@@ -825,21 +865,29 @@ try {
 
 Using an ADNL lite-client
 ```java
-  AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
-  MasterchainInfo info = client.getMasterchainInfo();
-  AccountState accountState = client.getAccountState(info.getLast(), Address.of(getAddress()));
+  AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
+  MasterchainInfo info = adnlLiteClient.getMasterchainInfo();
+  AccountState accountState = adnlLiteClient.getAccountState(info.getLast(), Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N"));
 ```
-Many more examples in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract).
+Many more examples on how to use different types of wallets can be found in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract).
 
 ## Get blockchain block
 Get the most recent block using an ADNL lite-client, parsed as per TL-B schema
 ```java
-MasterchainInfo masterchainInfo = client.getMasterchainInfo();
-BlockData blockData = client.getBlock(masterchainInfo.getLast());
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
+MasterchainInfo masterchainInfo = adnlLiteClient.getMasterchainInfo();
+BlockData blockData = adnlLiteClient.getBlock(masterchainInfo.getLast());
 log.info("Block  {}", blockData.getBlock());
 ```
 
 ## Generate mnemonic and keypair
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>mnemonic</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 
 ```java
 // generate 24-word mnemonic
@@ -855,8 +903,25 @@ TweetNaclFast.Signature.KeyPair quickKeyPair = Utils.generateSignatureKeyPair();
 ```
 
 ## NFT
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>smartcontract</artifactId>
+    <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>adnl</artifactId>
+    <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>utils</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 Get familiar with [NFT](https://docs.ton.org/standard/tokens/nft/overview) in TON. 
-[Here](https://github.com/ton-blockchain/nft-contract) you can also look at reference implementation of NFT (non-fungible token) smart contract for TON.
+[Here](https://github.com/ton-blockchain/nft-contract) you can also look at the reference implementation of NFT (non-fungible token) smart contract for TON.
 
 ### Mint NFT collection
 
@@ -864,13 +929,15 @@ For a quick demonstration we use `GenerateWallet.randomV3R1()` method that creat
 
 Firstly, you have to create an NFT collection and then mint NFT items.
 ```java
-WalletV3R1 adminWallet = GenerateWallet.randomV3R1(tonlib, 7);
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().testnet().build();
+
+WalletV3R1 adminWallet = GenerateWallet.randomV3R1(adnlLiteClient, 7);
 log.info("admin wallet address {}", adminWallet.getAddress());
 
 // define NFT collection
 NftCollection nftCollection =
   NftCollection.builder()
-    .tonProvider(tonlib)
+    .tonProvider(adnlLiteClient)
     .adminAddress(adminWallet.getAddress())
     .royalty(0.13)
     .royaltyAddress(adminWallet.getAddress())
@@ -911,8 +978,7 @@ adminWalletConfig =
     .build();
 
 // deploying NFT item #1
-sendResponse = adminWallet.send(adminWalletConfig);
-assertThat(sendResponse.getCode()).isZero();
+adminWallet.send(adminWalletConfig);
 ```
 
 ### Get NFT information
@@ -921,48 +987,47 @@ CollectionData data = nftCollection.getCollectionData();
 log.info("nft collection itemsCount {}", data.getItemsCount());
 log.info("nft collection nextItemIndex {}", data.getNextItemIndex());
 log.info("nft collection owner {}", data.getOwnerAddress());
-nftItemAddress = nftCollection.getNftItemAddressByIndex(BigInteger.ZERO);
+Address nftItemAddress = nftCollection.getNftItemAddressByIndex(BigInteger.ZERO);
 log.info("address at index 0 = {}", nftItemAddress);
-Royalty royalty = nftCollection.getRoyaltyParams();
-log.info("nft collection royalty address {}", royalty.getRoyaltyAddress());
+log.info("nft collection royalty params {}", nftCollection.getRoyaltyParams());
 ```
 
 ### Transfer NFT
 ```java
-WalletV3Config walletV3Config =
+adminWalletConfig =
   WalletV3Config.builder()
     .walletId(42)
-    .seqno(wallet.getSeqno())
+    .seqno(adminWallet.getSeqno())
     .destination(nftItemAddress)
-    .amount(msgValue)
-    .body(NftItem.createTransferBody(queryId, Address.of("new-owner-address"), forwardAmount, forwardPayload, responseAddress))
+    .amount(Utils.toNano(0.1))
+    .body(NftItem.createTransferBody(1, Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N"), BigInteger.ONE, null, null))
     .build();
-wallet.send(walletV3Config); 
+adminWallet.send(adminWalletConfig); 
 ```
 
 ### Change NFT collection owner
 ```java
-WalletV3Config adminWalletV3Config =
+adminWalletConfig =
   WalletV3Config.builder()
     .walletId(42)
-    .seqno(wallet.getSeqno())
-    .destination("nftCollectionAddress")
+    .seqno(adminWallet.getSeqno())
+    .destination(nftCollection.getAddress())
     .amount(Utils.toNano(0.055))
-    .body(NftCollection.createChangeOwnerBody(0, "newOwnerAddress"))
+    .body(NftCollection.createChangeOwnerBody(0, Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N")))
     .build();
-adminWallet.send(adminWalletV3Config);
+adminWallet.send(adminWalletConfig);
 ```
 ### Edit NFT collection content
 ```java
-WalletV3Config adminWalletV3Config =
+adminWalletConfig =
   WalletV3Config.builder()
     .walletId(42)
-    .seqno(wallet.getSeqno())
-    .destination("nftCollectionAddress")
+    .seqno(adminWallet.getSeqno())
+    .destination(nftCollection.getAddress())
     .amount(Utils.toNano(0.055))
-    .body(NftCollection.createEditContentBody( 0, "ton://my-new-nft/collection.json", "ton://my-new-nft/", newRoyalty, "newRoyaltyAddress"))
+    .body(NftCollection.createEditContentBody(0, "ton://my-new-nft/collection.json", "ton://my-new-nft/",0.005, Address.of("newRoyaltyAddress")))
     .build();
-adminWallet.send(adminWalletV3Config);
+adminWallet.send(adminWalletConfig);
 ```
 
 ### Create your own NFT marketplace
@@ -995,14 +1060,14 @@ NftSale nftSale =
 log.info("nft-sale address {}", nftSale.getAddress());
 
 // deploy NFT sale smart contract on a marketplace from the admin wallet
-body = CellBuilder.beginCell()
+Cell body = CellBuilder.beginCell()
   .storeUint(1, 32)
   .storeCoins(Utils.toNano(0.06))
   .storeRef(nftSale.getStateInit().toCell())
   .storeRef(CellBuilder.beginCell().endCell())
   .endCell();
 
-adminWalletConfig = WalletV3Config.builder()
+WalletV3Config adminWalletConfig = WalletV3Config.builder()
   .walletId(42)
   .seqno(adminWallet.getSeqno())
   .destination(marketplace.getAddress())
@@ -1017,16 +1082,16 @@ adminWalletConfig = WalletV3Config.builder()
     .seqno(wallet.getSeqno())
     .destination(nftItemAddress)
     .amount(msgValue)
-    .body(NftItem.createTransferBody(queryId, nftSale.getAddress(), forwardAmount, forwardPayload, responseAddress))
+    .body(NftItem.createTransferBody(BigInteger.ONE, nftSale.getAddress(), BigInteger.ONE, forwardPayload, Address.of("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N")))
     .build();
-wallet.send(adminWalletConfig); 
+adminWallet.send(adminWalletConfig); 
 ```
 
 ### Cancel NFT sale
 When a user cancels the sale of his NFT item, the NFT item automatically moves from the NFT Sale smart contract back to adminWallet, 
 and the NFT Sale smart contract becomes uninitialized.
 ```java
-adminWalletConfig = WalletV3Config.builder()
+WalletV3Config adminWalletConfig = WalletV3Config.builder()
   .walletId(42)
   .seqno(adminWallet.getSeqno())
   .destination(nftSale.getAddress())
@@ -1047,77 +1112,341 @@ WalletV3Config nftItemBuyerWalletV3Config =  WalletV3Config.builder()
   .build();
 nftItemBuyer.send(nftItemBuyerWalletV3Config);
 ```
-
-### Sell NFT on Getgems
-Getgems is a NFT marketplace that allows you to sell and buy NFT items to/from the community.
-
-```java
-Getgems getgems = Getgems.builder().tonProvider(adnlLiteClient).build();
-```
-
 More examples on how to work with NFT in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestNft.java).
 
 ## Jettons
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>smartcontract</artifactId>
+    <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>adnl</artifactId>
+    <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>utils</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 Get familiar with [Jetton](https://docs.ton.org/standard/tokens/jettons/overview) in TON.
 [Here](https://github.com/ton-blockchain/jetton-contract) you can also look at the reference implementation of Jetton V2 smart contract for TON.
 
 ### Create USDT jetton wallet
-Load your keypair from either mnemonic or hex private key.
+
+Load your keypair from either mnemonic or hex private key. 
+You also need to know a subwallet ID of your wallet, you need it for wallets of version V4 and V5.
+You can get either by running `get_subwallet_id` on smart contract or using online explorers like [tonviewer.com](tonviewer.com) or [tonscan.org](tonviewer.com), go to section `methods` and enter method name `get_subwallet_id`.
 
 ```java
 // load your secret phrase
-TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(Mnemonic.toKeyPair("your secret phrase").getSecretKey());
+TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(Mnemonic.toKeyPair("your-secret-phrase").getSecretKey());
 
 // or specify it hex format
-byte[] secretKey = Utils.hexToSignedBytes("your-hex-secret-key");
+//byte[] secretKey = Utils.hexToSignedBytes("your-hex-secret-key");
 // use when you have 64 bytes private key
-TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSecretKey(secretKey);
+//TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSecretKey(secretKey);
 // use when you have 32 bytes private key
-TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
+//TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
 
-//create your wallet
-WalletV3R2 myWallet = WalletV3R2.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId(42).build();
+AdnlLiteClient adnlLiteClient = AdnlLiteClient.builder().mainnet().build();
 
-JettonMinterStableCoin usdtMasterWallet = 
-  JettonMinterStableCoin.builder()
-    .tonProvider(adnlLiteClient)
-    .customAddress(Address.of("EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs")) // USDT MASTER WALLET IN MAINNET
-    .build();
+// define your wallet
+WalletV5 myWallet = WalletV5.builder().tonProvider(adnlLiteClient).keyPair(keyPair).walletId("your-subwallet-id").isSigAuthAllowed(true).build();
+log.info("myWallet address: {}", myWallet.getAddress().toBounceable());
 
-// get jetton wallet offline
-Address myJettonWalletAddress =
-        JettonWalletV2.calculateUserJettonWalletAddress(
-                0, adminWallet.getAddress(), minter.getAddress(), JettonMinterStableCoin.CODE_CELL);
+// this is your USDT jetton wallet address
+log.info("myJettonWallet address: {}", myWallet.getUsdtWalletAddressOffline().toBounceable());
+log.info("myJettonWallet address: {}", myWallet.getUsdtWalletAddressOffline().toRaw());
 
-// get jetton wallet online
-JettonWalletStableCoin myJettonWallet = usdtMasterWallet.getJettonWallet(myWallet.getAddress());
+// usdt balance
+log.info("myJettonWallet balance: {}", myWallet.getUsdtBalance());
+
+// you can get the same jetton's details using online methods
+JettonWallet myJettonWallet = myWallet.getUsdtWallet();
+//
+log.info("myJettonWallet address: {}", myJettonWallet.getAddress().toBounceable());
+log.info("myJettonWallet address: {}", myJettonWallet.getAddress().toRaw());
+log.info("myJettonWallet balance: {}", myJettonWallet.getBalance());
+
+// you can also get a balance of any jetton, not only usdt.
+log.info("balance: {}",
+  ContractUtils.getJettonBalance(
+    adnlLiteClient,
+    address.of("EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT"), // jetton's minter address, e.g. NOT coin
+    myWallet.getAddress()));
 
 ```
-### Transfer USDT
+### Transfer USDT to a single wallet
+Continuing the above example, transfer USDT to a single user
+
 ```java
-WalletV3Config walletV3Config =
-  WalletV3Config.builder()
-    .walletId(42)
+WalletV5Config myWalletConfig =
+  WalletV5Config.builder()
+    .walletId("your-subwallet-id")
     .seqno(myWallet.getSeqno())
-    .destination(myJettonWallet.getAddress())
-    .amount(Utils.toNano(0.02))
-    .body(
-      JettonWalletStableCoin.createTransferBody(
+    .amount(Utils.toNano(0.01))
+    .recipients(
+      Collections.singletonList(
+        Destination.builder()
+          .bounce(true)
+          .address(myJettonWallet.getAddress().toBounceable())
+          .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
+          .amount(Utils.toNano(0.05))
+          .body(JettonWallet.createTransferBody(
+            0, // query id
+            Utils.toUsdt(0.1), // $0.1, number of jettons
+            Address.of("recipient-address"), // recipient
+            myJettonWallet.getAddress(), // response address
+            null, // custom payload
+            BigInteger.ONE, // forward amount
+            MsgUtils.createTextMessageBody("v5-jetton-tx-demo"))) // forward payload
+          .build()))
+          .build();
+SendResponse sendResponse = myWallet.send(myWalletConfig);
+log.info("sendResponse: {}", sendResponse);
+```
+
+### Transfer USDT to multiple wallets
+
+```java
+WalletV5Config myWalletConfig =
+  WalletV5Config.builder()
+    .walletId(2147483409)
+    .seqno(myWallet.getSeqno())
+    .amount(Utils.toNano(0.01))
+    .recipients(List.of(
+      Destination.builder()
+        .bounce(true)
+        .address(myJettonWallet.getAddress().toBounceable())
+        .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
+        .amount(Utils.toNano(0.05))
+        .body(JettonWallet.createTransferBody(
+          0,
+          Utils.toUsdt(0.01), // $0.1
+          Address.of("recipient-1"), // recipient
+          myJettonWallet.getAddress(), // response address
+          null, // custom payload
+          BigInteger.ONE, // forward amount
+          MsgUtils.createTextMessageBody("v5-jetton-tx-demo") ))// forward payload
+        .build(),
+      Destination.builder()
+        .bounce(true)
+        .address(myJettonWallet.getAddress().toBounceable())
+        .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
+        .amount(Utils.toNano(0.05))
+        .body(JettonWallet.createTransferBody(
+          0,
+          Utils.toUsdt(0.01), // $0.1
+          Address.of("recipient-2"), // recipient
+          myJettonWallet.getAddress(), // response address
+          null, // custom payload
+          BigInteger.ONE, // forward amount
+          MsgUtils.createTextMessageBody("v5-jetton-tx-demo") ))// forward payload
+        .build(),
+      Destination.builder()
+        .bounce(true)
+        .address(myJettonWallet.getAddress().toBounceable())
+        .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
+        .amount(Utils.toNano(0.05))
+        .body(JettonWallet.createTransferBody(
+          0,
+          Utils.toUsdt(0.01), // $0.1
+          Address.of("recipient-3"), // recipient
+          myJettonWallet.getAddress(), // response address
+          null, // custom payload
+          BigInteger.ONE, // forward amount
+          MsgUtils.createTextMessageBody("v5-jetton-tx-demo") ))// forward payload
+        .build(),
+      Destination.builder()
+        .bounce(true)
+        .address(myJettonWallet.getAddress().toBounceable())
+        .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
+        .amount(Utils.toNano(0.05))
+        .body(JettonWallet.createTransferBody(
+          0,
+          Utils.toUsdt(0.01), // $0.1
+          Address.of("recipient-4"), // recipient
+          myJettonWallet.getAddress(), // response address
+          null, // custom payload
+          BigInteger.ONE, // forward amount
+          MsgUtils.createTextMessageBody("v5-jetton-tx-demo") ))// forward payload
+        .build(),
+      Destination.builder()
+        .bounce(true)
+        .address(myJettonWallet.getAddress().toBounceable())
+        .sendMode(SendMode.PAY_GAS_SEPARATELY_AND_IGNORE_ERRORS)
+        .amount(Utils.toNano(0.05))
+        .body(JettonWallet.createTransferBody(
+          0,
+          Utils.toUsdt(0.01), // $0.1
+          Address.of("recepient-5"), // recipient
+          myJettonWallet.getAddress(), // response address
+          null, // custom payload
+          BigInteger.ONE, // forward amount
+          MsgUtils.createTextMessageBody("v5-jetton-tx-demo") ))// forward payload
+        .build()
+      ))
+  .build();
+SendResponse sendResponse = myWallet.send(myWalletConfig);
+log.info("sendResponse: {}", sendResponse);
+```
+
+### Mint Jetton
+
+```java
+TonProvider adnlLiteClient = AdnlLiteClient.builder().testnet().liteServerIndex(2).build();
+adminWallet = GenerateWallet.randomV4R2(adnlLiteClient, 2);
+nextAdminWallet = GenerateWallet.randomV4R2(adnlLiteClient, 1);
+
+log.info("admin wallet address {}", adminWallet.getAddress());
+log.info("next admin wallet address {}", nextAdminWallet.getAddress());
+
+JettonMinterV2 minter =
+  JettonMinterV2.builder()
+    .tonProvider(adnlLiteClient)
+    .adminAddress(adminWallet.getAddress())
+    .nextAdminAddress(nextAdminWallet.getAddress())
+    .content(
+      CellBuilder.beginCell()
+        .storeSnakeString(
+            "https://raw.githubusercontent.com/ton-blockchain/ton4j/main/1-media/neo-jetton.json")
+        .endCell())
+  .build();
+
+    log.info("jetton minter address {}", minter.getAddress());
+
+// deploy jetton minter contract from the admin wallet
+WalletV4R2Config walletV4Config =
+        WalletV4R2Config.builder()
+                .walletId(42)
+                .seqno(adminWallet.getSeqno())
+                .destination(minter.getAddress())
+                .amount(Utils.toNano(0.2))
+                .stateInit(minter.getStateInit())
+                .comment("deploy minter")
+                .build();
+
+SendResponse sendResponse = adminWallet.send(walletV4Config);
+log.info("sendResponse {}", sendResponse);
+log.info("deploying minter...");
+minter.waitForDeployment();
+
+// mint jettons
+walletV4Config =
+  WalletV4R2Config.builder()
+    .walletId(42)
+    .seqno(adminWallet.getSeqno())
+    .destination(minter.getAddress())
+    .amount(Utils.toNano(0.1))
+    .body(JettonMinterV2.createMintBody(
         0, // query id
-        Utils.toUsdt(0.02), // 2 cents
+        adminWallet.getAddress(),
+        Utils.toNano(0.1),
+        100500, // number of jettons to mint, mind the decimal point
+        null, // from address
+        null, // response address
+        BigInteger.ONE,
+        MsgUtils.createTextMessageBody("minting")))
+.build();
+
+sendResponse = adminWallet.send(walletV4Config);
+log.info("sendResponse {}", sendResponse);
+log.info("minting...");
+```
+
+### Get Jetton information
+```java
+JettonMinterData data = minter.getJettonData();
+log.info("minter adminAddress {} {}", data.getAdminAddress(), data.getAdminAddress().toRaw());
+log.info("minter totalSupply {}", data.getTotalSupply());
+log.info("minter jetton content cell {}", data.getJettonContentCell());
+```
+
+### Edit minter jetton content
+```java
+walletV4Config =
+    WalletV4R2Config.builder()
+        .walletId(42)
+        .seqno(adminWallet.getSeqno())
+        .destination(minter.getAddress())
+        .amount(Utils.toNano(0.05))
+        .body(JettonMinterV2.createChangeMetaDataUriBody(
+                "http://localhost/nft-marketplace/my_collection_1.json", 0))
+        .build();
+sendResponse = adminWallet.send(walletV4Config);
+log.info("sendResponse {}", sendResponse);
+```
+
+### Edit jetton admin address
+```java
+walletV4Config =
+    WalletV4R2Config.builder()
+        .walletId(42)
+        .seqno(adminWallet.getSeqno())
+        .destination(minter.getAddress())
+        .amount(Utils.toNano(0.05))
+        .body(JettonMinterV2.createChangeAdminBody(0, Address.of("NEW_ADMIN_ADDRESS")))
+        .build();
+sendResponse = adminWallet.send(walletV4Config);
+log.info("send response {}", sendResponse);
+```
+
+### Transfer jetton
+
+```java
+walletV4Config =
+    WalletV4R2Config.builder()
+    .walletId(42)
+    .seqno(adminWallet.getSeqno())
+    .destination(adminJettonWallet.getAddress())
+    .amount(Utils.toNano(0.05))
+    .body(JettonWalletV2.createTransferBody(
+        0,
+        444, // number of jettons to transfer
         Address.of("recipient-address"), // recipient
         null, // response address
+        null, // custom payload
         BigInteger.ONE, // forward amount
-        MsgUtils.createTextMessageBody("gift")) // forward payload
-      )
-    .build();
-SendResponse sendResponse = myWallet.send(walletV3Config);
+        MsgUtils.createTextMessageBody("gift"))) // forward payload
+        .build();
+sendResponse = adminWallet.send(walletV4Config);
 assertThat(sendResponse.getCode()).isZero();
+
+Utils.sleep(5, "transferring 444 jettons...");
+log.info("admin balance {}", Utils.formatNanoValue(adminJettonWallet.getBalance()));
 ```
 
-More examples on how to mint own Jetton V2, as well as administrate it can be found in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestJettonV2.java).
+### Burn jettons
+```java
+walletV4Config =
+    WalletV4R2Config.builder()
+    .walletId(42)
+    .seqno(adminWallet.getSeqno())
+    .destination(adminJettonWallet.getAddress())
+    .amount(Utils.toNano(0.05))
+    .body(JettonWalletV2.createBurnBody(
+             0,    // query id
+             111), // number of jettons to burn 
+           adminWallet.getAddress()))
+    .build();
+sendResponse = adminWallet.send(walletV4Config);
+log.info("sendResponse {}", sendResponse);
+```
+
+More examples on how to mint Jettons, as well as administrate them, can be found in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestJettonV2.java).
 
 ## DNS
+```xml
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>smartcontract</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 With the help of `ton4j` you can resolve DNS name of any site or wallet.
 You can even deploy your own DNS resolution smart contract, also called a root DNS contract.
 In TON blockchain DNS names are NFT items, means you can deploy a collection of names, sell, buy, change and transfer them. 
@@ -1184,6 +1513,23 @@ assertThat(dnsRootContract.isDeployed()).isTrue();
 More DNS examples on how to deploy a DNS collection and manipulate DNS items see [here](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestDns.java).
 
 ## Smart Contracts
+```xml
+<dependency>
+  <groupId>org.ton.ton4j</groupId>
+  <artifactId>smartcontract</artifactId>
+  <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>adnl</artifactId>
+    <version>1.3.5</version>
+</dependency>
+<dependency>
+    <groupId>org.ton.ton4j</groupId>
+    <artifactId>utils</artifactId>
+    <version>1.3.5</version>
+</dependency>
+```
 You can fetch contract's data either by using directly TonProvider client or by calling ready-to-use getters of various wallet contracts.
 
 ### Using GET methods from TON providers
@@ -1198,18 +1544,18 @@ public RunMethodResult runMethod(BlockIdExt id, int mode, Address accountAddress
 below example shows how to call V4R2 contract's method `is_plugin_installed` with two parameters:
 ```java
 RunMethodResult runMethodResult =
-    ((AdnlLiteClient) provider)
-        .runMethod(
-        "your-wallet-v4-address",
-        "is_plugin_installed",
-        VmStackValueInt.builder().value(BigInteger.valueOf(pluginAddress.wc)).build(),
-        VmStackValueInt.builder().value(new BigInteger(hashPart)).build());
+  ((AdnlLiteClient) provider)
+    .runMethod(
+      "your-wallet-v4-address",
+      "is_plugin_installed",
+      VmStackValueInt.builder().value(BigInteger.valueOf(pluginAddress.wc)).build(),
+      VmStackValueInt.builder().value(new BigInteger(hashPart)).build());
 
 return runMethodResult.getIntByIndex(0).intValue() != 0;
 ```
 
 Similar run methods are available in Tonlib and TonCenter providers
-#### tonlib run method usage
+#### Tonlib run method usage
 ```java
 public RunResult runMethod(Address contractAddress, String methodName);
 public RunResult runMethod(Address contractAddress, String methodName, BlockIdExt blockId);
@@ -1225,7 +1571,7 @@ public TonResponse<RunGetMethodResponse> runGetMethod(String address, Object met
 TonResponse<RunGetMethodResponse> r = ((TonCenter) provider).runGetMethod(getAddress().toBounceable(), "wallet_id", new ArrayList<>());
 ```
 
-### Using GET methods from wallets
+### Using GET methods
 `ton4j` provides Java classes for standard wallets, like `Multisig`, `Highload`, `V3R2` etc.
 All of them have many ready-to-use helpful methods for standard methods, like `seqno`, `wallet_id`, `get_public_key`.
 Some have specific methods only relevant for that contract, e.g. V4R2 has: `isPluginInstalled`, `getPluginsList`, 
@@ -1769,6 +2115,13 @@ InternalMessageInfo internalMessageInfo =
 InternalMessageInfo loadedInternalMessageInfo = InternalMessageInfo.deserialize(CellSlice.beginParse(internalMessageInfo.toCell()));
 ```
 ## Emulators
+```xml
+<dependency>
+  <groupId>org.ton.ton4j</groupId>
+  <artifactId>emulator</artifactId>
+  <version>1.3.5</version>
+</dependency>
+```
 TON provides two types of Emulators: `Transaction` and `TVM`. 
 Both are used to quickly test behavior in an emulated environment. 
 
@@ -1932,6 +2285,13 @@ log.info("new transaction {}", result.getTransaction());
 log.info("new actions {}", result.getActions());
 ```
 ## TON connect
+```xml
+<dependency>
+  <groupId>org.ton.ton4j</groupId>
+  <artifactId>tonconnect</artifactId>
+  <version>1.3.5</version>
+</dependency>
+```
 Read about the TON Connect and how it works [here](https://docs.ton.org/develop/dapps/ton-connect/sign#how-does-it-work).
 Below are step-by-step instructions how it works in `ton4j`.
 
@@ -1949,8 +2309,8 @@ Address address = Address.of(addressStr);
 Account account = client.getAccount(address);
 log.info("account {}", account);
 
-// Step 1. Now user can initia a sign-in process at the dapp's frontend, then daps sends a request to the backend
-// go generate a ton_proff payload
+// Step 1. User initiates a sign-in process at the dapp's frontend, then dapp sends a request to the backend
+// to generate a ton_proof payload
 
 // Step 2. Backend generates a TonProof entity and sends it to a frontend
 
@@ -2015,7 +2375,7 @@ log.info("account:{}", walletAccount);
 assertThat(TonConnect.checkProof(tonProof, walletAccount)).isTrue();
 ```
 
-A shorter and clear example
+A shorter example
 ```java
 String addressStr = "0:2d29bfa071c8c62fa3398b661a842e60f04cb8a915fb3e749ef7c6c41343e16c";
 
@@ -2080,9 +2440,6 @@ String disassembledInstructions = Disassembler.fromBoc(accountStateCode);
 - Testnet faucet only works on testnet. On the mainnet, top up the wallet address externally before deploying.
 - Prefer public-key-only flows and external signing when private keys must not be exposed.
 - More wallet and smart-contract examples live in `smartcontract/src/test/java/org/ton/ton4j/smartcontract`.
-
-## FAQ
-- todo
 
 ## Features
 

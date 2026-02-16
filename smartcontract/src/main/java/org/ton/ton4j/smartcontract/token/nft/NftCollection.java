@@ -19,6 +19,7 @@ import org.ton.ton4j.provider.TonProvider;
 import org.ton.ton4j.provider.SendResponse;
 import org.ton.ton4j.smartcontract.types.*;
 import org.ton.ton4j.smartcontract.wallet.Contract;
+import org.ton.ton4j.tl.liteserver.responses.RunMethodResult;
 import org.ton.ton4j.tlb.*;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.toncenter.model.RunGetMethodResponse;
@@ -309,10 +310,26 @@ public class NftCollection implements Contract {
         throw new Error("Error getting collection data: " + e.getMessage());
       }
     } else if (provider instanceof AdnlLiteClient) {
-      // Implementation for AdnlLiteClient
-      // This would be similar to the TonCenter implementation but using adnlLiteClient.runMethod
-      // Not implemented yet
-      throw new Error("AdnlLiteClient implementation for getCollectionData not yet available");
+      RunMethodResult result = ((AdnlLiteClient) provider).runMethod(myAddress, "get_collection_data");
+      long nextItemIndex = result.getIntByIndex(0).longValue();
+      Cell collectionContentCell = result.getCellByIndex(1);
+      Cell addressCell = result.getSliceByIndex(2).toCell();
+
+      Address ownerAddress = CellSlice.beginParse(addressCell.getRefs().get(0)).loadAddress();
+
+      String collectionContentUri = null;
+      try {
+        collectionContentUri = NftUtils.parseOffChainUriCell(collectionContentCell);
+      } catch (Error e) {
+        // todo
+      }
+      return CollectionData.builder()
+              .nextItemIndex(nextItemIndex)
+              .ownerAddress(ownerAddress)
+              .collectionContentCell(collectionContentCell)
+              .collectionContentUri(collectionContentUri)
+              .build();
+//      throw new Error("AdnlLiteClient implementation for getCollectionData not yet available");
     } else if (provider instanceof Tonlib) {
 
       // Fallback to Tonlib
@@ -458,10 +475,9 @@ public class NftCollection implements Contract {
         throw new Error("Error getting NFT address by index: " + e.getMessage());
       }
     } else if (provider instanceof AdnlLiteClient) {
-      // Implementation for AdnlLiteClient
-      // Not implemented yet
-      throw new Error(
-          "AdnlLiteClient implementation for getNftItemAddressByIndex not yet available");
+      RunMethodResult result = ((AdnlLiteClient) provider).runMethod(myAddress, "get_nft_address_by_index", VmStackValueInt.builder().value(index).build());
+      Cell addressCell = result.getSliceByIndex(0).toCell();
+      return CellSlice.beginParse(addressCell.getRefs().get(0)).loadAddress();
     } else if (provider instanceof Tonlib) {
       // Fallback to Tonlib
       Deque<String> stack = new ArrayDeque<>();
@@ -508,8 +524,9 @@ public class NftCollection implements Contract {
         Map<String, String> l = (LinkedTreeMap<String, String>) elements.get(1);
         Cell c = Cell.fromBocBase64(l.get("bytes"));
         Address royaltyAddress = CellSlice.beginParse(c).loadAddress();
-
+        double royalty = (double) royaltyNumerator / royaltyDenominator;
         return Royalty.builder()
+            .royalty(royalty)
             .royaltyFactor(BigInteger.valueOf(royaltyNumerator))
             .royaltyBase(BigInteger.valueOf(royaltyDenominator))
             .royaltyAddress(royaltyAddress)
@@ -518,12 +535,18 @@ public class NftCollection implements Contract {
         throw new Error("Error getting royalty params: " + e.getMessage());
       }
     } else if (provider instanceof AdnlLiteClient) {
-      // Implementation for AdnlLiteClient
-      // Not implemented yet
-      throw new Error("AdnlLiteClient implementation for getRoyaltyParams not yet available");
-    } else if (provider instanceof Tonlib) {
+      RunMethodResult result = ((AdnlLiteClient) provider).runMethod(myAddress, "royalty_params");
 
-      // Fallback to Tonlib
+      Cell royaltyAddressC = result.getSliceByIndex(2).toCell();
+      Address royaltyAddress = CellSlice.beginParse(royaltyAddressC.getRefs().get(0)).loadAddress();
+      double royalty = (double) result.getIntByIndex(0).longValue()/ result.getIntByIndex(1).longValue();
+      return Royalty.builder()
+              .royalty(royalty)
+              .royaltyFactor(result.getIntByIndex(0))
+              .royaltyBase(result.getIntByIndex(1))
+              .royaltyAddress(royaltyAddress)
+              .build();
+    } else if (provider instanceof Tonlib) {
       return NftUtils.getRoyaltyParams((Tonlib) provider, myAddress);
     } else {
       throw new Error("provider not set");
