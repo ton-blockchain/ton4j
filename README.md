@@ -194,18 +194,18 @@ Connect to the TON **Mainnet** using an ADNL lite-client.
 ```
 
 ```java
-AdnlLiteClient client = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMainnetGithub()).build();
+AdnlLiteClient client = AdnlLiteClient.builder().mainnet().build();
 MasterchainInfo info = client.getMasterchainInfo();
 ```
 Connect to the TON **Testnet**
 ```java
-AdnlLiteClient client = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlTestnetGithub()).build();
+AdnlLiteClient client = AdnlLiteClient.builder().testnet().build();
 MasterchainInfo info = client.getMasterchainInfo();
 ```
 
 Connect to **MyLocalTon**
 ```java
-AdnlLiteClient client = AdnlLiteClient.builder().configUrl(Utils.getGlobalConfigUrlMyLocalTon()).build();
+AdnlLiteClient client = AdnlLiteClient.builder().myLocalTon().build();
 MasterchainInfo info = client.getMasterchainInfo();
 ```
 More examples with AdnlLiteClient can be found in [tests](adnl/src/test/java/org/ton/ton4j/adnl/AdnlLiteClientTest.java).
