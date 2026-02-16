@@ -19,7 +19,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>toncenter-indexer-v3</artifactId>
-    <version>1.3.5</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
@@ -30,7 +30,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>1.3.5</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
