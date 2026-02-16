@@ -117,7 +117,6 @@ You can use each submodule individually. Click the module below to get more deta
 - [Smart Contracts](#Smart-Contracts)
   - [Retrieve contract's information](#Smart-Contracts)
   - [Develop custom smart contract](#Develop-custom-smart-contract)
-  - [Develop custom smart contract with JavaTonBuilder](#Develop-custom-smart-contract-using-JavaTonBuilder)
 - [BitString](#BitString)
 - [Cells](#Cells)
   - [Create using CellBuilder](#Cell-Builder)
@@ -1730,16 +1729,6 @@ tonlib.waitForDeployment(address);
 RunResult runResult = tonlib.runMethod(address, "currentCounter");
 long currentCounter = ((TvmStackEntryNumber) runResult.getStack().get(0)).getNumber().longValue();
 log.info("currentCounter {}", currentCounter);
-```
-
-### Develop custom smart contract using JavaTonBuilder
-[JavaTonBuilder](https://github.com/neodiX42/javatonbuilder) is an experimental framework that facilitates TON smart contract development using TON emulators and Java only (no node.js) approach.
-The future of JavaTonBuilder is vague, since Tolk ecosystem is developing rapidly and may soon include a full set of tools for TON smart conract development.
-
-Currently, [TON Blueprint](https://github.com/ton-org/blueprint) is a more mature project, and it should be considered as a first choice for TON smart contract development.
-
-```java
-// todo
 ```
 
 
