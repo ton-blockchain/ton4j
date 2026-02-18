@@ -63,11 +63,7 @@
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.rocksdb</groupId>
-            <artifactId>rocksdbjni</artifactId>
-            <version>10.2.1</version>
-        </dependency>
+
     </dependencies>
 
     <build>
