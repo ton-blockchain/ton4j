@@ -9,6 +9,9 @@ import org.ton.ton4j.cell.CellSlice;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+/**
+ * precompiled_smc#b0 gas_usage:uint64 = PrecompiledSmc;
+ */
 @Builder
 @Data
 public class PrecompiledSmc implements Serializable {

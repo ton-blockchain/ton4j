@@ -8,6 +8,18 @@ import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
 
+/**
+ * <pre>
+ *     jetton_bridge_prices#_ bridge_burn_fee:Coins bridge_mint_fee:Coins
+ *                        wallet_min_tons_for_storage:Coins
+ *                        wallet_gas_consumption:Coins
+ *                        minter_min_tons_for_storage:Coins
+ *                        discover_gas_consumption:Coins = JettonBridgePrices;
+ *
+ * jetton_bridge_params_v1#01 bridge_address:bits256 oracles_address:bits256 oracles:(HashmapE 256 uint256)
+ * state_flags:uint8 prices:^JettonBridgePrices external_chain_address:bits256 = JettonBridgeParams;
+ *</pre>
+ */
 @Builder
 @Data
 public class JettonBridgeParamsV2 implements JettonBridgeParams {
@@ -22,7 +34,7 @@ public class JettonBridgeParamsV2 implements JettonBridgeParams {
   public Cell toCell() {
 
     return CellBuilder.beginCell()
-        .storeUint(0x00, 8)
+        .storeUint(0x01, 8)
         .storeUint(bridgeAddress, 256)
         .storeUint(oracleAddress, 256)
         .storeDict(

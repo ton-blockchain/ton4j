@@ -11,7 +11,9 @@ import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
 
-/** _ to_mint:ExtraCurrencyCollection = ConfigParam 7; */
+/**
+ * extra_currencies$_ dict:(HashmapE 32 (VarUInteger 32)) = ExtraCurrencyCollection;
+ *  _ to_mint:ExtraCurrencyCollection = ConfigParam 7; */
 @Builder
 @Data
 public class ConfigParams7 implements Serializable {

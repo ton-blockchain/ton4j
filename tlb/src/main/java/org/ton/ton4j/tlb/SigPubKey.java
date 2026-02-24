@@ -22,7 +22,7 @@ public class SigPubKey implements Serializable {
   BigInteger pubkey;
 
   public Cell toCell() {
-    return CellBuilder.beginCell().storeUint(0x8e81278a, 32).storeUint(pubkey, 256).endCell();
+    return CellBuilder.beginCell().storeUint(0x8e81278aL, 32).storeUint(pubkey, 256).endCell();
   }
 
   public static SigPubKey deserialize(CellSlice cs) {

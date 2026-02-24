@@ -23,7 +23,6 @@ import org.ton.ton4j.cell.TonHashMapE;
 public class ConfigParams45 implements Serializable {
   int magic;
   TonHashMapE precompiledContractsList;
-  long suspendedUntil;
 
   public Cell toCell() {
 
@@ -33,7 +32,6 @@ public class ConfigParams45 implements Serializable {
             precompiledContractsList.serialize(
                 k -> CellBuilder.beginCell().storeUint((BigInteger) k, 256).endCell().getBits(),
                 v -> CellBuilder.beginCell().storeCell(((PrecompiledSmc) v).toCell()).endCell()))
-        .storeUint(suspendedUntil, 32)
         .endCell();
   }
 

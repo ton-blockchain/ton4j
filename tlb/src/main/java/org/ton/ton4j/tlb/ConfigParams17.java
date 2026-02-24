@@ -31,7 +31,7 @@ public class ConfigParams17 implements Serializable {
         .storeCoins(minStake)
         .storeCoins(maxStake)
         .storeCoins(minTotalStake)
-        .storeUint(maxStakeFactor, 16)
+        .storeUint(maxStakeFactor, 32)
         .endCell();
   }
 

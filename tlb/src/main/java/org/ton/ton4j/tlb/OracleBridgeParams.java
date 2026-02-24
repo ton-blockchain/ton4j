@@ -9,6 +9,18 @@ import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 import org.ton.ton4j.cell.TonHashMapE;
 
+/**
+ *
+ *
+ * <pre>
+ * oracle_bridge_params#_
+ * bridge_address:bits256
+ * oracle_mutlisig_address:bits256
+ * oracles:(HashmapE 256 uint256)
+ * external_chain_address:bits256 = OracleBridgeParams;
+ * _ OracleBridgeParams = ConfigParam 71; // Ethereum bridge
+ * </pre>
+ */
 @Builder
 @Data
 public class OracleBridgeParams implements Serializable {
@@ -36,6 +48,7 @@ public class OracleBridgeParams implements Serializable {
         .oracleMultiSigAddress(cs.loadUint(256))
         .oracles(
             cs.loadDictE(256, k -> k.readUint(256), v -> CellSlice.beginParse(v).loadUint(256)))
+        .externalChainAddress(cs.loadUint(256))
         .build();
   }
 }

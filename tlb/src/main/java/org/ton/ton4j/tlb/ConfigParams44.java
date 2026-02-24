@@ -40,7 +40,9 @@ public class ConfigParams44 implements Serializable {
 
   public static ConfigParams44 deserialize(CellSlice cs) {
     return ConfigParams44.builder()
+        .magic(cs.loadUint(8).intValue())
         .suspendedAddressList(cs.loadDictE(288, k -> k.readUint(288), v -> v))
+        .suspendedUntil(cs.loadUint(32).longValue())
         .build();
   }
 }

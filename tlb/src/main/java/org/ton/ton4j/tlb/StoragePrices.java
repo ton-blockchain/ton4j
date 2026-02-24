@@ -8,6 +8,14 @@ import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.cell.CellBuilder;
 import org.ton.ton4j.cell.CellSlice;
 
+/**
+ *  * _#cc
+ *    utime_since:uint32
+ *  * bit_price_ps:uint64
+ *  * cell_price_ps:uint64
+ *  * mc_bit_price_ps:uint64
+ *  * mc_cell_price_ps:uint64 = StoragePrices;
+ */
 @Builder
 @Data
 public class StoragePrices implements Serializable {

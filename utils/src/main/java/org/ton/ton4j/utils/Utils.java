@@ -1781,6 +1781,19 @@ public class Utils {
     }
   }
 
+  public static byte[] downloadFile(String fileURL) throws Exception {
+    try (InputStream in = new URL(fileURL).openStream();
+         ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+      byte[] buffer = new byte[8192]; // 8KB buffer
+      int bytesRead;
+      while ((bytesRead = in.read(buffer)) != -1) {
+        baos.write(buffer, 0, bytesRead);
+      }
+      return baos.toByteArray(); // Returns the byte array in memory
+    }
+  }
+
   public static String getLiteClientGithubUrl() {
     return getArtifactGithubUrl("lite-client", "");
   }

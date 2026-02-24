@@ -36,7 +36,7 @@ public class ConfigProposalSetup implements Serializable {
 
   public Cell toCell() {
     return CellBuilder.beginCell()
-        .storeUint(0x36, 1)
+        .storeUint(0x36, 8)
         .storeUint(minTotRounds, 8)
         .storeUint(maxTotRounds, 8)
         .storeUint(minWins, 8)

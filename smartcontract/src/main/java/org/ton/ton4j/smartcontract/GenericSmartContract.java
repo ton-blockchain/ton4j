@@ -1,5 +1,6 @@
 package org.ton.ton4j.smartcontract;
 
+import org.ton.ton4j.address.Address;
 import org.ton.ton4j.provider.SendResponse;
 
 import static java.util.Objects.isNull;
@@ -31,6 +32,7 @@ public class GenericSmartContract implements Contract {
 
   String code;
   String data;
+  Address customAddress;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   private TonProvider tonProvider;
@@ -126,7 +128,7 @@ public class GenericSmartContract implements Contract {
   /**
    * Deploy with body
    *
-   * @param deployMessageBody usually stands for internal message
+   * @param deployMessageBody usually stands for an internal message
    * @return SendResponse
    */
   public SendResponse deploy(Cell deployMessageBody) {
@@ -136,7 +138,7 @@ public class GenericSmartContract implements Contract {
   /**
    * Deploy with body without signing it.
    *
-   * @param deployMessageBody usually stands for internal message
+   * @param deployMessageBody usually stands for an internal message
    * @return SendResponse
    */
   public SendResponse deployWithoutSignature(Cell deployMessageBody) {
@@ -144,7 +146,7 @@ public class GenericSmartContract implements Contract {
   }
 
   /**
-   * Deploy without body
+   * Deploy without a body
    *
    * @return SendResponse
    */
@@ -156,17 +158,31 @@ public class GenericSmartContract implements Contract {
     return send(prepareDeployMsg(deployMessageBody, signedBody));
   }
 
+  private MsgAddressIntStd getAddr() {
+    if (isNull(customAddress)) {
+      return MsgAddressIntStd.builder()
+              .workchainId(customAddress.wc)
+              .address(customAddress.toBigInteger())
+              .build();
+    }
+    else {
+      return getAddressIntStd();
+    }
+  }
+
   public Message prepareDeployMsgWithoutBody() {
-    return Message.builder()
-        .info(ExternalMessageInInfo.builder().dstAddr(getAddressIntStd()).build())
-        .init(getStateInit())
-        .build();
+
+      return Message.builder()
+          .info(ExternalMessageInInfo.builder().dstAddr(getAddr()).build())
+          .init(getStateInit())
+          .build();
+
   }
 
   public Message prepareDeployMsg(Cell deployMessageBody, byte[] signedBodyHash) {
 
     return Message.builder()
-        .info(ExternalMessageInInfo.builder().dstAddr(getAddressIntStd()).build())
+        .info(ExternalMessageInInfo.builder().dstAddr(getAddr()).build())
         .init(getStateInit())
         .body(
             CellBuilder.beginCell()
@@ -179,7 +195,7 @@ public class GenericSmartContract implements Contract {
   public Message prepareDeployMsg(Cell deployMessageBody) {
 
     return Message.builder()
-        .info(ExternalMessageInInfo.builder().dstAddr(getAddressIntStd()).build())
+        .info(ExternalMessageInInfo.builder().dstAddr(getAddr()).build())
         .init(getStateInit())
         .body(
             CellBuilder.beginCell()
@@ -194,7 +210,7 @@ public class GenericSmartContract implements Contract {
   public Message prepareDeployMsgWithoutSignature(Cell deployMessageBody) {
 
     return Message.builder()
-        .info(ExternalMessageInInfo.builder().dstAddr(getAddressIntStd()).build())
+        .info(ExternalMessageInInfo.builder().dstAddr(getAddr()).build())
         .init(getStateInit())
         .body(deployMessageBody)
         .build();
@@ -209,7 +225,7 @@ public class GenericSmartContract implements Contract {
     Cell body = createDeployMessage();
 
     return Message.builder()
-        .info(ExternalMessageInInfo.builder().dstAddr(getAddressIntStd()).build())
+        .info(ExternalMessageInInfo.builder().dstAddr(getAddr()).build())
         .init(getStateInit())
         .body(
             CellBuilder.beginCell()
