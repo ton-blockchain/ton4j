@@ -35,7 +35,7 @@ public class ConfigParams18 implements Serializable {
         storagePrices.serialize(
             k -> CellBuilder.beginCell().storeUint((BigInteger) k, 32).endCell().getBits(),
             v -> CellBuilder.beginCell().storeCell(((StoragePrices) v).toCell()).endCell());
-    return CellBuilder.beginCell().storeDict(dict).endCell();
+    return CellBuilder.beginCell().storeDictInLine(dict).endCell();
   }
 
   public static ConfigParams18 deserialize(CellSlice cs) {

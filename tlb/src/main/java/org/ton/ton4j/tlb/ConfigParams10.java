@@ -23,7 +23,7 @@ public class ConfigParams10 implements Serializable {
         criticalParams.serialize(
             k -> CellBuilder.beginCell().storeUint((BigInteger) k, 32).endCell().getBits(),
             v -> CellBuilder.beginCell().endCell());
-    return CellBuilder.beginCell().storeDict(dict).endCell();
+    return CellBuilder.beginCell().storeDictInLine(dict).endCell();
   }
 
   public static ConfigParams10 deserialize(CellSlice cs) {
