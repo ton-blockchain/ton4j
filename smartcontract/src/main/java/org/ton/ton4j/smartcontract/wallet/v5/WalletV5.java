@@ -184,6 +184,30 @@ public class WalletV5 implements Contract {
     }
   }
 
+  /**
+   * TON does not have built-in protection against replaying messages from testnet to mainnet. The
+   * wallet contract addresses this by encoding the network ID into the subwallet_id. Therefore,
+   * wallets on different networks MUST have different addresses.
+   *
+   * @param networkId
+   * @param workchain
+   * @param subWalletId
+   * @return
+   */
+  public static long calculateWalletId(int networkId, int workchain, int subWalletId) {
+    long context =
+        CellSlice.beginParse(
+                CellBuilder.beginCell()
+                    .storeUint(1, 1)
+                    .storeInt(workchain, 8)
+                    .storeUint(0, 8)
+                    .storeUint(subWalletId, 15)
+                    .endCell())
+            .loadInt(32)
+            .longValue();
+    return context ^ networkId;
+  }
+
   @Override
   public Cell createCodeCell() {
     if (!deployAsLibrary) {
@@ -356,8 +380,7 @@ public class WalletV5 implements Contract {
     Cell body;
     if (nonNull(config.getRecipients())) {
       body = createBulkTransfer(config.getRecipients()).toCell();
-    }
-    else {
+    } else {
       body = config.getBody();
     }
     return CellBuilder.beginCell()
@@ -377,8 +400,7 @@ public class WalletV5 implements Contract {
     Cell body;
     if (nonNull(config.getRecipients())) {
       body = createBulkTransfer(config.getRecipients()).toCell();
-    }
-    else {
+    } else {
       body = config.getBody();
     }
     return CellBuilder.beginCell()
@@ -520,10 +542,10 @@ public class WalletV5 implements Contract {
       }
     }
     if (provider instanceof AdnlLiteClient) {
-      return ((AdnlLiteClient) provider).getSubWalletId(getAddress());
+      return provider.getSubWalletId(getAddress());
     }
     if (provider instanceof Tonlib) {
-      return ((Tonlib) provider).getSubWalletId(getAddress());
+      return provider.getSubWalletId(getAddress());
     }
     throw new Error("Provider not set");
   }
@@ -538,9 +560,9 @@ public class WalletV5 implements Contract {
         throw new Error(e);
       }
     } else if (provider instanceof AdnlLiteClient) {
-      return Utils.to32ByteArray(((AdnlLiteClient) provider).getPublicKey(getAddress()));
+      return Utils.to32ByteArray(provider.getPublicKey(getAddress()));
     } else if (provider instanceof Tonlib) {
-      return Utils.to32ByteArray(((Tonlib) provider).getPublicKey(getAddress()));
+      return Utils.to32ByteArray(provider.getPublicKey(getAddress()));
     } else {
       throw new Error("Provider not set");
     }

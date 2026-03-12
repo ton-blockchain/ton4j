@@ -16,7 +16,7 @@ Java libraries and wrapper for interacting with TON blockchain. ton4j requires m
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ Java libraries and wrapper for interacting with TON blockchain. ton4j requires m
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>ton4j</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 ## Repository structure
@@ -153,7 +153,7 @@ and then other dependencies for particular use cases, like one of the below:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -166,7 +166,7 @@ You can also specify an absolute path to your tonlibjson shared library.
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -189,7 +189,7 @@ Connect to the TON **Mainnet** using an ADNL lite-client.
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -215,7 +215,7 @@ More examples with AdnlLiteClient can be found in [tests](adnl/src/test/java/org
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>liteclient</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 Download lite-client executable and run its methods and parse the results
@@ -256,7 +256,7 @@ More examples on how to work with LiteClient wrapper can be found in [tests](lit
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>toncenter</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -348,7 +348,7 @@ More TonCenter V3 examples in [tests](toncenter-indexer-v3/src/test/java/org/ton
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 All `ton4j` wallet and smart contract classes accept `TonProvider` interface, e.g.:
@@ -400,7 +400,7 @@ SendResponse sendExternalMessage(Message externalMessage);
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>address</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 In TON smart contract address has various [formats](https://docs.ton.org/foundations/addresses/formats).
@@ -435,7 +435,7 @@ More examples in [tests](address/src/test/java/org/ton/ton4j/address/TestAddress
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 In TON there are [many types of wallets](https://docs.ton.org/standard/wallets/history), i.e., smart contracts. 
@@ -781,17 +781,17 @@ More examples on how to work with TON wallets in [tests](smartcontract/src/test/
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 ### Get account transactions
@@ -884,7 +884,7 @@ log.info("Block  {}", blockData.getBlock());
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>mnemonic</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -906,17 +906,17 @@ TweetNaclFast.Signature.KeyPair quickKeyPair = Utils.generateSignatureKeyPair();
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>utils</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 Get familiar with [NFT](https://docs.ton.org/standard/tokens/nft/overview) in TON. 
@@ -1118,17 +1118,17 @@ More examples on how to work with NFT in [tests](smartcontract/src/test/java/org
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>utils</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 Get familiar with [Jetton](https://docs.ton.org/standard/tokens/jettons/overview) in TON.
@@ -1443,7 +1443,7 @@ More examples on how to mint Jettons, as well as administrate them, can be found
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 With the help of `ton4j` you can resolve DNS name of any site or wallet.
@@ -1516,17 +1516,17 @@ More DNS examples on how to deploy a DNS collection and manipulate DNS items see
 <dependency>
   <groupId>org.ton.ton4j</groupId>
   <artifactId>smartcontract</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>utils</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 You can fetch contract's data either by using directly TonProvider client or by calling ready-to-use getters of various wallet contracts.
@@ -2108,7 +2108,7 @@ InternalMessageInfo loadedInternalMessageInfo = InternalMessageInfo.deserialize(
 <dependency>
   <groupId>org.ton.ton4j</groupId>
   <artifactId>emulator</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 TON provides two types of Emulators: `Transaction` and `TVM`. 
@@ -2278,7 +2278,7 @@ log.info("new actions {}", result.getActions());
 <dependency>
   <groupId>org.ton.ton4j</groupId>
   <artifactId>tonconnect</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 Read about the TON Connect and how it works [here](https://docs.ton.org/develop/dapps/ton-connect/sign#how-does-it-work).
