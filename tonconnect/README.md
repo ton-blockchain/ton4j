@@ -7,7 +7,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonconnect</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonconnect</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 

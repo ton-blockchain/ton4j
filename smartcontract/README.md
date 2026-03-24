@@ -6,7 +6,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -16,7 +16,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -34,7 +34,8 @@ Currently, following wallet versions and revisions are supported:
 * v3R1 [(see usage example)](./src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestWalletV3R1.java)
 * v3R2 [(see usage example)](./src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestWalletV3R2Short.java)
 * v4R2 - subscription, plugins [(see usage example)](plugin-example.md)
-* v5R1 - extensions [(see usage example)](./src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestWalletV5.java)
+* v5R1 -
+  extensions [(see usage example)](./src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestWalletV5.java)
 * Lockup -
   restricted [(see usage example)](./src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestLockupWallet.java)
 * Highload [(see usage example)](./src/test/java/org/ton/ton4j/smartcontract/integrationtests/TestHighloadWalletV2.java)

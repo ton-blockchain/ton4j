@@ -4,7 +4,8 @@
 [![Based on TON][ton-svg]][ton]
 ![GitHub last commit](https://img.shields.io/github/last-commit/ton-blockchain/ton4j)
 
-A comprehensive Java wrapper for the [TonCenter API v2](https://toncenter.com/api/v2/) that provides easy access to TON blockchain data and functionality.
+A comprehensive Java wrapper for the [TonCenter API v2](https://toncenter.com/api/v2/) that provides easy access to TON
+blockchain data and functionality.
 
 ## Features
 
@@ -24,7 +25,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>toncenter</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -35,7 +36,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -92,6 +93,7 @@ TonCenter client = TonCenter.builder()
 ## API Endpoints Coverage
 
 ### Account Methods (10 endpoints)
+
 - `getAddressInformation(address)` - Basic address information
 - `getExtendedAddressInformation(address)` - Extended address information
 - `getWalletInformation(address)` - Wallet-specific information
@@ -105,6 +107,7 @@ TonCenter client = TonCenter.builder()
 - `getLibraries([]hash)` - retrieve libraries by hash
 
 ### Block Methods (9 endpoints)
+
 - `getMasterchainInfo()` - Current masterchain state
 - `getMasterchainBlockSignatures(seqno)` - Block signatures
 - `getShardBlockProof(...)` - Merkle proof of shardchain block
@@ -117,18 +120,22 @@ TonCenter client = TonCenter.builder()
 - `getOutMsgQueueSizes()` - Message queue sizes
 
 ### Configuration Methods (2 endpoints)
+
 - `getConfigParam(configId)` - Get config parameter
 - `getConfigAll()` - Get full config
 
 ### Transaction Methods (3 endpoints)
+
 - `tryLocateTx(...)` - Locate outgoing transaction
 - `tryLocateResultTx(...)` - Same as tryLocateTx
 - `tryLocateSourceTx(...)` - Locate incoming transaction
 
 ### Run Method (1 endpoint)
+
 - `runGetMethod(address, method, stack)` - Execute smart contract get method
 
 ### Send Methods (4 endpoints)
+
 - `sendBoc(boc)` - Send serialized message
 - `sendBocReturnHash(boc)` - Send message and return hash
 - `sendQuery(...)` - Send unpacked external message
@@ -239,7 +246,9 @@ The wrapper uses SLF4J for logging. HTTP requests and responses are logged at DE
 
 ## Thread Safety
 
-The `TonCenter` client is thread-safe and can be shared across multiple threads, as well as used as one instance in multiple threads.
+The `TonCenter` client is thread-safe and can be shared across multiple threads, as well as used as one instance in
+multiple threads.
+
 ## Resource Management
 
 Always close the client to release HTTP connection resources:
@@ -309,7 +318,7 @@ if (response.isSuccess()) {
 ## Dependencies
 
 - **OkHttp**: HTTP client
-- **Gson**: JSON serialization/deserialization  
+- **Gson**: JSON serialization/deserialization
 - **SLF4J**: Logging facade
 - **Lombok**: Code generation (compile-time only)
 

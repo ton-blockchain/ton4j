@@ -2,7 +2,8 @@
 
 Java Tonlib library uses JNA to access methods in native Tonlib shared library.
 
-**For pure Java implementation of ADNL protocol and lite-client see [AdnlLiteClient.java](../adnl/src/main/java/org/ton/ton4j/adnl/AdnlLiteClient.java) in [adnl](../adnl) module**.
+**For pure Java implementation of ADNL protocol and lite-client
+see [AdnlLiteClient.java](../adnl/src/main/java/org/ton/ton4j/adnl/AdnlLiteClient.java) in [adnl](../adnl) module**.
 
 Since this is Java Tonlib wrapper around the native binary, you have to specify path to the library, see the example
 below.
@@ -13,7 +14,7 @@ You can get the latest tonlib library by:
 
 * downloading it from the official TON Github release page [here](https://github.com/ton-blockchain/ton/releases).
 * by installing precompiled binaries, see instructions [here](https://github.com/ton-blockchain/packages).
-* by specifying URL (Utils.getTonlibGithubUrl()) in Tonlib builder. 
+* by specifying URL (Utils.getTonlibGithubUrl()) in Tonlib builder.
 
 ## Maven [![Maven Central][maven-central-svg]][maven-central]
 
@@ -22,7 +23,7 @@ You can get the latest tonlib library by:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -33,7 +34,7 @@ You can get the latest tonlib library by:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 

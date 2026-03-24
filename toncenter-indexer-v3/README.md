@@ -1,6 +1,7 @@
 # TonCenter Indexer API V3 Client
 
-Java wrapper for TonCenter [Indexer V3](https://toncenter.com/api/v3/index.html) API REST calls. This module provides a thread-safe, type-safe client for interacting with the TON Index API v3.
+Java wrapper for TonCenter [Indexer V3](https://toncenter.com/api/v3/index.html) API REST calls. This module provides a
+thread-safe, type-safe client for interacting with the TON Index API v3.
 
 ## Features
 
@@ -19,7 +20,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>toncenter-indexer-v3</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -30,7 +31,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -83,6 +84,7 @@ TonCenterV3 client = TonCenterV3.builder()
 ## API Endpoints
 
 ### Account Methods (6 endpoints)
+
 - `getAccountStates(addresses, includeBoc)` - Query account states
 - `getAddressBook(addresses)` - Get address book
 - `getAddressInformation(address, useV2)` - Get address information
@@ -91,12 +93,14 @@ TonCenterV3 client = TonCenterV3.builder()
 - `getWalletStates(addresses)` - Get wallet states
 
 ### Action Methods (4 endpoints)
+
 - `getActions(...)` - Get actions by filter
 - `getPendingActions(...)` - Get pending actions
 - `getTraces(...)` - Get traces
 - `getPendingTraces(...)` - Get pending traces
 
 ### Blockchain Methods (11 endpoints)
+
 - `getBlocks(...)` - Get blocks by filter
 - `getTransactions(...)` - Get transactions
 - `getMessages(...)` - Get messages
@@ -108,34 +112,42 @@ TonCenterV3 client = TonCenterV3.builder()
 - `getTransactionsByMessage(...)` - Get transactions by message
 
 ### Jetton Methods (4 endpoints)
+
 - `getJettonMasters(...)` - Get jetton masters
 - `getJettonWallets(...)` - Get jetton wallets
 - `getJettonTransfers(...)` - Get jetton transfers
 - `getJettonBurns(...)` - Get jetton burns
 
 ### NFT Methods (3 endpoints)
+
 - `getNFTCollections(...)` - Get NFT collections
 - `getNFTItems(...)` - Get NFT items
 - `getNFTTransfers(...)` - Get NFT transfers
 
 ### DNS Methods (1 endpoint)
+
 - `getDNSRecords(...)` - Get DNS records
 
 ### Multisig Methods (2 endpoints)
+
 - `getMultisigWallets(...)` - Get multisig wallets
 - `getMultisigOrders(...)` - Get multisig orders
 
 ### Vesting Methods (1 endpoint)
+
 - `getVestingContracts(...)` - Get vesting contracts
 
 ### Stats Methods (1 endpoint)
+
 - `getTopAccountsByBalance(...)` - Get top accounts by balance
 
 ### Utils Methods (2 endpoints)
+
 - `decode(opcodes, bodies)` - Decode opcodes and bodies (GET)
 - `decodePost(request)` - Decode opcodes and bodies (POST)
 
 ### V2 Compatibility Methods (4 endpoints)
+
 - `estimateFee(request)` - Estimate transaction fees
 - `sendMessage(request)` - Send message to blockchain
 - `runGetMethod(request)` - Run get method on smart contract
