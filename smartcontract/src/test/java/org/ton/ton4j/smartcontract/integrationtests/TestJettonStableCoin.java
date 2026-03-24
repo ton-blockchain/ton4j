@@ -1,5 +1,9 @@
 package org.ton.ton4j.smartcontract.integrationtests;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.ton.ton4j.smartcontract.integrationtests.CommonTest.TESTNET_API_KEY;
+
+import java.math.BigInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,11 +24,6 @@ import org.ton.ton4j.toncenter.Network;
 import org.ton.ton4j.toncenter.TonCenter;
 import org.ton.ton4j.tonlib.Tonlib;
 import org.ton.ton4j.utils.Utils;
-
-import java.math.BigInteger;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.ton.ton4j.smartcontract.integrationtests.CommonTest.TESTNET_API_KEY;
 
 @Slf4j
 @RunWith(JUnit4.class)
@@ -222,6 +221,19 @@ public class TestJettonStableCoin {
 
     // in explorer there will be an error Failed Compute Phase (exit_code 45)
     assertThat(jettonWallet2.getBalance()).isEqualTo(Utils.toNano(100));
+  }
+
+  @Test
+  public void testJettonMinterStableCoinAdnlLiteClient2() {
+    JettonMinterStableCoin minter =
+        JettonMinterStableCoin.builder()
+            .customAddress(
+                Address.of("0:b3255b6f97c7b394a39bccaad79437acbe6b5a7799a6258e29e4ead97b918598"))
+            .build();
+    log.info(
+        "jetton minter address {} {}",
+        minter.getAddress().toRaw(),
+        minter.getAddress().toBounceableTestnet());
   }
 
   @Test
