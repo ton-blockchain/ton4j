@@ -45,7 +45,7 @@ Java libraries and wrapper for interacting with TON blockchain. ton4j requires m
 You can use each submodule individually. Click the module below to get more details.
 
 * [Tonlib](tonlib/README.md) - use external Tonlib shared library to communicate with TON blockchain.
-* [Adnl](adnl/README.md) - Lite-client based on native ADNL protocol.
+* [Adnl](adnl/README.md) - Java implementation of the ADNL protocol and lite-client.
 * [SmartContract](smartcontract/README.md) - create and deploy custom and predefined smart-contracts.
 * [Cell](cell/README.md) - create, read and manipulate Bag of Cells.
 * [BitString](bitstring/README.md) - construct bit-strings.
@@ -53,7 +53,6 @@ You can use each submodule individually. Click the module below to get more deta
 * [Mnemonic](mnemonic/README.md) - helpful methods for generating deterministic keys for TON blockchain.
 * [Emulator](emulator/README.md) - wrapper for using with external precompiled emulator shared library.
 * [Exporter](exporter/README.md) - TON database reader/exporter that uses RocksDB Java JNA libraries.
-* [Liteclient](liteclient/README.md) - wrapper for using with external precompiled lite-client binary.
 * [TonCenter Client V2](toncenter/README.md) - wrapper used to send REST calls
   towards [TonCenter API v2](https://toncenter.com/api/v2/) .
 * [TonCenter Client V3](toncenter-indexer-v3/README.md) - wrapper used to send REST calls
@@ -73,7 +72,6 @@ You can use each submodule individually. Click the module below to get more deta
 - [Connection](#connection)
     - [Tonlib shared library](#tonlib)
     - [ADNL lite-client](#adnl-lite-client)
-    - [Native lite-client](#native-lite-client)
     - [TonCenter API V2](#toncenter-api-v2)
     - [TonCenter API V3](#toncenter-api-v3)
     - [Ton Provider](#ton-provider)
@@ -136,13 +134,11 @@ You can use each submodule individually. Click the module below to get more deta
 
 ## Connection
 
-In the TON ecosystem you can interact with a TON blockchain in four ways:
+ton4j provides three ways to interact with the TON blockchain:
 
 - **Tonlib shared library** — connect to lite-server via tonlibjson.so/dll/dylib shared library;
-- **ADNL lite-client** — used to connect to lite-server using native Java ADNL protocol implementation; In the current
+- **ADNL lite-client** — used to connect to lite-server using a Java ADNL protocol implementation; In the current
   implementation it does not download proofs on start and thus is much faster than tonlibjson.
-- **Native lite-client** — a java wrapper for compiled lite-client executable. Handles and parses responses returned by
-  lite-client. Obsolete way of connecting to TON blockchain and should not be used.
 - **TonCenter API** — a java wrapper to interact with a [TonCenter HTTP API](https://toncenter.com/) service. For
   production usage consider getting an API key.
 
@@ -227,53 +223,6 @@ MasterchainInfo info = client.getMasterchainInfo();
 
 More examples with AdnlLiteClient can be found
 in [tests](adnl/src/test/java/org/ton/ton4j/adnl/AdnlLiteClientTest.java).
-
-### Native lite-client
-
-```xml
-<dependency>
-    <groupId>org.ton.ton4j</groupId>
-    <artifactId>liteclient</artifactId>
-    <version>2.1.1</version>
-</dependency>
-```
-
-Download lite-client executable and run its methods and parse the results
-
-```java
-LiteClient liteClient =
-LiteClient.builder()
-  .testnet(false)
-  .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
-  .build();
-String last = liteClient.executeLast();
-log.info("Last command stdOut: {}", last);
-ResultLastBlock lastParsed = LiteClientParser.parseLast(last);
-log.info("Last command parsed: {}", lastParsed);
-
-liteClient.executeRunMethod(
-            "EQDCJVrezD71y-KPcTIG-YeKNj4naeiR7odpQgVA1uDsZqPC",
-            "(-1,8000000000000000,20301499):070D07EB64D36CCA2D8D20AA644489637059C150E2CD466247C25B4997FB8CD9:D7D7271D466D52D0A98771F9E8DCAA06E43FCE01C977AACD9DE9DAD9A9F9A424",
-            "seqno", "");
-```
-
-Download the latest block's dump and parse it
-
-```java
-LiteClient liteClient =
-  LiteClient.builder()
-    .testnet(false)
-    .pathToLiteClientBinary(Utils.getLiteClientGithubUrl())
-    .build();
-String stdoutLast = liteClient.executeLast();
-ResultLastBlock blockIdLast = LiteClientParser.parseLast(stdoutLast);
-String stdoutDumpblock = liteClient.executeDumpblock(blockIdLast);
-Block block = LiteClientParser.parseDumpblock(stdoutDumpblock, false, true);
-log.info(block.toString());
-```
-
-More examples on how to work with LiteClient wrapper can be found
-in [tests](liteclient/src/test/java/org/ton/ton4j/liteclient/LiteClientTest.java).
 
 ### TonCenter API V2
 
@@ -2640,7 +2589,7 @@ String disassembledInstructions = Disassembler.fromBoc(accountStateCode);
 * ✅ TL-B serialization / deserialization
 * ✅ TL serialization / deserialization
 * ✅ Cell builder and cell slicer (reader)
-* ✅ Tonlib, Lite-client, TVM/TX, Fift, Func and Tolk wrappers
+* ✅ Tonlib, TVM/TX, Fift, Func and Tolk wrappers
 * ✅ ADNL Lite-client
 * ✅ TON RocksDB direct access
 * ✅ TonConnect

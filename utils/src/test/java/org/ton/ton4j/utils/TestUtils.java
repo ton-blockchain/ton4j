@@ -504,9 +504,6 @@ public class TestUtils {
     if (Utils.getOS() == OS.WINDOWS) {
       assertThat(getArtifactGithubUrl("fift", "v2024.12-1"))
           .isEqualTo("https://github.com/ton-blockchain/ton/releases/download/v2024.12-1/fift.exe");
-      assertThat(getLiteClientGithubUrl())
-          .isEqualTo(
-              "https://github.com/ton-blockchain/ton/releases/latest/download/lite-client.exe");
       assertThat(getFiftGithubUrl())
           .isEqualTo("https://github.com/ton-blockchain/ton/releases/latest/download/fift.exe");
       assertThat(getFuncGithubUrl())

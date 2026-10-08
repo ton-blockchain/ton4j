@@ -744,7 +744,7 @@ public class TestTonlibJson {
     // b5ee9c72010101010024 00 00
     // 43800f2034101a96276a66c408417b1d38f5fcb3d6187226930600e8273b43c92a6970 subbotin-2
 
-    // slice returned by lite-client
+    // Serialized slice returned by the get-method.
     // "0043801482bf04d1769cf0b59f5ffd4cbf659b5e1d9ddd2eccc47901ec29242b3fd76fb0"
 
     // ton4j to boc       6    6
@@ -774,7 +774,7 @@ public class TestTonlibJson {
     // 0043801482bf04d1769cf0b59f5ffd4cbf659b5e1d9ddd2eccc47901ec29242b3fd76fb0 cad13166
     // pytoniq-core
     //
-    // slice returned by lite-client and trimmed front
+    // Serialized get-method slice with the leading bytes trimmed.
     // "801482bf04d1769cf0b59f5ffd4cbf659b5e1d9ddd2eccc47901ec29242b3fd76fb0"
     //         4          4
     // b5ee9c72410101010024 00 0044

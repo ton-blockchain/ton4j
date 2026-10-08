@@ -466,9 +466,6 @@ public class TestUtilsCoverage {
     if (Utils.getOS() == OS.WINDOWS) {
       assertThat(getArtifactGithubUrl("fift", "v2024.12-1"))
           .isEqualTo("https://github.com/ton-blockchain/ton/releases/download/v2024.12-1/fift.exe");
-      assertThat(getLiteClientGithubUrl())
-          .isEqualTo(
-              "https://github.com/ton-blockchain/ton/releases/latest/download/lite-client.exe");
       assertThat(getFiftGithubUrl())
           .isEqualTo("https://github.com/ton-blockchain/ton/releases/latest/download/fift.exe");
       assertThat(getFuncGithubUrl())
@@ -652,14 +649,13 @@ public class TestUtilsCoverage {
     Utils.OS os = Utils.getOS();
     String libExt = Utils.getLibraryExtension();
     assertThat(libExt).isIn("dll", "dylib", "so");
-    String exeExt = Utils.getArtifactExtension("lite-client");
+    String exeExt = Utils.getArtifactExtension("fift");
     if (os == Utils.OS.WINDOWS || os == Utils.OS.WINDOWS_ARM) {
       assertThat(exeExt).isEqualTo(".exe");
     } else {
       assertThat(exeExt).isEqualTo("");
     }
     // URL builders should return a non-empty URL for current OS
-    assertThat(Utils.getLiteClientGithubUrl()).contains("github.com");
     assertThat(Utils.getEmulatorGithubUrl()).contains("github.com");
     assertThat(Utils.getTonlibGithubUrl()).contains("github.com");
     assertThat(Utils.getFuncGithubUrl()).contains("github.com");

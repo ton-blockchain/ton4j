@@ -1,6 +1,6 @@
-# Liteclient module
+# Fift module
 
-Java Lite-client wrapper uses JNA to access methods in native lite-client binary.
+Java wrapper for running Fift scripts with the external Fift executable.
 
 ## Maven [![Maven Central][maven-central-svg]][maven-central]
 

@@ -31,7 +31,6 @@ import org.ton.ton4j.emulator.tx.TxEmulatorI;
 import org.ton.ton4j.emulator.tx.TxVerbosityLevel;
 import org.ton.ton4j.fift.FiftRunner;
 import org.ton.ton4j.func.FuncRunner;
-import org.ton.ton4j.liteclient.LiteClient;
 import org.ton.ton4j.smartcontract.SmartContractCompiler;
 import org.ton.ton4j.smartcontract.types.Destination;
 import org.ton.ton4j.smartcontract.types.WalletV5Config;
@@ -50,7 +49,6 @@ public class TestTxEmulator {
   static TxEmulator txEmulator;
   static Tonlib tonlib;
   static Cell config;
-  static LiteClient liteClient;
 
   static Account testAccount;
 
@@ -60,12 +58,9 @@ public class TestTxEmulator {
   static String funcPath = Utils.getFuncGithubUrl();
   static String fiftPath = Utils.getFiftGithubUrl();
   static String tolkPath = Utils.getTolkGithubUrl();
-  static String liteClientPath = Utils.getLiteClientGithubUrl();
 
   @BeforeClass
   public static void setUpBeforeClass() {
-    liteClient = LiteClient.builder().pathToLiteClientBinary(liteClientPath).build();
-
     tonlib =
         Tonlib.builder().pathToTonlibSharedLib(tonlibPath).testnet(true).ignoreCache(false).build();
 

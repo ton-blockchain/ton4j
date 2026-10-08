@@ -1,6 +1,6 @@
-# Liteclient module
+# Func module
 
-Java Lite-client wrapper uses JNA to access methods in native lite-client binary.
+Java wrapper for compiling FunC smart contracts with the external func executable.
 
 ## Maven [![Maven Central][maven-central-svg]][maven-central]
 

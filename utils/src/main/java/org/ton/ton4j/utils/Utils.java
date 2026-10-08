@@ -1794,10 +1794,6 @@ public class Utils {
     }
   }
 
-  public static String getLiteClientGithubUrl() {
-    return getArtifactGithubUrl("lite-client", "");
-  }
-
   public static String getEmulatorGithubUrl() {
     return getArtifactGithubUrl("libemulator", "");
   }

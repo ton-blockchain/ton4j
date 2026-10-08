@@ -1,6 +1,6 @@
-# Liteclient module
+# Tolk module
 
-Java Lite-client wrapper uses JNA to access methods in native lite-client binary.
+Java wrapper for compiling Tolk smart contracts with the external tolk executable.
 
 ## Maven [![Maven Central][maven-central-svg]][maven-central]
 
@@ -27,7 +27,7 @@ Java Lite-client wrapper uses JNA to access methods in native lite-client binary
 ## Usage
 
 Notice, if you installed TON binaries using [package managers](https://github.com/ton-blockchain/packages) like brew,
-apt or chocolatey you can omit specifying path to a func executable and simply use it as follows:
+apt or chocolatey you can omit specifying path to a tolk executable and simply use it as follows:
 
 ```java
 URL resource = TestTolkRunner.class.getResource("/test.tolk");
@@ -40,7 +40,7 @@ String result=tolkRunner.run(tolkFile.getParent(),absolutePath);
 log.info("output: {}",result);
 ```
 
-More examples in [TestTolkRunner](../func/src/test/java/org/ton/ton4j/tolk/TestTolkRunner.java) class.
+More examples in [TestTolkRunner](src/test/java/org/ton/ton4j/tolk/TestTolkRunner.java) class.
 
 
 [maven-central-svg]: https://img.shields.io/maven-central/v/org.ton.ton4j/tolk

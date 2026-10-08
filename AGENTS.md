@@ -14,7 +14,6 @@ Some modules are dependent; prefer the smallest module that satisfies a change.
 - If the change is about addresses: `address`
 - BoC/Cell serialization, TL-B: `cell`, `bitstring`, `tlb`
 - Tonlib native wrapper: `tonlib` (requires native tonlibjson)
-- Lite-client native wrapper: `liteclient` (requires native lite-client)
 - Smart contract abstractions/wallets: `smartcontract`
 - Lite-client over ADNL: `adnl`
 - REST clients: `toncenter`, `toncenter-indexer-v3`

@@ -16,7 +16,7 @@ Before making changes:
 - Assume backward compatibility is required.
 
 ## Native-related rules
-Some modules depend on external binaries (tonlibjson, emulator, lite-client):
+Some modules depend on external binaries (tonlibjson, emulator, fift, func, tolk):
 - Do not assume native libs are available.
 - Gate native tests behind Maven profiles or JUnit assumptions.
 - Prefer mock/stub-based tests when possible.

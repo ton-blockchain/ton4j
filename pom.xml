@@ -20,7 +20,6 @@
         <module>mnemonic</module>
         <module>tl</module>
         <module>emulator</module>
-        <module>liteclient</module>
         <module>tonconnect</module>
         <module>fift</module>
         <module>func</module>
@@ -113,12 +112,6 @@
             <dependency>
                 <groupId>org.ton.ton4j</groupId>
                 <artifactId>tlb</artifactId>
-                <version>${project.parent.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.ton.ton4j</groupId>
-                <artifactId>liteclient</artifactId>
                 <version>${project.parent.version}</version>
                 <scope>compile</scope>
             </dependency>
@@ -422,7 +415,6 @@
                                 <include>tolk.exe</include>
                                 <include>fift.exe</include>
                                 <include>func.exe</include>
-                                <include>lite-client.exe</include>
                                 <include>tonlibjson.*</include>
                                 <include>libemulator.*</include>
                                 <include>global.config.*</include>
@@ -438,7 +430,6 @@
                                 <include>tolk-*</include>
                                 <include>fift-*</include>
                                 <include>func-*</include>
-                                <include>lite-client-*</include>
                                 <include>tonlibjson-*</include>
                                 <include>status.json</include>
                                 <include>status.json</include>

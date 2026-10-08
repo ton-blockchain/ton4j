@@ -3,7 +3,6 @@
 **/*.dll
 **/*.json
 **/**/tonlib.libcache
-**/lite-client.exe
 **/testnet-global.config.json
 **/global.config.json
 **/*.blkstate
