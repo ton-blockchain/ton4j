@@ -1,4 +1,4 @@
-# Address module
+# TonConnect module
 
 ## Maven [![Maven Central][maven-central-svg]][maven-central]
 
@@ -29,43 +29,103 @@ more details.
 
 ## Usage
 
+Use `TonConnect.verifyProof` for authentication. It checks the expected domain, chain,
+challenge and timestamp window, verifies the signature, then calls your challenge store
+to consume the challenge atomically. A successful proof can authenticate only once.
+
+Generate an unpredictable challenge on the backend and retain it in the user's login
+session. Send its value as the TonConnect `ton_proof` payload; the wallet supplies the
+signed proof. The expected domain, chain and challenge must come from backend state,
+not from the submitted proof. Domains are case-insensitive ASCII DNS names, including
+punycode; URLs, paths, ports, whitespace, Unicode names and trailing dots are rejected.
+
+The example below binds each challenge to an expected wallet address, domain, chain and
+expiry. `trustedAccount` must contain a public key the backend has verified belongs to
+that address on the expected chain (for example, by querying its wallet contract).
+A public key supplied by the client alone is insufficient to establish this binding.
+
 ```java
+import java.security.SecureRandom;
+import java.time.Clock;
+import java.util.Base64;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import org.ton.ton4j.address.Address;
+import org.ton.ton4j.tonconnect.*;
 
-@Test
-public void testTonConnectExample() throws Exception {
+final class TonProofAuthentication {
+    private static final String DOMAIN = "login.example.com";
+    private static final int CHAIN = -239;
+    private static final long MAX_AGE_SECONDS = 300;
+    private static final long FUTURE_SKEW_SECONDS = 30;
+    private final Clock clock = Clock.systemUTC();
+    private final SecureRandom random = new SecureRandom();
+    private final ConcurrentMap<String, PendingChallenge> pending = new ConcurrentHashMap<>();
 
-    String addressStr = "0:2d29bfa071c8c62fa3398b661a842e60f04cb8a915fb3e749ef7c6c41343e16c";
+    String issueChallenge(String expectedWalletAddress) {
+        String address = Address.of(expectedWalletAddress).toRaw();
+        byte[] bytes = new byte[32];
+        String challenge;
+        PendingChallenge entry = new PendingChallenge(
+                address, DOMAIN, CHAIN, clock.instant().getEpochSecond() + MAX_AGE_SECONDS);
+        do {
+            random.nextBytes(bytes);
+            challenge = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        } while (pending.putIfAbsent(challenge, entry) != null);
+        return challenge; // Save in the backend login session and send as ton_proof payload.
+    }
 
-    // backend prepares the request
-    TonProof tonProof = TonProof.builder()
-            .timestamp(1722999580)
-            .domain(Domain.builder()
-                    .value("xxx.xxx.com")
-                    .lengthBytes(16)
-                    .build())
-            .payload("doc-example-<BACKEND_AUTH_ID>")
-            .build();
+    boolean authenticate(TonProof proof, WalletAccount trustedAccount, String sessionChallenge)
+            throws Exception {
+        ProofVerificationContext context = new ProofVerificationContext(
+                DOMAIN, CHAIN, sessionChallenge, clock.instant().getEpochSecond(),
+                MAX_AGE_SECONDS, FUTURE_SKEW_SECONDS);
 
-    // wallet signs it
-    byte[] secretKey = Utils.hexToSignedBytes("F182111193F30D79D517F2339A1BA7C25FDF6C52142F0F2C1D960A1F1D65E1E4");
-    TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
-    byte[] message = TonConnect.createMessageForSigning(tonProof, addressStr);
-    byte[] signature = Utils.signData(keyPair.getPublicKey(), secretKey, message);
-    log.info("signature: {}", Utils.bytesToHex(signature));
+        ProofChallengeStore store = (challenge, address, domain, chain, now) -> {
+            PendingChallenge entry = pending.get(challenge);
+            return entry != null
+                    && entry.address.equals(address)
+                    && entry.domain.equals(domain)
+                    && entry.chain == chain
+                    && entry.expiresAt > now
+                    && pending.remove(challenge, entry);
+        };
+        return TonConnect.verifyProof(proof, trustedAccount, context, store);
+    }
 
-    // update TonProof by adding a signature
-    tonProof.setSignature(Utils.bytesToBase64SafeUrl(signature));
+    private static final class PendingChallenge {
+        final String address;
+        final String domain;
+        final int chain;
+        final long expiresAt;
 
-    // backend verifies ton proof request
-    WalletAccount walletAccount = WalletAccount.builder()
-            .chain(-239)
-            .address(addressStr)
-            .publicKey("82a0b2543d06fec0aac952e9ec738be56ab1b6027fc0c1aa817ae14b4d1ed2fb")
-            .build();
-
-    assertThat(TonConnect.checkProof(tonProof, walletAccount)).isTrue();
+        PendingChallenge(String address, String domain, int chain, long expiresAt) {
+            this.address = address;
+            this.domain = domain;
+            this.chain = chain;
+            this.expiresAt = expiresAt;
+        }
+    }
 }
 ```
+
+Create the application session only when `authenticate` returns `true`, then clear the
+login session's challenge. Fail closed if verification or challenge storage throws.
+The store receives a canonical raw address and a normalized lower-case domain. It must
+reject unknown, expired or mismatched entries and atomically remove the challenge once
+across all login sessions. Signature and context failures do not consume a challenge.
+
+The map is a single-process example. For multiple backend instances, use shared storage
+with the same atomic check-and-delete behavior, and remove expired entries periodically.
+
+`verifyProofSignature` checks only the cryptographic signature. The deprecated
+`checkProof(proof, account)` remains a compatible alias for that method; neither method
+alone authenticates a user or prevents replay.
+
+## Tests
+
+Local-network integration tests are disabled by default. Enable them with
+`-Dtonconnect.localIntegrationTests=true` only when a local TON node is available.
 
 [maven-central-svg]: https://img.shields.io/maven-central/v/org.ton.ton4j/tonconnect
 

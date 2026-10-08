@@ -1,12 +1,16 @@
 package org.ton.ton4j.tonconnect;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import com.iwebpp.crypto.TweetNaclFast;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,13 +34,15 @@ public class TestTonConnect {
    */
   @Test
   public void testTonConnect() throws Exception {
+    assumeTrue(
+        "Requires a configured local TON node; enable with -Dtonconnect.localIntegrationTests=true",
+        Boolean.getBoolean("tonconnect.localIntegrationTests"));
 
     AdnlLiteClient client = AdnlLiteClient.builder().myLocalTon().build();
 
     byte[] secretKey =
         Utils.hexToSignedBytes("1bd726fa69d850a5c0032334b16802c7eda48fde7a0e24f28011b22159cc97b7");
     TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
-    log.info("prvKey: {}", Utils.bytesToHex(secretKey));
     log.info("pubKey: {}", Utils.bytesToHex(keyPair.getPublicKey()));
 
     String addressStr = "0:1da77f0269bbbb76c862ea424b257df63bd1acb0d4eb681b68c9aadfbf553b93";
@@ -116,29 +122,34 @@ public class TestTonConnect {
 
     log.info("account:{}", walletAccount);
 
-    assertThat(TonConnect.checkProof(tonProof, walletAccount)).isTrue();
+    // This local-node fixture exercises signature verification only, not backend authentication.
+    assertThat(TonConnect.verifyProofSignature(tonProof, walletAccount)).isTrue();
   }
 
   @Test
   public void testTonConnectExample() throws Exception {
-
     String addressStr = "0:2d29bfa071c8c62fa3398b661a842e60f04cb8a915fb3e749ef7c6c41343e16c";
+    String domain = "login.example";
+    String challenge = UUID.randomUUID().toString();
+    long now = 1_800_000_000L;
+    int chain = -239;
 
     // backend prepares
     TonProof tonProof =
         TonProof.builder()
-            .timestamp(1722999580)
-            .domain(Domain.builder().value("xxx.xxx.com").lengthBytes(16).build())
-            .payload("doc-example-<BACKEND_AUTH_ID>")
+            .timestamp(now)
+            .domain(
+                Domain.builder()
+                    .value(domain)
+                    .lengthBytes(domain.getBytes(StandardCharsets.UTF_8).length)
+                    .build())
+            .payload(challenge)
             .build();
 
     // wallet signs
-    byte[] secretKey =
-        Utils.hexToSignedBytes("F182111193F30D79D517F2339A1BA7C25FDF6C52142F0F2C1D960A1F1D65E1E4");
-    TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair_fromSeed(secretKey);
+    TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair();
     byte[] message = TonConnect.createMessageForSigning(tonProof, addressStr);
-    byte[] signature = Utils.signData(keyPair.getPublicKey(), secretKey, message);
-    log.info("signature: {}", Utils.bytesToHex(signature));
+    byte[] signature = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), message);
 
     // update TonProof by adding a signature
     tonProof.setSignature(Utils.bytesToBase64SafeUrl(signature));
@@ -146,11 +157,23 @@ public class TestTonConnect {
     // backend verifies
     WalletAccount walletAccount =
         WalletAccount.builder()
-            .chain(-239)
+            .chain(chain)
             .address(addressStr)
-            .publicKey("82a0b2543d06fec0aac952e9ec738be56ab1b6027fc0c1aa817ae14b4d1ed2fb")
+            .publicKey(Utils.bytesToHex(keyPair.getPublicKey()))
             .build();
+    ProofVerificationContext context =
+        new ProofVerificationContext(domain, chain, challenge, now, 300, 30);
+    AtomicBoolean challengeAvailable = new AtomicBoolean(true);
+    ProofChallengeStore store =
+        (candidate, address, candidateDomain, candidateChain, verifiedAt) ->
+            challenge.equals(candidate)
+                && addressStr.equals(address)
+                && domain.equals(candidateDomain)
+                && chain == candidateChain
+                && verifiedAt < now + 300
+                && challengeAvailable.compareAndSet(true, false);
 
-    assertThat(TonConnect.checkProof(tonProof, walletAccount)).isTrue();
+    assertThat(TonConnect.verifyProof(tonProof, walletAccount, context, store)).isTrue();
+    assertThat(TonConnect.verifyProof(tonProof, walletAccount, context, store)).isFalse();
   }
 }
