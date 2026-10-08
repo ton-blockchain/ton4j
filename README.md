@@ -15,7 +15,7 @@ Java libraries and wrapper for interacting with TON blockchain. ton4j requires m
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ Java libraries and wrapper for interacting with TON blockchain. ton4j requires m
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>ton4j</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -161,7 +161,7 @@ and then other dependencies for particular use cases, like one of the below:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -174,7 +174,7 @@ You can also specify an absolute path to your tonlibjson shared library.
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -198,7 +198,7 @@ Connect to the TON **Mainnet** using an ADNL lite-client.
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -230,7 +230,7 @@ in [tests](adnl/src/test/java/org/ton/ton4j/adnl/AdnlLiteClientTest.java).
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>toncenter</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -328,7 +328,7 @@ in [tests](toncenter-indexer-v3/src/test/java/org/ton/ton4j/toncenterv3/TonCente
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -388,7 +388,7 @@ SendResponse sendExternalMessage(Message externalMessage);
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>address</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -428,7 +428,7 @@ More examples in [tests](address/src/test/java/org/ton/ton4j/address/TestAddress
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -787,17 +787,17 @@ More examples on how to work with TON wallets in [tests](smartcontract/src/test/
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -909,7 +909,7 @@ log.info("Block  {}", blockData.getBlock());
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>mnemonic</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -932,17 +932,17 @@ TweetNaclFast.Signature.KeyPair quickKeyPair = Utils.generateSignatureKeyPair();
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>utils</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -1166,17 +1166,17 @@ in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationte
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>utils</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -1503,7 +1503,7 @@ in [tests](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationte
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>smartcontract</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -1584,17 +1584,17 @@ see [here](smartcontract/src/test/java/org/ton/ton4j/smartcontract/integrationte
 <dependency>
   <groupId>org.ton.ton4j</groupId>
   <artifactId>smartcontract</artifactId>
-  <version>2.1.1</version>
+  <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>adnl</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>utils</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -2243,7 +2243,7 @@ InternalMessageInfo loadedInternalMessageInfo = InternalMessageInfo.deserialize(
 <dependency>
   <groupId>org.ton.ton4j</groupId>
   <artifactId>emulator</artifactId>
-  <version>2.1.1</version>
+  <version>2.2.0</version>
 </dependency>
 ```
 
@@ -2424,7 +2424,7 @@ log.info("new actions {}", result.getActions());
 <dependency>
   <groupId>org.ton.ton4j</groupId>
   <artifactId>tonconnect</artifactId>
-  <version>2.1.1</version>
+  <version>2.2.0</version>
 </dependency>
 ```
 

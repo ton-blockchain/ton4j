@@ -11,7 +11,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>disassembler</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 

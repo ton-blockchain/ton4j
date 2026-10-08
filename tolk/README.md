@@ -9,7 +9,7 @@ Java wrapper for compiling Tolk smart contracts with the external tolk executabl
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tolk</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ Java wrapper for compiling Tolk smart contracts with the external tolk executabl
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tolk</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 

@@ -6,7 +6,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>address</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -17,7 +17,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>address</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 

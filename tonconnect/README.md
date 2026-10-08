@@ -7,7 +7,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonconnect</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -18,13 +18,15 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonconnect</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
 ## Description
 
-Please follow the [official TonConnect proof specification](https://github.com/ton-blockchain/ton-connect/blob/main/spec/connect.md#address-proof-signature-ton_proof) for
+Please follow
+the [official TonConnect proof specification](https://github.com/ton-blockchain/ton-connect/blob/main/spec/connect.md#address-proof-signature-ton_proof)
+for
 more details.
 
 ## Usage
