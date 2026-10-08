@@ -22,6 +22,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
+import org.ton.ton4j.cell.Cell;
+import org.ton.ton4j.cell.CellBuilder;
+import org.ton.ton4j.smartcontract.types.WalletCodes;
+import org.ton.ton4j.tlb.StateInit;
 import org.ton.ton4j.utils.Utils;
 
 public class TestTonProofVerification {
@@ -105,7 +109,7 @@ public class TestTonProofVerification {
   @Test
   public void consumesUsingCanonicalRawAddress() throws Exception {
     Fixture fixture = new Fixture();
-    fixture.account.setAddress(ADDRESS.toUpperCase(Locale.ROOT));
+    fixture.account.setAddress(fixture.address.toUpperCase(Locale.ROOT));
     fixture.sign();
 
     assertThat(fixture.verify()).isTrue();
@@ -190,7 +194,7 @@ public class TestTonProofVerification {
     assertThat(unknown.verify()).isFalse();
 
     Fixture expired = new Fixture();
-    expired.store.issue(expired.challenge, ADDRESS, DOMAIN, CHAIN, NOW);
+    expired.store.issue(expired.challenge, expired.address, DOMAIN, CHAIN, NOW);
     assertThat(expired.verify()).isFalse();
   }
 
@@ -198,15 +202,15 @@ public class TestTonProofVerification {
   public void storeEnforcesAccountDomainAndChainBinding() throws Exception {
     Fixture wrongAccount = new Fixture();
     wrongAccount.store.issue(
-        wrongAccount.challenge, "-1:" + ADDRESS.substring(2), DOMAIN, CHAIN, NOW + 60);
+        wrongAccount.challenge, "-1:" + wrongAccount.address.substring(2), DOMAIN, CHAIN, NOW + 60);
     assertThat(wrongAccount.verify()).isFalse();
 
     Fixture wrongDomain = new Fixture();
-    wrongDomain.store.issue(wrongDomain.challenge, ADDRESS, "other.example", CHAIN, NOW + 60);
+    wrongDomain.store.issue(wrongDomain.challenge, wrongDomain.address, "other.example", CHAIN, NOW + 60);
     assertThat(wrongDomain.verify()).isFalse();
 
     Fixture wrongChain = new Fixture();
-    wrongChain.store.issue(wrongChain.challenge, ADDRESS, DOMAIN, -3, NOW + 60);
+    wrongChain.store.issue(wrongChain.challenge, wrongChain.address, DOMAIN, -3, NOW + 60);
     assertThat(wrongChain.verify()).isFalse();
   }
 
@@ -286,7 +290,7 @@ public class TestTonProofVerification {
     assertThat(fixture.verify()).isFalse();
     fixture.account.setAddress(null);
     assertThat(fixture.verify()).isFalse();
-    fixture.account.setAddress(ADDRESS);
+    fixture.account.setAddress(fixture.address);
     assertThat(fixture.store.calls).hasValue(0);
     assertThat(fixture.verify()).isTrue();
   }
@@ -417,30 +421,48 @@ public class TestTonProofVerification {
     }
   }
 
-  private static class Fixture {
+  static class Fixture {
     final TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair();
     final String challenge = UUID.randomUUID().toString();
     final MemoryChallengeStore store = new MemoryChallengeStore();
-    final WalletAccount account =
-        WalletAccount.builder()
-            .address(ADDRESS)
-            .chain(CHAIN)
-            .publicKey(Utils.bytesToHex(keyPair.getPublicKey()))
-            .build();
+    final StateInit stateInit;
+    final String address;
+    final WalletAccount account;
     final TonProof proof =
         TonProof.builder().timestamp(NOW).domain(domain(DOMAIN)).payload(challenge).build();
 
     Fixture() throws Exception {
-      store.issue(challenge, ADDRESS, DOMAIN, CHAIN, NOW + 60);
+      this(WalletCodes.V4R2, 0);
+    }
+
+    Fixture(WalletCodes version, int workchain) throws Exception {
+      stateInit =
+          StateInit.builder()
+              .code(Cell.fromBoc(version.getValue()))
+              .data(walletData(version, keyPair.getPublicKey()))
+              .build();
+      address = stateInit.getAddress(workchain).toRaw();
+      account =
+          WalletAccount.builder()
+              .address(address)
+              .chain(CHAIN)
+              .publicKey(Utils.bytesToHex(keyPair.getPublicKey()))
+              .walletStateInit(stateInit.toCell().toBase64())
+              .build();
+      store.issue(challenge, address, DOMAIN, CHAIN, NOW + 60);
       sign();
     }
 
     void sign() throws Exception {
+      sign(keyPair);
+    }
+
+    void sign(TweetNaclFast.Signature.KeyPair signingKey) throws Exception {
       proof.setSignature(
           Utils.bytesToBase64SafeUrl(
               Utils.signData(
-                  keyPair.getPublicKey(),
-                  keyPair.getSecretKey(),
+                  signingKey.getPublicKey(),
+                  signingKey.getSecretKey(),
                   referenceMessage(proof, account.getAddress()))));
     }
 
@@ -453,7 +475,23 @@ public class TestTonProofVerification {
     }
   }
 
-  private static class MemoryChallengeStore implements ProofChallengeStore {
+  static Cell walletData(WalletCodes version, byte[] publicKey) {
+    CellBuilder data = CellBuilder.beginCell();
+    if (version == WalletCodes.V5R1) {
+      data.storeBit(true);
+    }
+    data.storeUint(0, 32);
+    if (!version.name().startsWith("V1") && !version.name().startsWith("V2")) {
+      data.storeUint(698983191, 32);
+    }
+    data.storeBytes(publicKey);
+    if (version == WalletCodes.V4R2 || version == WalletCodes.V5R1) {
+      data.storeBit(false);
+    }
+    return data.endCell();
+  }
+
+  static class MemoryChallengeStore implements ProofChallengeStore {
     final Map<String, IssuedChallenge> challenges = new ConcurrentHashMap<>();
     final AtomicInteger calls = new AtomicInteger();
 

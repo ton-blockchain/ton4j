@@ -22,7 +22,8 @@ public class TonConnect {
   public static final String TON_CONNECT = "ton-connect";
 
   /**
-   * Checks the signature only. This does not authenticate a login or prevent replay.
+   * Checks the signature only. This does not bind the key to the wallet address, authenticate a
+   * login or prevent replay.
    *
    * @deprecated Use {@link #verifyProof(TonProof, WalletAccount, ProofVerificationContext,
    *     ProofChallengeStore)} for backend proof verification.
@@ -33,12 +34,18 @@ public class TonConnect {
   }
 
   /**
-   * Verify backend-owned context and the signature, then atomically consume the login challenge.
+   * Verify wallet ownership, backend-owned context and the signature, then atomically consume the
+   * login challenge.
    *
-   * <p>The backend must resolve and validate the account's public key against the address on the
-   * expected chain before calling this method. A wallet-supplied public key alone is not trusted.
-   * Context and challenge storage must come from the backend, not the submitted proof. A true result
-   * is returned only after successful challenge consumption; issue a login session only then.
+   * <p>The wallet must supply a supported, ordinary StateInit whose hash matches the claimed account
+   * address. Its code and complete data layout are validated before extracting the public key. Any
+   * submitted public key must match the extracted key. V1-V5 standard wallet initial states are
+   * supported; V4/V5 initial plugin/extension dictionaries must be empty. Unsupported or custom
+   * wallets require {@link #verifyProofWithTrustedKey(TonProof, WalletAccount,
+   * ProofVerificationContext, ProofChallengeStore, TrustedWalletKeyResolver)}.
+   *
+   * <p>Context and challenge storage must come from the backend, not the submitted proof. A true
+   * result is returned only after successful challenge consumption; issue a login session only then.
    *
    * @return false for invalid proofs or rejected challenges
    * @throws Exception if signature verification or challenge storage cannot be completed
@@ -48,6 +55,37 @@ public class TonConnect {
       WalletAccount account,
       ProofVerificationContext context,
       ProofChallengeStore challengeStore)
+      throws Exception {
+    return verifyProofInternal(tonProof, account, context, challengeStore, null);
+  }
+
+  /**
+   * Verify a proof using an address-bound key obtained by an explicit, backend-owned chain lookup.
+   *
+   * <p>This path supports wallets whose initial state cannot be validated locally. The resolver must
+   * authenticate the public key for the exact address and expected chain using trusted chain state;
+   * client-provided keys and state are not authoritative. A submitted public key, if present, must
+   * match the resolved key. All domain, freshness, chain and one-time challenge checks still apply.
+   *
+   * @throws Exception if the trusted lookup or challenge storage fails
+   */
+  public static boolean verifyProofWithTrustedKey(
+      TonProof tonProof,
+      WalletAccount account,
+      ProofVerificationContext context,
+      ProofChallengeStore challengeStore,
+      TrustedWalletKeyResolver keyResolver)
+      throws Exception {
+    Objects.requireNonNull(keyResolver, "Trusted wallet key resolver is required");
+    return verifyProofInternal(tonProof, account, context, challengeStore, keyResolver);
+  }
+
+  private static boolean verifyProofInternal(
+      TonProof tonProof,
+      WalletAccount account,
+      ProofVerificationContext context,
+      ProofChallengeStore challengeStore,
+      TrustedWalletKeyResolver keyResolver)
       throws Exception {
     Objects.requireNonNull(context, "Verification context is required");
     Objects.requireNonNull(challengeStore, "Challenge store is required");
@@ -96,7 +134,20 @@ public class TonConnect {
           || (timestamp > now && timestamp - now > context.getAllowedFutureSkewSeconds())) {
         return false;
       }
-      if (!verifyProofSignature(proof, wallet)) {
+      byte[] publicKey =
+          keyResolver == null
+              ? SupportedWalletStateInit.resolvePublicKey(
+                  wallet.getAddress(), wallet.getWalletStateInit())
+              : keyResolver.resolvePublicKey(wallet.getAddress(), context.getExpectedChain());
+      if (publicKey == null || publicKey.length != 32) {
+        return false;
+      }
+      publicKey = publicKey.clone();
+      if (!StringUtils.isEmpty(wallet.getPublicKey())
+          && !MessageDigest.isEqual(publicKey, Hex.decodeHex(wallet.getPublicKey()))) {
+        return false;
+      }
+      if (!verifySignature(proof, wallet.getAddress(), publicKey)) {
         return false;
       }
     } catch (DecoderException | RuntimeException invalidProof) {
@@ -112,8 +163,9 @@ public class TonConnect {
   }
 
   /**
-   * Verify cryptographic signature validity only. No audience, chain, time or challenge checks are
-   * performed, so this method alone must not be used to authenticate a login.
+   * Verify cryptographic signature validity only. The supplied key/state is not bound to the claimed
+   * address, and no audience, chain, time or challenge checks are performed. This method alone must
+   * not be used to authenticate a login; use {@link #verifyProof} or {@link #verifyProofWithTrustedKey}.
    */
   public static boolean verifyProofSignature(TonProof tonProof, WalletAccount account) throws Exception {
     byte[] publicKeyBytes;
@@ -127,11 +179,16 @@ public class TonConnect {
     } else {
       publicKeyBytes = Hex.decodeHex(account.getPublicKey());
     }
+    return verifySignature(tonProof, account.getAddress(), publicKeyBytes);
+  }
+
+  private static boolean verifySignature(TonProof tonProof, String address, byte[] publicKeyBytes)
+      throws NoSuchAlgorithmException, DecoderException {
     byte[] signature = Utils.base64SafeUrlToBytes(tonProof.getSignature());
     if (publicKeyBytes.length != 32 || signature.length != 64) {
       return false;
     }
-    byte[] messageForSigning = createMessageForSigning(tonProof, account.getAddress());
+    byte[] messageForSigning = createMessageForSigning(tonProof, address);
 
     return Ed25519.verify(publicKeyBytes, messageForSigning, signature);
   }

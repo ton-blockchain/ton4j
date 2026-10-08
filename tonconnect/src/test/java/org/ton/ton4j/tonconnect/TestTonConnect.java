@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.ton.ton4j.address.Address;
 import org.ton.ton4j.adnl.AdnlLiteClient;
+import org.ton.ton4j.cell.Cell;
 import org.ton.ton4j.smartcontract.types.WalletCodes;
 import org.ton.ton4j.tlb.Account;
 import org.ton.ton4j.tlb.StateInit;
@@ -128,7 +129,13 @@ public class TestTonConnect {
 
   @Test
   public void testTonConnectExample() throws Exception {
-    String addressStr = "0:2d29bfa071c8c62fa3398b661a842e60f04cb8a915fb3e749ef7c6c41343e16c";
+    TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair();
+    StateInit stateInit =
+        StateInit.builder()
+            .code(Cell.fromBoc(WalletCodes.V4R2.getValue()))
+            .data(TestTonProofVerification.walletData(WalletCodes.V4R2, keyPair.getPublicKey()))
+            .build();
+    String addressStr = stateInit.getAddress().toRaw();
     String domain = "login.example";
     String challenge = UUID.randomUUID().toString();
     long now = 1_800_000_000L;
@@ -147,7 +154,6 @@ public class TestTonConnect {
             .build();
 
     // wallet signs
-    TweetNaclFast.Signature.KeyPair keyPair = TweetNaclFast.Signature.keyPair();
     byte[] message = TonConnect.createMessageForSigning(tonProof, addressStr);
     byte[] signature = Utils.signData(keyPair.getPublicKey(), keyPair.getSecretKey(), message);
 
@@ -160,6 +166,7 @@ public class TestTonConnect {
             .chain(chain)
             .address(addressStr)
             .publicKey(Utils.bytesToHex(keyPair.getPublicKey()))
+            .walletStateInit(stateInit.toCell().toBase64())
             .build();
     ProofVerificationContext context =
         new ProofVerificationContext(domain, chain, challenge, now, 300, 30);

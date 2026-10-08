@@ -24,14 +24,25 @@
 
 ## Description
 
-Please follow the [official documentation](https://docs.ton.org/develop/dapps/ton-connect/sign#how-does-it-work) for
+Please follow the [official TonConnect proof specification](https://github.com/ton-blockchain/ton-connect/blob/main/spec/connect.md#address-proof-signature-ton_proof) for
 more details.
 
 ## Usage
 
 Use `TonConnect.verifyProof` for authentication. It checks the expected domain, chain,
-challenge and timestamp window, verifies the signature, then calls your challenge store
-to consume the challenge atomically. A successful proof can authenticate only once.
+challenge and timestamp window, binds the wallet key to the claimed address using
+`walletStateInit`, verifies the signature, then calls your challenge store to consume
+the challenge atomically. A successful proof can authenticate only once.
+
+Pass the wallet's untrusted `WalletAccount` response, including its base64 BoC
+`walletStateInit`. The verifier requires a recognized wallet code and valid data layout,
+derives the raw address from the StateInit hash and claimed workchain, and uses the
+extracted public key only after the derived address matches `account.address`. An optional
+`account.publicKey` must match the extracted key; it never chooses the verification key.
+The local path supports V1R1–V1R3, V2R1–V2R2, V3R1–V3R2, V4R1–V4R2 and V5R1.
+It accepts ordinary initial StateInit cells without split depth, tick-tock or libraries;
+V4 plugins and V5 extensions must have empty initial dictionaries. Missing, malformed,
+unsupported or mismatched StateInit data is rejected.
 
 Generate an unpredictable challenge on the backend and retain it in the user's login
 session. Send its value as the TonConnect `ton_proof` payload; the wallet supplies the
@@ -40,9 +51,9 @@ not from the submitted proof. Domains are case-insensitive ASCII DNS names, incl
 punycode; URLs, paths, ports, whitespace, Unicode names and trailing dots are rejected.
 
 The example below binds each challenge to an expected wallet address, domain, chain and
-expiry. `trustedAccount` must contain a public key the backend has verified belongs to
-that address on the expected chain (for example, by querying its wallet contract).
-A public key supplied by the client alone is insufficient to establish this binding.
+expiry when it is issued. Keep those original bindings in backend storage; do not create
+or replace challenge entries from the submitted proof or account. `account` contains
+the untrusted wallet response; `verifyProof` validates its key and address binding.
 
 ```java
 import java.security.SecureRandom;
@@ -75,7 +86,7 @@ final class TonProofAuthentication {
         return challenge; // Save in the backend login session and send as ton_proof payload.
     }
 
-    boolean authenticate(TonProof proof, WalletAccount trustedAccount, String sessionChallenge)
+    boolean authenticate(TonProof proof, WalletAccount account, String sessionChallenge)
             throws Exception {
         ProofVerificationContext context = new ProofVerificationContext(
                 DOMAIN, CHAIN, sessionChallenge, clock.instant().getEpochSecond(),
@@ -90,7 +101,7 @@ final class TonProofAuthentication {
                     && entry.expiresAt > now
                     && pending.remove(challenge, entry);
         };
-        return TonConnect.verifyProof(proof, trustedAccount, context, store);
+        return TonConnect.verifyProof(proof, account, context, store);
     }
 
     private static final class PendingChallenge {
@@ -113,14 +124,42 @@ Create the application session only when `authenticate` returns `true`, then cle
 login session's challenge. Fail closed if verification or challenge storage throws.
 The store receives a canonical raw address and a normalized lower-case domain. It must
 reject unknown, expired or mismatched entries and atomically remove the challenge once
-across all login sessions. Signature and context failures do not consume a challenge.
+across all login sessions. StateInit, key, signature and context failures do not consume
+a challenge.
 
 The map is a single-process example. For multiple backend instances, use shared storage
 with the same atomic check-and-delete behavior, and remove expired entries periodically.
 
-`verifyProofSignature` checks only the cryptographic signature. The deprecated
-`checkProof(proof, account)` remains a compatible alias for that method; neither method
-alone authenticates a user or prevents replay.
+For other wallet code or StateInit layouts, use `verifyProofWithTrustedKey` with a
+backend-owned resolver. It must obtain the 32-byte key from trusted, proof-verified
+chain state for the exact canonical raw address and expected chain supplied to it.
+An unauthenticated RPC response or the client's `publicKey` or `walletStateInit` is
+insufficient. The same context and atomic challenge store are required; an optional
+client public key must match the resolved key.
+
+```java
+import org.ton.ton4j.tonconnect.*;
+
+final class TrustedTonProofAuthentication {
+    interface VerifiedChainReader {
+        // Read the key from authenticated contract state on this chain at this address.
+        byte[] walletPublicKey(String canonicalRawAddress, int expectedChain) throws Exception;
+    }
+
+    static boolean authenticate(
+            TonProof proof, WalletAccount account, ProofVerificationContext context,
+            ProofChallengeStore store, VerifiedChainReader verifiedChain) throws Exception {
+        TrustedWalletKeyResolver resolver =
+                (address, chain) -> verifiedChain.walletPublicKey(address, chain);
+        return TonConnect.verifyProofWithTrustedKey(proof, account, context, store, resolver);
+    }
+}
+```
+
+`verifyProofSignature` checks only the cryptographic signature.
+`checkProof(proof, account)` remains its deprecated compatible alias. These helpers
+trust client key material, do not bind the key to the wallet address, and do not
+authenticate a user or prevent replay.
 
 ## Tests
 
