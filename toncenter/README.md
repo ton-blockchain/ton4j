@@ -13,7 +13,7 @@ blockchain data and functionality.
 - ✅ **Network Support**: Both Mainnet and Testnet support
 - ✅ **HTTP Client**: Built on OkHttp for reliable HTTP communication
 - ✅ **Logging**: Built-in request/response logging using SLF4J
-- ✅ **Resource Management**: Proper cleanup with close() method
+- ✅ **Resource Management**: Proper cleanup with close () method
 
 ## Installation
 
@@ -25,7 +25,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>toncenter</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 

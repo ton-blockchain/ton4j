@@ -7,7 +7,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>bitstring</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
@@ -17,7 +17,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>bitstring</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 

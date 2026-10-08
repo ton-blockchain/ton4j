@@ -14,7 +14,7 @@ You can get the latest tonlib library by:
 
 * downloading it from the official TON Github release page [here](https://github.com/ton-blockchain/ton/releases).
 * by installing precompiled binaries, see instructions [here](https://github.com/ton-blockchain/packages).
-* by specifying URL (Utils.getTonlibGithubUrl()) in Tonlib builder.
+* by specifying URL (Utils.getTonlibGithubUrl ()) in Tonlib builder.
 
 ## Maven [![Maven Central][maven-central-svg]][maven-central]
 
@@ -23,7 +23,7 @@ You can get the latest tonlib library by:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
@@ -34,7 +34,7 @@ You can get the latest tonlib library by:
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>tonlib</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 

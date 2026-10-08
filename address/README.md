@@ -6,7 +6,7 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>address</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
@@ -17,13 +17,13 @@
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>address</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
 ## Formatting
 
-Just like in TonWeb toString() method has some arguments that help to format final address:
+Just like in TonWeb toString () method has some arguments that help to format final address:
 
 ```java
 public class Address {

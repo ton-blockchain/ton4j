@@ -10,7 +10,7 @@ on your host.
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>exporter</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
@@ -21,7 +21,7 @@ on your host.
 <dependency>
     <groupId>org.ton.ton4j</groupId>
     <artifactId>exporter</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
@@ -140,8 +140,8 @@ TON **Files** database uses:
 
 ### ArchiveIndexReader
 
-[Reader](org/ton/ton4j/exporter/reader/ArchiveIndexReader.java) for individual archive index databases (
-archive.XXXXX.index).
+[Reader](org/ton/ton4j/exporter/reader/ArchiveIndexReader.java) for individual archive index databases
+(archive.XXXXX.index).
 Each archive package has a corresponding RocksDB index that contains hash-&gt;offset mappings for files within that
 package.
 
@@ -166,7 +166,7 @@ cells in a RocksDB database with a linked-list structure for metadata entries.
 Based on the original TON C++ implementation in celldb.cpp, the CellDB uses:
 
 1. Metadata entries:
-    * key = "desc" + SHA256(TL-serialized block_id)
+    * key = "desc" + SHA256 (TL-serialized block_id)
     * value = TL-serialized db.celldb.value
       2.Special empty entry:
     * key = "desczero",
