@@ -952,6 +952,25 @@ public class AdnlLiteClient implements TonProvider {
     }
   }
 
+  /**
+   * Returns the account balance in nanoton at the specified block.
+   *
+   * @param address Account address
+   * @param blockIdExt Block at which to query the account state
+   * @return Balance in nanoton, or zero if the account does not exist or the query fails
+   */
+  public BigInteger getBalance(Address address, BlockIdExt blockIdExt) {
+    try {
+      return getAccountState(blockIdExt, address)
+          .getAccount()
+          .getAccountStorage()
+          .getBalance()
+          .getCoins();
+    } catch (Throwable e) {
+      return BigInteger.ZERO;
+    }
+  }
+
   public Account getAccount(Address address) throws Exception {
     return getAccountState(getMasterchainInfo().getLast(), address).getAccount();
   }

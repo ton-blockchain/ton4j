@@ -34,6 +34,16 @@ log.info("init.wc: {}", info.getInit().getWorkchain());
 
 There are lots of examples on how to work with [AdnlLiteClient](src/test/java/org/ton/ton4j/adnl/AdnlLiteClientTest.java).
 
+To query an account's balance at a specific block, use the `BlockIdExt` returned by
+`client.lookupBlock(...).getId()`:
+
+```java
+BigInteger balanceInNanoton = client.getBalance(address, blockHeader.getId());
+```
+
+The lite-server must have the requested account state available. As with `getBalance(address)`,
+this overload returns zero when the account does not exist or the query fails.
+
 [maven-central-svg]: https://img.shields.io/maven-central/v/org.ton.ton4j/adnl
 
 [maven-central]: https://mvnrepository.com/artifact/org.ton.ton4j/adnl
